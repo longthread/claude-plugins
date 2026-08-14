@@ -1,0 +1,9 @@
+{
+  "name": "programme",
+  "description": "Carry a multi-session programme across session boundaries: a durable ledger, an interviewed handoff, and a guard that fires when a session changes code without moving the record.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Srinath Janakiraman"
+  },
+  "keywords": ["handoff", "continuity", "ledger", "multi-session", "programme", "resume"]
+}
