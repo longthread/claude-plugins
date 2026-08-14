@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "session-continuity",
+  "description": "Single-plugin marketplace for session-continuity.",
+  "owner": {
+    "name": "Srinath Janakiraman"
+  },
+  "plugins": [
+    {
+      "name": "programme",
+      "description": "Durable ledger, interviewed handoff, and a stale-ledger guard for multi-session programme work.",
+      "category": "productivity",
+      "source": "./"
+    }
+  ]
+}
