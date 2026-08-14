@@ -11,7 +11,7 @@ import { marked } from "marked";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "docs");
-const DOMAIN = "longthread.dev";
+const DOMAIN = "plugins.longthread.dev";
 
 const read = (...p) => readFileSync(join(ROOT, ...p), "utf8");
 const json = (...p) => JSON.parse(read(...p));

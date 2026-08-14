@@ -35,7 +35,7 @@ inside a repo whose branch you switch.
 
 ## The site
 
-[longthread.dev](https://longthread.dev) is generated from this repo — the plugin list comes from
+[plugins.longthread.dev](https://plugins.longthread.dev) is generated from this repo — the plugin list comes from
 `.claude-plugin/marketplace.json` and each detail page is that plugin's own `README.md`, so the site
 cannot drift from the manifest.
 
