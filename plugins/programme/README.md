@@ -38,22 +38,33 @@ was two pieces of prose that were always loaded: the ledger header, which states
 own maintenance rule and is re-read every time the file is opened, and a `CLAUDE.md` pointer with a
 precedence rule. This plugin's first job is to install those two things — a ledger that teaches its
 own upkeep, and the pointer that carries the cadence — giving a new repo in minutes what took the
-source repo several sessions to grow on its own. The three commands are conveniences layered on top
-of that artifact, not the mechanism itself.
+source repo several sessions to grow on its own. The commands are conveniences layered on top of
+that artifact, not the mechanism itself.
 
 ## Install
 
 ```
-/plugin marketplace add /abs/path/to/programme
-/plugin install programme
+/plugin marketplace add longthread/claude-plugins
+/plugin install programme@longthread
 ```
 
-`marketplace add` takes the path to this directory (the one containing `.claude-plugin/`), not its
-parent. After install, `/programme:init`, `/programme:resume`, and `/programme:handoff` should be
-available as slash commands. **This install path has not itself been executed** — it requires an
-interactive session and remains open on this repo's live-run checklist (`task-9-report.md`).
+Verified 2026-08-14: installs, enables, and the hooks resolve a real programme. `/programme:init`
+was run against a 2710-line ledger, and the `Stop` guard was confirmed to fire when code moves and
+the ledger does not, then latch silent.
 
-## The three commands
+To install from a local clone instead — edits go live on the next session start, which is what you
+want while developing — give `marketplace add` the path to the **marketplace** root (the one holding
+`.claude-plugin/marketplace.json`), not this plugin's directory:
+
+```
+/plugin marketplace add /abs/path/to/claude-plugins
+```
+
+**A local marketplace is read in place, never copied.** The recorded `installLocation` is the path
+you gave. Point it at a clone that stays put — never at a directory inside a repo whose branch you
+switch, or the plugin vanishes globally on the first checkout that predates it.
+
+## The four commands
 
 - **`/programme:init <name>`** — bootstraps a programme: copies the templates into
   `docs/programmes/<slug>/`, adds a row to `docs/programmes/INDEX.md`, installs the `CLAUDE.md`
@@ -68,6 +79,11 @@ interactive session and remains open on this repo's live-run checklist (`task-9-
   (`git fetch`, ahead-of-compare count, every declared gate), asks the four interview questions,
   corrects the ledger in place, archives a closed phase, and rewrites `NEXT-SESSION.md` wholesale.
   On a closing handoff, refuses to mark the programme closed while `deferred.md` still has open rows.
+- **`/programme:status [name] [--gates]`** — where the programme is, then whether its record is
+  still true: runs every `verify with` command in the State table and reports what has drifted, lists
+  what is owed, and stops. **It writes nothing, deliberately** — a status that quietly corrects the
+  record cannot tell you whether the record is honest, because running it makes the answer yes. Slow
+  gates are printed as recorded, with their `trust` and `last run`, and only run with `--gates`.
 
 ## The config file
 
@@ -130,12 +146,18 @@ post-compaction recovery.
 ## Where each rule lives — exactly one home
 
 Every rule below has exactly one home, in prose where the rule is about _when_ or _why_, and as a
-table schema where the rule can be a column instead. `programme/tests/test-templates.sh` reads the
-six markdown templates and asserts both that a rule appears in its home **and** that it does not
-appear in any other template — it does not reach the hooks. `session-start.sh` restates two of these rules
+table schema where the rule can be a column instead. `tests/test-templates.sh` reads the six
+markdown templates and `tests/test-commands.sh` reads the four commands; both assert that a rule
+appears in its home **and** that it does not appear anywhere else. Neither reaches the hooks.
+
+Both readers fold newlines to spaces before matching. Without that, a rule restated across a
+formatter's line wrap satisfies the negative assertion while the duplication is right there —
+the guard passes precisely when it should fire. That hole was live until 2026-08-14.
+
+`session-start.sh` restates two of these rules
 (the ledger-outranks-handoff precedence and "verify, don't trust") when it re-injects the ledger
 position after compaction; whether that is duplication or the only thing carrying those two rules
-across a compaction boundary is open (`task-9-report.md`'s Question 2).
+across a compaction boundary is open (the live-run checklist's Question 2, in the repo this was extracted from).
 
 | rule                               | home                    | form                                        |
 | ---------------------------------- | ----------------------- | ------------------------------------------- |
@@ -152,6 +174,8 @@ across a compaction boundary is open (`task-9-report.md`'s Question 2).
 | fix shape, not a title             | both deferred tables    | schema — `current behaviour` \| `fix shape` |
 | promotion before close             | `deferred.md` header    | prose — that file's lifecycle               |
 | verify against the tree            | `commands/resume.md`    | procedure                                   |
+| resolve which programme is active  | `commands/resume.md`    | procedure — the others defer to it          |
+| report without repairing           | `commands/status.md`    | procedure                                   |
 | the four interview questions       | `commands/handoff.md`   | procedure                                   |
 
 `fix shape` appears in two tables — `deferred.md` and `deferred-work.md` — because deferred work has

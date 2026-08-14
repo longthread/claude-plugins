@@ -5,11 +5,18 @@ set -euo pipefail
 echo "test-templates"
 T="$PLUGIN_ROOT/templates"
 
-# Squeeze runs of spaces on read. Markdown formatters pad table headers to the widest cell, so
-# `| claim | value | verify with |` becomes `| claim | value | verify with   |` the first time
-# prettier touches the file — every exact-string table assertion would break on formatting alone.
-# Measured: this is exactly what happened to NEXT-SESSION.md's State table.
-read_t() { tr -s ' ' <"$T/$1" 2>/dev/null || printf ''; }
+# Fold newlines to spaces, then squeeze runs of spaces. Two formatter behaviours make this
+# necessary, and the second is the dangerous one:
+#
+#   padding — table headers are padded to the widest cell, so `| claim | value |` becomes
+#   `| claim | value   |`. Measured: this happened to NEXT-SESSION.md's State table.
+#
+#   rewrapping — prose is rewrapped at the column limit, so an asserted phrase can acquire a newline
+#   mid-sentence. That breaks assert_contains visibly, but breaks assert_not_contains SILENTLY: a
+#   rule restated across a wrap reads as correctly single-homed. The negative assertions below are
+#   the entire enforcement of single-homing, so without this fold they can pass while proving
+#   nothing.
+read_t() { tr '\n' ' ' <"$T/$1" 2>/dev/null | tr -s ' ' || printf ''; }
 
 L=$(read_t ledger.md)
 N=$(read_t NEXT-SESSION.md)
