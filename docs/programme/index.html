@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.18b371d3.css">
+<link rel="stylesheet" href="/style.e7bccae8.css">
 </head>
 <body>
 <div class="wrap">
@@ -33,7 +33,98 @@
       <code class="cmd">plugin install programme@longthread</code>
     </div>
   </header>
-  <article class="prose">
+
+  <div class="brk" aria-hidden="true"></div>
+
+  <section class="band">
+    <p class="eyebrow">How it works</p>
+    <h2>One file crosses the boundary the context can't</h2>
+    <p><code>/programme:handoff</code> interviews you and writes the ledger at the end of a thread.
+      <code>/programme:resume</code> reads it at the start of the next one. Neither depends on
+      anything surviving in the window.</p>
+    <div class="fig" role="img" aria-label="Across three sessions: /programme:init runs once at the start, /programme:handoff at the end of each session, /programme:resume at the start of the next. The upper context line breaks between sessions; the ledger.md line beneath it runs unbroken, and every command attaches to it.">
+<svg viewBox="0 0 900 186" preserveAspectRatio="xMidYMid meet">
+  <text class="tick" x="235" y="32" text-anchor="middle">session 1</text><text class="tick" x="501" y="32" text-anchor="middle">session 2</text><text class="tick" x="767" y="32" text-anchor="middle">session 3</text>
+
+  <text class="key" x="118" y="66" text-anchor="end">context</text>
+  <line class="run" x1="130" y1="62" x2="340" y2="62"/><line class="gap" x1="340" y1="62" x2="396" y2="62"/><line class="run" x1="396" y1="62" x2="606" y2="62"/><line class="gap" x1="606" y1="62" x2="662" y2="62"/><line class="run" x1="662" y1="62" x2="872" y2="62"/>
+  <circle class="node" cx="130" cy="62" r="3.5"/><circle class="node" cx="396" cy="62" r="3.5"/><circle class="node" cx="662" cy="62" r="3.5"/>
+
+  <line class="stem" x1="130" y1="112" x2="130" y2="146"/>
+  <circle class="mark" cx="130" cy="152" r="3"/>
+  <text class="op" x="130" y="104" text-anchor="middle">/programme:init</text>
+  <line class="stem" x1="340" y1="112" x2="340" y2="146"/>
+  <circle class="mark" cx="340" cy="152" r="3"/>
+  <text class="op" x="332" y="104" text-anchor="end">/programme:handoff</text>
+  <line class="stem" x1="606" y1="112" x2="606" y2="146"/>
+  <circle class="mark" cx="606" cy="152" r="3"/>
+  <text class="op" x="598" y="104" text-anchor="end">/programme:handoff</text>
+  <line class="stem" x1="396" y1="138" x2="396" y2="146"/>
+  <circle class="mark" cx="396" cy="152" r="3"/>
+  <text class="op" x="404" y="130" text-anchor="start">/programme:resume</text>
+  <line class="stem" x1="662" y1="138" x2="662" y2="146"/>
+  <circle class="mark" cx="662" cy="152" r="3"/>
+  <text class="op" x="670" y="130" text-anchor="start">/programme:resume</text>
+
+  <text class="key" x="118" y="156" text-anchor="end">ledger.md</text>
+  <line class="ledger" x1="130" y1="152" x2="872" y2="152"/>
+</svg>
+</div>
+    <p class="cap"><code>/programme:status</code> reads the same files any time and writes nothing —
+      a status that quietly repairs the record can't tell you whether the record is honest.</p>
+  </section>
+
+  <div class="brk" aria-hidden="true"></div>
+
+  <section class="band">
+    <p class="eyebrow">What it creates</p>
+    <h2>Six markdown files and one pointer</h2>
+    <p>No database, no service, nothing to run. Plain files in your repo, reviewed in pull requests
+      and read by anyone — the model included.</p>
+    <div class="fig tree">
+    <span class="p"><i></i>your-repo/</span><span class="n"></span>
+    <span class="p"><i>├── </i>CLAUDE.md</span><span class="n">the pointer — when to write, and what outranks what</span>
+    <span class="p"><i>├── </i>.claude/session-continuity.json</span><span class="n">docsRoot · compareBranch</span>
+    <span class="p"><i>└── </i>docs/</span><span class="n"></span>
+    <span class="p"><i>    ├── </i>deferred-work.md</span><span class="n">repo-wide — outlives any one programme</span>
+    <span class="p"><i>    └── </i>programmes/</span><span class="n"></span>
+    <span class="p"><i>        ├── </i>INDEX.md</span><span class="n">which programme is active, and on which branch</span>
+    <span class="p"><i>        └── </i>&lt;slug&gt;/</span><span class="n"></span>
+    <span class="p"><i>            ├── </i>ledger.md</span><span class="n">position · decisions · gates · open forks</span>
+    <span class="p"><i>            ├── </i>NEXT-SESSION.md</span><span class="n">the next terminal condition, replaced wholesale</span>
+    <span class="p"><i>            ├── </i>deferred.md</span><span class="n">blocks closure while any row is open</span>
+    <span class="p"><i>            └── </i>archive/</span><span class="n">closed phases, moved out when the ledger runs long</span>
+</div>
+  </section>
+
+  <div class="brk" aria-hidden="true"></div>
+
+  <section class="band">
+    <p class="eyebrow">Why it doesn't just go stale</p>
+    <h2>Every figure carries the command that re-derives it</h2>
+    <p>A number that was true when it was written is not evidence. So the record stores the check
+      beside the claim, and resuming <strong>runs</strong> it rather than believing it.</p>
+    <div class="fig verify">
+  <p class="file">NEXT-SESSION.md</p>
+  <div class="vtable">
+    <div class="vrow vhead"><span>claim</span><span>value</span><span>verify with</span></div>
+    <div class="vrow"><span>ahead of main</span><span class="val">0</span><code>git rev-list --count origin/main..main</code></div>
+    <div class="vrow"><span>tests</span><span class="val">412 passing</span><code>npm test</code></div>
+    <div class="vrow"><span>version</span><span class="val">1.4.0</span><code>jq -r .version package.json</code></div>
+  </div>
+  <p class="vflow"><span class="arm"></span>resume runs the third column, then compares<span class="arm"></span></p>
+  <p class="pills"><span class="ok">ok</span><span class="drift">DRIFTED</span></p>
+</div>
+    <p class="cap">In the repo this was extracted from, one commit is titled
+      <em>“correct the ahead-of-origin claim, which went stale as it was written.”</em> That figure
+      is now recorded as a range, because no document can state its own push state truthfully.</p>
+  </section>
+
+  <div class="brk" aria-hidden="true"></div>
+
+  <section class="band">
+    <p class="eyebrow">Reference</p>
+    <article class="prose">
 <h2>What it is</h2>
 <p>Long-running work spans many sessions. Each one ends with context exhausted and its findings in
 scrollback; the next re-derives position from the code, repeats settled decisions, and loses the
@@ -286,7 +377,8 @@ maintainer who opens only one of the two files can still find the door.</p>
 evidence: <code>docs/tooling/2026-08-12-session-continuity-plugin-design.md</code> in the repo this plugin was
 extracted from.</p>
 
-  </article>
+    </article>
+  </section>
 
   <footer class="foot">
     <span>plugins.longthread.dev</span>

@@ -428,36 +428,225 @@ button:focus-visible {
   transform: translateX(3px);
 }
 
-/* ── figures lifted from the record ───────────────────────────────────── */
+.plugins .cmds {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+.plugins .cmds em {
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: 0.75rem;
+  color: var(--muted);
+  background: var(--ink-sink);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 0.2rem 0.5rem;
+  white-space: nowrap;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.plugins li:hover .cmds em {
+  border-color: rgba(200, 150, 74, 0.35);
+}
 
-.figures {
-  list-style: none;
-  margin: 2rem 0 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  gap: 1.75rem 2rem;
-  max-width: 46rem;
+/* ── figures ──────────────────────────────────────────────────────────── */
+
+/* Diagrams scroll inside their own box rather than squashing: the lifecycle only reads as a
+   sequence above a certain width, and a squashed one reads as decoration. */
+.fig {
+  margin: 2.25rem 0 0;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
-.figures dt,
-.figures .n {
-  font-family: var(--serif);
-  font-size: clamp(2rem, 1.6rem + 1.6vw, 2.75rem);
-  line-height: 1;
-  color: var(--paper);
-  letter-spacing: -0.02em;
-}
-.figures .n span {
-  color: var(--thread);
-}
-.figures .k {
+.fig svg {
   display: block;
-  margin-top: 0.5rem;
+  min-width: 33rem;
+  width: 100%;
+  height: auto;
+}
+
+/* The two rows carry the argument by weight: context is drawn faint because it is the thing that
+   dies at every boundary, the ledger bright because it is the thing that doesn't. */
+.fig .run {
+  stroke: var(--thread);
+  stroke-width: 1.5;
+  fill: none;
+  stroke-linecap: round;
+  opacity: 0.55;
+}
+.fig .gap {
+  stroke: var(--thread);
+  stroke-width: 1.5;
+  stroke-dasharray: 1 6;
+  stroke-linecap: round;
+  fill: none;
+  opacity: 0.28;
+}
+.fig .node {
+  fill: var(--ink);
+  stroke: var(--thread);
+  stroke-width: 1.5;
+  opacity: 0.55;
+}
+.fig .ledger {
+  stroke: var(--thread-lit);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.fig .mark {
+  fill: var(--ink);
+  stroke: var(--thread-lit);
+  stroke-width: 2;
+}
+.fig .stem {
+  stroke: var(--thread);
+  stroke-width: 1;
+  opacity: 0.3;
+}
+.fig .op {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--paper);
+}
+.fig .key,
+.fig .tick {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  fill: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.cap {
+  font-size: 0.875rem;
+  color: var(--muted);
+  max-width: 42rem;
+  margin: 1.35rem 0 0;
+  text-wrap: pretty;
+}
+.cap em {
+  color: var(--paper);
+}
+
+/* ── the file tree ────────────────────────────────────────────────────── */
+
+.tree {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem 2.5rem;
+  align-items: baseline;
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  background: var(--ink-sink);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 1.4rem 1.6rem;
+}
+.tree .p {
+  white-space: pre;
+  color: var(--paper);
+}
+.tree .p i {
+  font-style: normal;
+  color: var(--rule);
+}
+.tree .n {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ── verify, don't trust ──────────────────────────────────────────────── */
+
+.verify {
+  background: var(--ink-sink);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 1.4rem 1.6rem 1.6rem;
+}
+.verify .file {
   font-family: var(--mono);
   font-size: 0.75rem;
   letter-spacing: 0.06em;
   color: var(--muted);
-  text-wrap: pretty;
+  margin: 0 0 1rem;
+}
+.vtable {
+  min-width: 30rem;
+}
+.vrow {
+  display: grid;
+  grid-template-columns: 10rem 6.5rem 1fr;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.8125rem;
+}
+.vrow:last-child {
+  border-bottom: 0;
+}
+.vhead {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.vrow span {
+  color: #cfcdc6;
+}
+.vrow .val {
+  font-family: var(--mono);
+  color: var(--paper);
+}
+.vrow code {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--thread-lit);
+  white-space: nowrap;
+}
+
+.vflow {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 1.2rem 0 1rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+.vflow .arm {
+  flex: 1;
+  height: 1px;
+  min-width: 1rem;
+  background: linear-gradient(90deg, transparent, var(--thread));
+  opacity: 0.45;
+}
+.vflow .arm:last-child {
+  background: linear-gradient(90deg, var(--thread), transparent);
+}
+
+.pills {
+  display: flex;
+  gap: 0.6rem;
+  margin: 0;
+}
+.pills span {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--rule);
+  color: var(--muted);
+}
+.pills .drift {
+  color: var(--thread-lit);
+  border-color: rgba(232, 185, 106, 0.45);
+  background: rgba(200, 150, 74, 0.08);
 }
 
 /* ── prose (rendered plugin READMEs) ──────────────────────────────────── */
@@ -635,10 +824,30 @@ button:focus-visible {
 }
 
 @media (max-width: 34rem) {
+  /* Name and version stay on one line; the arrow is decoration that reads as a stray glyph once
+     the row stacks. */
   .plugins a {
-    grid-template-columns: 1fr;
+    grid-template-columns: auto auto;
+    justify-content: start;
+  }
+  .plugins .go {
+    display: none;
   }
   .masthead nav {
     gap: 0.9rem;
+  }
+  /* Stack each annotation under its path rather than leaving it off-screen — on a phone the
+     annotations are the half that explains the tree. */
+  .tree {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .tree .n {
+    white-space: normal;
+    font-size: 0.75rem;
+    margin: 0.1rem 0 0.7rem 1.6rem;
+  }
+  .tree .n:empty {
+    display: none;
   }
 }
