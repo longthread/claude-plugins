@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "session-continuity",
-  "description": "Single-plugin marketplace for session-continuity.",
+  "name": "longthread",
+  "description": "Claude Code plugins for work that runs long — across many sessions, and past the end of any one context window.",
   "owner": {
     "name": "Srinath Janakiraman"
   },
@@ -10,7 +10,7 @@
       "name": "programme",
       "description": "Durable ledger, interviewed handoff, and a stale-ledger guard for multi-session programme work.",
       "category": "productivity",
-      "source": "./"
+      "source": "./plugins/programme"
     }
   ]
 }
