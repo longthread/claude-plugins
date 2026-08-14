@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.18b371d3.css">
+<link rel="stylesheet" href="/style.e7bccae8.css">
 </head>
 <body>
 <div class="wrap">
@@ -42,54 +42,17 @@
     </div>
   </section>
 
-  <div class="brk" aria-hidden="true"></div>
-
   <section class="band" id="plugins">
     <p class="eyebrow">Plugins</p>
-    <h2>What's here</h2>
     <ul class="plugins">
       <li><a href="/programme/">
         <span class="name">programme</span>
         <span class="ver">v0.1.0</span>
         <span class="go" aria-hidden="true">→</span>
         <span class="blurb">Durable ledger, interviewed handoff, and a stale-ledger guard for multi-session programme work.</span>
+        <span class="cmds"><em>/programme:init</em><em>/programme:resume</em><em>/programme:handoff</em><em>/programme:status</em></span>
       </a></li>
     </ul>
-  </section>
-
-  <div class="brk" aria-hidden="true"></div>
-
-  <section class="band">
-    <p class="eyebrow">Why a file, not a hook</p>
-    <h2>The record did the work before any of this existed</h2>
-    <p>These plugins were extracted from a project that had already solved session continuity by
-      hand, over about fifteen sessions. Before there was a plugin, its ledger was rewritten
-      <strong>58 times in seven days</strong> — with nothing automating it.</p>
-    <ul class="figures">
-      <li><div class="n">58<span></span></div><span class="k">ledger commits in 7 days</span></li>
-      <li><div class="n">~4<span></span></div><span class="k">writes per session, at phase boundaries</span></li>
-      <li><div class="n">0<span></span></div><span class="k">hooks, skills or commands that triggered one</span></li>
-    </ul>
-    <p style="margin-top:2rem">What drove those writes was two pieces of prose that were always
-      loaded: a ledger whose own header states how to maintain it, and a <code>CLAUDE.md</code>
-      pointer saying when to write and which document wins. <strong>So that is what these plugins
-      install first.</strong> The commands are conveniences on top — useful, but not the mechanism.</p>
-  </section>
-
-  <div class="brk" aria-hidden="true"></div>
-
-  <section class="band">
-    <p class="eyebrow">Getting started</p>
-    <h2>Two commands, then it's yours</h2>
-    <div class="install" style="margin-bottom:1.25rem">
-      <code class="cmd">plugin marketplace add longthread/claude-plugins</code>
-    </div>
-    <div class="install" style="margin-bottom:1.25rem">
-      <code class="cmd">plugin install programme@longthread</code>
-    </div>
-    <p>Then <code>/programme:init &lt;name&gt;</code> in the repo you want to track. It interviews you
-      for the starting position and refuses to bootstrap a repo that is really a series of unrelated
-      tickets — a ledger nobody needs goes stale, and a stale record is worse than none.</p>
   </section>
 
   <footer class="foot">
