@@ -32,3 +32,18 @@ cd plugins/programme && ./tests/run-all.sh
 copy. That is convenient while developing (edits are live on the next session start) but it means
 the path must not move or disappear. Point it at a clone that stays put, never at a directory
 inside a repo whose branch you switch.
+
+## The site
+
+[longthread.dev](https://longthread.dev) is generated from this repo — the plugin list comes from
+`.claude-plugin/marketplace.json` and each detail page is that plugin's own `README.md`, so the site
+cannot drift from the manifest.
+
+```bash
+bun install
+bun run build     # -> docs/, which GitHub Pages serves
+bun run serve     # build, then http://127.0.0.1:4321
+```
+
+`docs/` is committed so Pages needs no build step. Rebuild it in the same commit as any change to a
+plugin README or the manifest.

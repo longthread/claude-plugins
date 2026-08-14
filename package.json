@@ -1,0 +1,12 @@
+{
+  "name": "longthread-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun run site/build.mjs",
+    "serve": "bun run site/build.mjs && cd docs && python3 -m http.server 4321"
+  },
+  "devDependencies": {
+    "marked": "^15.0.0"
+  }
+}
