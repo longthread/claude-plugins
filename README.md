@@ -35,15 +35,28 @@ inside a repo whose branch you switch.
 
 ## The site
 
-[plugins.longthread.dev](https://plugins.longthread.dev) is generated from this repo — the plugin list comes from
-`.claude-plugin/marketplace.json` and each detail page is that plugin's own `README.md`, so the site
-cannot drift from the manifest.
+[plugins.longthread.dev](https://plugins.longthread.dev) is generated from this repo — the plugin
+list comes from `.claude-plugin/marketplace.json` and each detail page is that plugin's own
+`README.md`, so the site cannot drift from what is actually installable.
 
 ```bash
 bun install
-bun run build     # -> docs/, which GitHub Pages serves
+bun run build     # -> docs/
 bun run serve     # build, then http://127.0.0.1:4321
 ```
 
-`docs/` is committed so Pages needs no build step. Rebuild it in the same commit as any change to a
-plugin README or the manifest.
+**Hosted on Cloudflare Pages**, building from `main`:
+
+| setting          | value                       |
+| ---------------- | --------------------------- |
+| build command    | _(empty)_                   |
+| output directory | `docs`                      |
+| custom domain    | `plugins.longthread.dev`    |
+
+`docs/` is committed, so there is nothing for Cloudflare to build — it just serves the directory.
+**That means a change to a plugin README or to the manifest is not live until you re-run
+`bun run build` and commit the output in the same commit.** `docs/` is wiped and rewritten on every
+build, because the stylesheet is content-hashed and stale copies would otherwise accumulate.
+
+`docs/_headers` is read by Cloudflare at deploy time: it sets the cache policy for the hashed
+stylesheet and a content-security policy that forbids scripts outright, which this site has none of.

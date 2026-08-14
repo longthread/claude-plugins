@@ -2,9 +2,10 @@ import {
   readFileSync,
   writeFileSync,
   mkdirSync,
-  copyFileSync,
+  rmSync,
   existsSync,
 } from "node:fs";
+import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { marked } from "marked";
@@ -15,6 +16,12 @@ const DOMAIN = "plugins.longthread.dev";
 
 const read = (...p) => readFileSync(join(ROOT, ...p), "utf8");
 const json = (...p) => JSON.parse(read(...p));
+
+// The stylesheet carries a content hash so it can be cached for a year without a deploy serving
+// anyone a stale one. Without the hash the filename is stable, so a browser that cached it keeps
+// the old styles after a deploy — Cloudflare purges its own edge, not the visitor's disk.
+const css = read("site", "style.css");
+const cssName = `style.${createHash("sha256").update(css).digest("hex").slice(0, 8)}.css`;
 
 const market = json(".claude-plugin", "marketplace.json");
 
@@ -62,7 +69,7 @@ const shell = ({ title, desc, main, cls = "" }) => `<!doctype html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/${cssName}">
 </head>
 <body>
 <div class="wrap">
@@ -179,11 +186,27 @@ const index = shell({
 `,
 });
 
+// Rebuild from empty: a hashed stylesheet name means stale ones would otherwise pile up forever.
+rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 writeFileSync(join(OUT, "index.html"), index);
-writeFileSync(join(OUT, "CNAME"), DOMAIN + "\n");
-writeFileSync(join(OUT, ".nojekyll"), "");
-copyFileSync(join(ROOT, "site", "style.css"), join(OUT, "style.css"));
+writeFileSync(join(OUT, cssName), css);
+
+// Cloudflare Pages reads _headers at deploy time. No script runs on this site at all, so the
+// policy can forbid scripts outright; inline styles stay allowed because the hero thread carries
+// its animation delays as style attributes.
+writeFileSync(
+  join(OUT, "_headers"),
+  `/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+`,
+);
 
 for (const p of plugins) {
   const dir = join(OUT, p.slug);
@@ -214,5 +237,5 @@ console.log(`built ${OUT}`);
 console.log(
   `  index.html + ${plugins.length} plugin page(s): ${plugins.map((p) => p.slug).join(", ")}`,
 );
-if (!existsSync(join(OUT, "style.css")))
-  throw new Error("style.css missing from output");
+if (!existsSync(join(OUT, cssName)))
+  throw new Error(`${cssName} missing from output`);
