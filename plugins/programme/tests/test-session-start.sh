@@ -69,6 +69,18 @@ assert_empty "$(SC_SESSION_ID=s5 sc_state_get baseline)" "give-up path leaves no
 assert_contains "$ERR" "baseline" "give-up is reported on stderr"
 assert_contains "$OUT" "Current position" "give-up path still re-injects the position"
 
+# A sibling heading that merely STARTS WITH the target heading must not resume extraction. Before
+# the rule order was fixed, `index($0,h)==1` fired on such a heading, re-set `grab`, and ran to EOF,
+# silently swallowing the section that followed. No ledger heading is a prefix of another today;
+# this is the guard that keeps a future rename from making one.
+LP="$REPO/docs/programmes/headless/ledger.md"
+cp "$LP" "$LP.orig"
+sed -i 's|^## Settled decisions$|## Current position notes\n\nSHOULD NOT BE INJECTED.|' "$LP"
+run_hook session-start.sh "$(payload SessionStart s8 startup)" "$REPO"
+assert_not_contains "$OUT" "SHOULD NOT BE INJECTED" \
+  "a sibling heading prefixed by the target does not resume extraction"
+mv "$LP.orig" "$LP"
+
 # A ledger written before the arc existed must still inject its position, unchanged. Strip the arc
 # back off the fixture rather than building a second one — the two shapes then differ in exactly the
 # thing under test. The rewrite goes via a temp file that is moved away in the same command, so it
