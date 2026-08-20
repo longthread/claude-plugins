@@ -90,7 +90,7 @@
     <span class="p"><i>    └── </i>programmes/</span><span class="n"></span>
     <span class="p"><i>        ├── </i>INDEX.md</span><span class="n">which programme is active, and on which branch</span>
     <span class="p"><i>        └── </i>&lt;slug&gt;/</span><span class="n"></span>
-    <span class="p"><i>            ├── </i>ledger.md</span><span class="n">position · decisions · gates · open forks</span>
+    <span class="p"><i>            ├── </i>ledger.md</span><span class="n">the arc · position · decisions · gates · open forks</span>
     <span class="p"><i>            ├── </i>NEXT-SESSION.md</span><span class="n">the next terminal condition, replaced wholesale</span>
     <span class="p"><i>            ├── </i>deferred.md</span><span class="n">blocks closure while any row is open</span>
     <span class="p"><i>            └── </i>archive/</span><span class="n">closed phases, moved out when the ledger runs long</span>
@@ -198,16 +198,17 @@ switch, or the plugin vanishes globally on the first checkout that predates it.<
 <ul>
 <li><strong><code>/programme:init &lt;name&gt;</code></strong> — bootstraps a programme: copies the templates into
 <code>docs/programmes/&lt;slug&gt;/</code>, adds a row to <code>docs/programmes/INDEX.md</code>, installs the <code>CLAUDE.md</code>
-pointer, and interviews for the starting position, the terminal condition, and the project&#39;s
-gates (with their trust). Refuses on a repo that looks like a series of unrelated tickets rather
+pointer, and interviews for the arc (the goal, the programme&#39;s own terminal condition, and a row per phase),
+the starting position, this phase&#39;s terminal condition, and the project&#39;s gates (with their trust). Refuses on a repo that looks like a series of unrelated tickets rather
 than a running thread, unless told to proceed anyway.</li>
 <li><strong><code>/programme:resume [name]</code></strong> — resolves the active programme from the current branch against
-<code>INDEX.md</code>, reads the ledger in full and <code>NEXT-SESSION.md</code> verbatim, then <strong>runs</strong> every command in
+<code>INDEX.md</code>, reads the ledger in full — <code>## The arc</code> first, so the goal and the phases still to come frame the
+phase rather than trail it — then <code>NEXT-SESSION.md</code> verbatim, then <strong>runs</strong> every command in
 the State table&#39;s <code>verify with</code> column rather than trusting the values next to them — the source
 repo has a live example of two documents disagreeing about the same figure.</li>
 <li><strong><code>/programme:handoff [name]</code></strong> — the deliberate end-of-thread write. Measures state itself
-(<code>git fetch</code>, ahead-of-compare count, every declared gate), asks the four interview questions,
-corrects the ledger in place, archives a closed phase, and rewrites <code>NEXT-SESSION.md</code> wholesale.
+(<code>git fetch</code>, ahead-of-compare count, every declared gate), asks the five interview questions — the fifth against the arc, so a later phase&#39;s work can be pulled
+forward or a doomed piece of work refused — corrects the ledger in place, reconciles the arc, archives a closed phase, and rewrites <code>NEXT-SESSION.md</code> wholesale.
 On a closing handoff, refuses to mark the programme closed while <code>deferred.md</code> still has open rows.</li>
 <li><strong><code>/programme:status [name] [--gates]</code></strong> — where the programme is, then whether its record is
 still true: runs every <code>verify with</code> command in the State table and reports what has drifted, lists
@@ -215,6 +216,18 @@ what is owed, and stops. <strong>It writes nothing, deliberately</strong> — a 
 record cannot tell you whether the record is honest, because running it makes the answer yes. Slow
 gates are printed as recorded, with their <code>trust</code> and <code>last run</code>, and only run with <code>--gates</code>.</li>
 </ul>
+<h2>The arc, and why it is a table</h2>
+<p>Every other section of the ledger is phase-scoped. <code>Current position</code> is rewritten wholesale at each
+handoff and archived when a phase closes, so a goal written there does not outlive the phase that
+recorded it — it survives only if someone restates it every phase, which is discipline, not
+structure, and this plugin&#39;s whole argument is that the artifact is the mechanism.</p>
+<p><code>## The arc</code> is the one section a handoff does not rewrite and archiving does not move: the goal, the
+programme&#39;s terminal condition as a command and its expected output, and a row per phase with a
+<code>status</code> of <code>done</code> · <code>current</code> · <code>planned</code>. It is a table rather than a paragraph because a paragraph
+restating the goal is an instruction whose omission changes no artifact, while the row a handoff has
+to flip is checkable. Its job is to make work refusable — code a <code>planned</code> phase deletes is not worth
+writing, and a <code>planned</code> phase&#39;s work is sometimes cheaper taken now — which is exactly what
+<code>/programme:handoff</code>&#39;s fifth question asks against it.</p>
 <h2>The config file</h2>
 <p><code>.claude/session-continuity.json</code>, created by <code>/programme:init</code> if absent, with <code>docsRoot</code> and
 <code>compareBranch</code> only:</p>

@@ -68,22 +68,38 @@ switch, or the plugin vanishes globally on the first checkout that predates it.
 
 - **`/programme:init <name>`** — bootstraps a programme: copies the templates into
   `docs/programmes/<slug>/`, adds a row to `docs/programmes/INDEX.md`, installs the `CLAUDE.md`
-  pointer, and interviews for the starting position, the terminal condition, and the project's
-  gates (with their trust). Refuses on a repo that looks like a series of unrelated tickets rather
+  pointer, and interviews for the arc (the goal, the programme's own terminal condition, and a row per phase),
+the starting position, this phase's terminal condition, and the project's gates (with their trust). Refuses on a repo that looks like a series of unrelated tickets rather
   than a running thread, unless told to proceed anyway.
 - **`/programme:resume [name]`** — resolves the active programme from the current branch against
-  `INDEX.md`, reads the ledger in full and `NEXT-SESSION.md` verbatim, then **runs** every command in
+  `INDEX.md`, reads the ledger in full — `## The arc` first, so the goal and the phases still to come frame the
+phase rather than trail it — then `NEXT-SESSION.md` verbatim, then **runs** every command in
   the State table's `verify with` column rather than trusting the values next to them — the source
   repo has a live example of two documents disagreeing about the same figure.
 - **`/programme:handoff [name]`** — the deliberate end-of-thread write. Measures state itself
-  (`git fetch`, ahead-of-compare count, every declared gate), asks the four interview questions,
-  corrects the ledger in place, archives a closed phase, and rewrites `NEXT-SESSION.md` wholesale.
+  (`git fetch`, ahead-of-compare count, every declared gate), asks the five interview questions — the fifth against the arc, so a later phase's work can be pulled
+forward or a doomed piece of work refused — corrects the ledger in place, reconciles the arc, archives a closed phase, and rewrites `NEXT-SESSION.md` wholesale.
   On a closing handoff, refuses to mark the programme closed while `deferred.md` still has open rows.
 - **`/programme:status [name] [--gates]`** — where the programme is, then whether its record is
   still true: runs every `verify with` command in the State table and reports what has drifted, lists
   what is owed, and stops. **It writes nothing, deliberately** — a status that quietly corrects the
   record cannot tell you whether the record is honest, because running it makes the answer yes. Slow
   gates are printed as recorded, with their `trust` and `last run`, and only run with `--gates`.
+
+## The arc, and why it is a table
+
+Every other section of the ledger is phase-scoped. `Current position` is rewritten wholesale at each
+handoff and archived when a phase closes, so a goal written there does not outlive the phase that
+recorded it — it survives only if someone restates it every phase, which is discipline, not
+structure, and this plugin's whole argument is that the artifact is the mechanism.
+
+`## The arc` is the one section a handoff does not rewrite and archiving does not move: the goal, the
+programme's terminal condition as a command and its expected output, and a row per phase with a
+`status` of `done` · `current` · `planned`. It is a table rather than a paragraph because a paragraph
+restating the goal is an instruction whose omission changes no artifact, while the row a handoff has
+to flip is checkable. Its job is to make work refusable — code a `planned` phase deletes is not worth
+writing, and a `planned` phase's work is sometimes cheaper taken now — which is exactly what
+`/programme:handoff`'s fifth question asks against it.
 
 ## The config file
 
