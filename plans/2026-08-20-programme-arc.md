@@ -879,18 +879,23 @@ Expected, exactly:
 
 ```
 test-commands
-37 run, 0 failed
+39 run, 0 failed
 test-lib
 17 run, 0 failed
 test-pre-compact
 8 run, 0 failed
 test-session-start
-22 run, 0 failed
+23 run, 0 failed
 test-stale-ledger
 13 run, 0 failed
 test-templates
 40 run, 0 failed
 ```
+
+(The final-review fix wave, applied after all seven tasks, adds 2 to `test-commands` and 1 to
+`test-session-start` — see `## Final-review fix wave` at the end of this plan. Tasks 5's and 6's own
+step expectations above are left at their as-of-that-task values, `37`/`22`, which were correct when
+those tasks completed.)
 
 - [ ] **Step 7: Commit**
 
@@ -931,7 +936,7 @@ Read `commands/handoff.md` question 5 and confirm both shapes are named in it: w
 
 - [ ] **Step 4: Report on the issue**
 
-Comment on issue #1 with what shipped, the assertion counts before and after (**108 → 137** across the six suites: `test-commands` 24 → 37, `test-session-start` 16 → 22, `test-templates` 30 → 40), and say the `SessionStart` injection was added beyond what the issue asked for.
+Comment on issue #1 with what shipped, the assertion counts before and after (**108 → 140** across the six suites, including the final-review fix wave: `test-commands` 24 → 39, `test-session-start` 16 → 23, `test-templates` 30 → 40), and say the `SessionStart` injection was added beyond what the issue asked for.
 
 ```bash
 gh issue comment 1 --body "<what shipped>"
@@ -963,8 +968,40 @@ gh issue comment 1 --body "<what shipped>"
 
 **Placeholder scan** — every step names exact file paths, exact strings to replace, exact replacement text, an exact command, and an exact expected result. No "TBD", no "handle edge cases", no "similar to Task N".
 
-**Type consistency** — the anchor strings are used identically across tasks: `## The arc` (Tasks 1, 2, 3, 4, 5, 6), `| phase | status | what it delivers |` (Tasks 1, 2, 6), `done`/`current`/`planned` (Tasks 1, 2, 3, 4, 5), `Row count is NOT a phase count` (Task 1, deferred to by Task 5). The assertion counts chain: templates 30 → 40 (Task 1); commands 24 → 27 (Task 2) → 29 (Task 3) → 33 (Task 4) → 37 (Task 5); session-start 16 → 22 (Task 6, including its fix round's guard). Total 108 → 137.
+**Type consistency** — the anchor strings are used identically across tasks: `## The arc` (Tasks 1, 2, 3, 4, 5, 6), `| phase | status | what it delivers |` (Tasks 1, 2, 6), `done`/`current`/`planned` (Tasks 1, 2, 3, 4, 5), `Row count is NOT a phase count` (Task 1, deferred to by Task 5). The assertion counts chain: templates 30 → 40 (Task 1); commands 24 → 27 (Task 2) → 29 (Task 3) → 33 (Task 4) → 37 (Task 5) → 39 (final-review fix wave); session-start 16 → 22 (Task 6, including its fix round's guard) → 23 (final-review fix wave). Total 108 → 140.
 
 **A second risk, and the step that covers it.** Task 6's five new assertions include three that pass *before* the hook changes — the exact "check that cannot fail" shape. Step 3 says so out loud rather than reporting `21 run, 2 failed` as if all five were meaningful, and Step 7 mutates the hook to prove the comment-stripping one discriminates. Do not skip Step 7; it is the only thing separating that assertion from decoration.
 
 **One risk worth stating.** Task 1 puts `**Command:**` and `**Expected output:**` into `ledger.md`, which `NEXT-SESSION.md` already uses. That is a shared *schema* at two scopes, not a restated *rule* — the scope line `the programme's, not the phase's` lives only in `ledger.md`, and Task 1 step 1 adds the negative assertion that keeps it there. If a future edit puts a scope disambiguator into `NEXT-SESSION.md` as well, that assertion is what reddens.
+
+---
+
+## Final-review fix wave
+
+Applied after all seven tasks above, as a single follow-up commit, once a final whole-branch review
+turned up three findings the tasks had not covered:
+
+1. **Closing a programme never touched the arc.** `commands/handoff.md` §6 set `INDEX.md` to `closed`
+   without ever checking `## The arc`, so a programme could close with rows still `planned` — and the
+   last phase closing left the arc with zero `current` rows, contradicting the template's own
+   "exactly one row is `current`" rule. Fixed in two places: `templates/ledger.md` now states the
+   closure exception where the rule itself lives, and `commands/handoff.md` §6 gained a paragraph
+   requiring every row to be `done` before closure.
+2. **A ledger written before `## The arc` existed was never told to adopt one.** `hooks/session-start.sh`
+   already coded the pre-arc fallback, so the branch knew such ledgers exist, but no command said what
+   to do about it. `commands/handoff.md` §3 gained a paragraph: a ledger with no arc gets one written
+   at handoff, copied from the template and filled by interview, not inferred from the archive.
+3. **The multi-line comment path in `sc_section` was proven vacuous.** `tests/harness.sh`'s fixture
+   carried only a single-line HTML comment, while the real `templates/ledger.md` arc's comment is
+   three lines. Replacing the two comment-stripping awk rules with a single-line-only
+   `/<!--.*-->/ { next }` left all 137 assertions green while leaking two lines of comment into the
+   injected context — a check that could not fail. Fixed by adding the real template's multi-line
+   comment to the fixture and a new assertion, `strips a MULTI-LINE HTML comment`, that reddens under
+   that exact mutation while `strips the template's HTML comments` stays green — proving the two
+   assertions test different things.
+
+Two new assertions guard findings 1 and 2 in `tests/test-commands.sh`. Finding 3's fixture and
+assertion changes moved `test-session-start` from 22 to 23. The two lifecycle-edge assertions moved
+`test-commands` from 37 to 39. Suite total: **137 → 140** (`test-commands` 39, `test-lib` 17,
+`test-pre-compact` 8, `test-session-start` 23, `test-stale-ledger` 13, `test-templates` 40), all
+`0 failed`.

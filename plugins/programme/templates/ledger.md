@@ -36,9 +36,10 @@
 | (example) 2 — the notification bus     | current | delivery reaches a device with no client attached   |
 | (example) 3 — the compound engine      | planned | multi-condition rules evaluate outside the frontend |
 
-`status` is `done` · `current` · `planned`, and **exactly one row is `current`**. A later phase's row
-is what makes work in front of you refusable: code that a `planned` phase deletes is not worth
-writing, and a `planned` phase's work is sometimes cheaper taken now.
+`status` is `done` · `current` · `planned`, and **exactly one row is `current`** — until the
+programme closes, when every row is `done` and none is `current`. A later phase's row is what makes
+work in front of you refusable: code that a `planned` phase deletes is not worth writing, and a
+`planned` phase's work is sometimes cheaper taken now.
 
 ## Current position — <DATE>
 
