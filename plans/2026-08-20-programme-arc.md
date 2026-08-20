@@ -750,7 +750,7 @@ becomes:
 cd plugins/programme && bash tests/run-all.sh 2>&1 | grep -E "^(test-|[0-9]+ run)"
 ```
 
-Expected: `test-session-start` `21 run, 0 failed`; `test-commands` `37 run, 0 failed`; `test-templates` `40 run, 0 failed`; `test-lib` `17`, `test-pre-compact` `8`, `test-stale-ledger` `13`, all `0 failed`.
+Expected: `test-session-start` `22 run, 0 failed` (21 from this task, plus 1 added by its fix round); `test-commands` `37 run, 0 failed`; `test-templates` `40 run, 0 failed`; `test-lib` `17`, `test-pre-compact` `8`, `test-stale-ledger` `13`, all `0 failed`.
 
 - [ ] **Step 7: Prove the comment-stripping assertion can actually fail**
 
@@ -790,7 +790,7 @@ git commit -m "feat(programme): SessionStart injects the arc alongside the posit
 
 **Interfaces:**
 
-- Consumes: everything Tasks 1–5 produced. The README's "asks the four interview questions" is now false — Task 4 made it five.
+- Consumes: everything Tasks 1–5 produced. The README's "asks the four interview questions" is now false — Task 4 made it five. **It occurs TWICE**: in the `/programme:handoff` command bullet, and again in the single-homing map table near the end of the file. That table also needs two new rows, for the arc's `status` column and the Archive index's grain — a rule missing from the map is the drift the map exists to prevent. (Both were missed when this plan was written and were caught at final verification; the fix landed as its own commit.)
 - Produces: the published page, which is rendered from this README.
 
 - [ ] **Step 1: Correct the three command bullets**
@@ -885,7 +885,7 @@ test-lib
 test-pre-compact
 8 run, 0 failed
 test-session-start
-21 run, 0 failed
+22 run, 0 failed
 test-stale-ledger
 13 run, 0 failed
 test-templates
@@ -931,7 +931,7 @@ Read `commands/handoff.md` question 5 and confirm both shapes are named in it: w
 
 - [ ] **Step 4: Report on the issue**
 
-Comment on issue #1 with what shipped, the assertion counts before and after (**108 → 136** across the six suites: `test-commands` 24 → 37, `test-session-start` 16 → 21, `test-templates` 30 → 40), and say the `SessionStart` injection was added beyond what the issue asked for.
+Comment on issue #1 with what shipped, the assertion counts before and after (**108 → 137** across the six suites: `test-commands` 24 → 37, `test-session-start` 16 → 22, `test-templates` 30 → 40), and say the `SessionStart` injection was added beyond what the issue asked for.
 
 ```bash
 gh issue comment 1 --body "<what shipped>"
@@ -963,7 +963,7 @@ gh issue comment 1 --body "<what shipped>"
 
 **Placeholder scan** — every step names exact file paths, exact strings to replace, exact replacement text, an exact command, and an exact expected result. No "TBD", no "handle edge cases", no "similar to Task N".
 
-**Type consistency** — the anchor strings are used identically across tasks: `## The arc` (Tasks 1, 2, 3, 4, 5, 6), `| phase | status | what it delivers |` (Tasks 1, 2, 6), `done`/`current`/`planned` (Tasks 1, 2, 3, 4, 5), `Row count is NOT a phase count` (Task 1, deferred to by Task 5). The assertion counts chain: templates 30 → 40 (Task 1); commands 24 → 27 (Task 2) → 29 (Task 3) → 33 (Task 4) → 37 (Task 5); session-start 16 → 21 (Task 6). Total 108 → 136.
+**Type consistency** — the anchor strings are used identically across tasks: `## The arc` (Tasks 1, 2, 3, 4, 5, 6), `| phase | status | what it delivers |` (Tasks 1, 2, 6), `done`/`current`/`planned` (Tasks 1, 2, 3, 4, 5), `Row count is NOT a phase count` (Task 1, deferred to by Task 5). The assertion counts chain: templates 30 → 40 (Task 1); commands 24 → 27 (Task 2) → 29 (Task 3) → 33 (Task 4) → 37 (Task 5); session-start 16 → 22 (Task 6, including its fix round's guard). Total 108 → 137.
 
 **A second risk, and the step that covers it.** Task 6's five new assertions include three that pass *before* the hook changes — the exact "check that cannot fail" shape. Step 3 says so out loud rather than reporting `21 run, 2 failed` as if all five were meaningful, and Step 7 mutates the hook to prove the comment-stripping one discriminates. Do not skip Step 7; it is the only thing separating that assertion from decoration.
 
