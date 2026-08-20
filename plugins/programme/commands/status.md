@@ -18,14 +18,19 @@ the same files and then begins.
 
 From `<docsRoot>/programmes/<SLUG>/ledger.md` and its `NEXT-SESSION.md`:
 
-- the programme's own terminal condition, if the ledger states one
-- what is done and what is left. Do not invent a progress metric — read what the ledger's Current
-  position says, and use the **Archive index** for what has closed. Rows in that table are phases
-  that finished; that is the only count in these files that is a fact rather than a narrative.
-- the next terminal condition, quoting its `Command:` and `Expected output:` verbatim
+- **`## The arc` first** — the goal, and the programme's terminal condition quoted verbatim. Say
+  plainly that it is the programme's and that the one below is the phase's; a met phase condition
+  read as a met programme condition is how a programme gets called finished with phases still
+  `planned`.
+- what is done and what is left, from the arc's `status` column: the `done` rows, the `current` one,
+  and every row still `planned`. Do not invent a progress metric, and **never read what has closed by
+  counting Archive index rows** — that table's own note says why.
+- the phase's terminal condition, quoting its `Command:` and `Expected output:` verbatim
 
-If the ledger's Current position and the Archive index disagree about what has closed, say so. That
-is a real finding, not a formatting problem.
+If the arc, the Current position and the Archive index disagree about what has closed, say so — that
+is a real finding, not a formatting problem. **An arc whose `current` row is not the phase
+`NEXT-SESSION.md` describes is the same finding**, and it is the one that means the programme has
+drifted off its own map.
 
 ## 2. Whether the record is still true
 

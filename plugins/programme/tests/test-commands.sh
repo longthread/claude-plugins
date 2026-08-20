@@ -39,6 +39,14 @@ assert_contains "$HANDOFF" "becomes \`done\`" "handoff: closing a phase flips it
 assert_contains "$HANDOFF" "name which rows you read to conclude that" \
   "handoff: a no-change answer to question 5 must still cite the rows"
 
+# --- status reads progress off the arc, and defers on WHY the Archive index is not a phase count ---
+assert_contains "$STATUS" "\`## The arc\` first" "status: reads the arc first"
+assert_contains "$STATUS" "never read what has closed by counting" \
+  "status: stops treating Archive index rows as a phase count"
+assert_contains "$STATUS" "that table's own note says why" "status: defers to the ledger for the Archive index's grain"
+assert_not_contains "$STATUS" "moved out purely for length" \
+  "status: does NOT restate why the Archive index is not a phase count"
+
 # --- status is read-only, and that is the property the whole command rests on ---
 assert_contains "$STATUS" "writes nothing" "status: states it writes nothing"
 assert_contains "$STATUS" "/programme:handoff" "status: names handoff as the thing that writes"
