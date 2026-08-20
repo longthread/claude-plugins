@@ -205,7 +205,7 @@ const TREE = [
   [
     "            ├── ",
     "ledger.md",
-    "position · decisions · gates · open forks",
+    "the arc · position · decisions · gates · open forks",
   ],
   [
     "            ├── ",
