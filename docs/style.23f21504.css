@@ -261,6 +261,22 @@ button:focus-visible {
   align-items: center;
 }
 
+/* Sits in the install row beside the command chip, but must not read as one — a link, not a thing
+   you copy. Underline rather than chip, so the difference survives a glance. */
+.install .changelog-link {
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 1px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.install .changelog-link:hover {
+  color: var(--thread-lit);
+  border-bottom-color: var(--thread-lit);
+}
+
 .cmd {
   font-family: var(--mono);
   font-size: 0.875rem;

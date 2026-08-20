@@ -52,10 +52,31 @@ const plugins = market.plugins.map((p) => {
     .map((f) => f.replace(/\.md$/, ""))
     .sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
 
+  // A plugin's changelog is optional: present, it becomes its own page and the plugin page links to
+  // it; absent, nothing is emitted and nothing links anywhere. Same opt-in shape as FIGURES.
+  const clPath = join(ROOT, dir, "CHANGELOG.md");
+  const changelog = existsSync(clPath)
+    ? read(dir, "CHANGELOG.md").replace(/^#\s+.*\n+/, "")
+    : null;
+
+  // The newest entry and plugin.json must name the same version. Nothing on the page would show the
+  // disagreement — the install chip says one thing and the top entry says another — so a bump that
+  // forgets the changelog, or a changelog that runs ahead of the bump, fails the build instead of
+  // shipping quietly.
+  if (changelog) {
+    const newest = (changelog.match(/^##\s+v?([0-9][\w.+-]*)/m) || [])[1];
+    if (newest !== manifest.version)
+      throw new Error(
+        `${dir}/CHANGELOG.md's newest entry is ${newest ?? "(no version heading found)"}, ` +
+          `but ${dir}/.claude-plugin/plugin.json says ${manifest.version}`,
+      );
+  }
+
   return {
     name: p.name,
     slug: p.name,
     version: manifest.version,
+    changelog,
     blurb: p.description,
     tagline,
     commands,
@@ -364,6 +385,7 @@ for (const p of plugins) {
     <p class="tagline">${esc(p.tagline)}</p>
     <div class="install">
       <code class="cmd">plugin install ${esc(p.name)}@${esc(market.name)}</code>
+${p.changelog ? `      <a class="changelog-link" href="/${p.slug}/changelog">Changelog \u2192</a>` : ""}
     </div>
   </header>
 ${FIGURES[p.slug] ? FIGURES[p.slug]() : ""}
@@ -378,12 +400,46 @@ ${marked.parse(p.md, { renderer })}
 `,
     }),
   );
+
+  if (!p.changelog) continue;
+  const cdir = join(dir, "changelog");
+  mkdirSync(cdir, { recursive: true });
+  writeFileSync(
+    join(cdir, "index.html"),
+    shell({
+      title: `${p.name} changelog — longthread`,
+      desc: `What changed in each release of ${p.name}.`,
+      main: `
+  <header class="detail-head">
+    <a class="back" href="/${p.slug}">← ${esc(p.name)}</a>
+    <h1>Changelog</h1>
+    <p class="tagline">Every release of ${esc(p.name)}, newest first. Currently ${esc(p.version)}.</p>
+  </header>
+  <div class="brk" aria-hidden="true"></div>
+
+  <section class="band">
+    <article class="prose">
+${marked.parse(p.changelog, { renderer })}
+    </article>
+  </section>
+`,
+    }),
+  );
+}
+
+// A plugin that HAS a changelog and did not get a page would link to a 404 from its own header.
+for (const p of plugins) {
+  if (p.changelog && !existsSync(join(OUT, p.slug, "changelog", "index.html")))
+    throw new Error(`${p.slug} has a CHANGELOG.md but no changelog page was written`);
 }
 
 console.log(`built ${OUT}`);
 console.log(
   `  index.html + ${plugins.length} plugin page(s): ${plugins
-    .map((p) => `${p.slug} (${p.commands.length} commands)`)
+    .map(
+      (p) =>
+        `${p.slug} (${p.commands.length} commands${p.changelog ? `, changelog @ ${p.version}` : ""})`,
+    )
     .join(", ")}`,
 );
 if (!existsSync(join(OUT, cssName)))

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en" class="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>programme changelog — longthread</title>
+<meta name="description" content="What changed in each release of programme.">
+<meta property="og:title" content="programme changelog — longthread">
+<meta property="og:description" content="What changed in each release of programme.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0e1426">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230e1426'/><path d='M5 16h8M19 16h8' stroke='%23c8964a' stroke-width='2.5' stroke-linecap='round'/><circle cx='16' cy='16' r='1.6' fill='%23c8964a'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.23f21504.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <a class="wordmark" href="/"><b>long</b><span>—</span>thread</a>
+    <nav>
+      <a href="/#plugins">Plugins</a>
+      <a href="https://github.com/longthread/claude-plugins">GitHub</a>
+    </nav>
+  </header>
+
+  <header class="detail-head">
+    <a class="back" href="/programme">← programme</a>
+    <h1>Changelog</h1>
+    <p class="tagline">Every release of programme, newest first. Currently 0.2.0.</p>
+  </header>
+  <div class="brk" aria-hidden="true"></div>
+
+  <section class="band">
+    <article class="prose">
+<blockquote>
+<p><strong>What changed in each release, for someone deciding whether to upgrade.</strong> Not a commit log — a
+reader here already has the plugin installed and wants to know what will be different afterwards.
+The writing rules are in <code>templates/CHANGELOG.md</code> at the repo root.</p>
+</blockquote>
+<h2>0.2.0 — 2026-08-20</h2>
+<p><strong>Nothing to do to upgrade.</strong> A ledger written before this release keeps working unchanged, and
+picks up the new section at its next <code>/programme:handoff</code>.</p>
+<h3>Added</h3>
+<ul>
+<li><strong><code>## The arc</code>, above <code>## Current position</code> in the ledger</strong> — the programme&#39;s goal, its own
+terminal condition as a command and expected output, and a table with a row per phase and a
+<code>status</code> of <code>done</code> · <code>current</code> · <code>planned</code>. Every other section is phase-scoped: the position is
+rewritten wholesale at each handoff and archived when a phase closes, so a goal recorded there did
+not outlive the phase that recorded it. This is the one section a handoff does not rewrite and
+archiving does not move.</li>
+<li><strong><code>/programme:handoff</code> asks one question against it</strong> — whether the next phase still sits where the
+map says, and whether any later phase&#39;s work is cheaper taken now. That question is the point of
+the section: it is what makes work in front of you refusable when a later phase will delete it.</li>
+<li><strong>The <code>SessionStart</code> hook injects the arc</strong> alongside the current position, so it reaches a session
+with no command run — including after a compaction, which is when the ledger is most needed and
+least present.</li>
+<li><strong><code>/programme:init</code> interviews for it</strong> — seven questions now, not five. The two new ones are the
+programme&#39;s terminal condition, kept distinct from the phase&#39;s, and the phase list.</li>
+<li><strong>Closing a phase flips its row to <code>done</code>; closing a programme is refused</strong> while any row is still
+<code>current</code> or <code>planned</code>.</li>
+<li><strong>A ledger with no arc adopts one at its next handoff</strong>, so programmes that predate this release
+are not left behind — they are precisely the ones whose arc has never been written down.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong><code>/programme:resume</code> reads the arc first</strong> and reports every phase still <code>planned</code>. The arc frames
+the phase rather than trailing it.</li>
+<li><strong><code>/programme:status</code> reports progress from the arc&#39;s <code>status</code> column.</strong> It previously read what
+had closed by counting Archive index rows, which was wrong: that table also gains a row whenever a
+position is moved out purely for length, and again when a programme closes.</li>
+<li><strong>A programme-level terminal condition now has a home.</strong> <code>/programme:status</code> used to ask for it
+&quot;if the ledger states one&quot; — there was no place to state it, so a met phase condition could read
+as a finished programme.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li><strong>A ledger section no longer swallows the one after it</strong> when the following heading begins with the
+same text. A ledger carrying both <code>## Archive</code> and <code>## Archive index</code> would have had the first run
+to the end of the file, taking every later section with it.</li>
+<li><strong><code>/programme:init</code> no longer contradicts itself</strong> about which angle-bracketed spans it fills: its
+file-copying step said they were filled later by someone else, while its interview step filled two
+of them.</li>
+</ul>
+<h2>0.1.0 — 2026-08-14</h2>
+<h3>Added</h3>
+<ul>
+<li><strong>First marketplace release.</strong> A durable ledger at <code>docs/programmes/&lt;slug&gt;/ledger.md</code> with its
+templates, four commands — <code>/programme:init</code>, <code>/programme:resume</code>, <code>/programme:handoff</code>,
+<code>/programme:status</code> — an always-loaded <code>CLAUDE.md</code> pointer carrying the write cadence, and a <code>Stop</code>
+guard that fires once per session when code moved and the ledger did not.</li>
+</ul>
+
+    </article>
+  </section>
+
+  <footer class="foot">
+    <span>plugins.longthread.dev</span>
+    <span>MIT · <a href="https://github.com/longthread/claude-plugins">longthread/claude-plugins</a></span>
+  </footer>
+</div>
+</body>
+</html>
