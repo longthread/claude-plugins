@@ -758,12 +758,16 @@ It passed vacuously in Step 3, so confirm it now discriminates:
 
 ```bash
 cd plugins/programme
+cp hooks/session-start.sh /tmp/session-start.bak      # NOT `git checkout` to restore — see below
 sed -i 's|    /<!--/ { skip = 1 }|    # MUTATED|' hooks/session-start.sh
 bash tests/test-session-start.sh 2>&1 | grep -E "strips the template|run,"
-git -C /home/srinath/_workarea/personal/github/longthread/claude-plugins checkout -- plugins/programme/hooks/session-start.sh
+cp /tmp/session-start.bak hooks/session-start.sh && rm /tmp/session-start.bak
+bash tests/run-all.sh 2>&1 | grep -E "^(test-|[0-9]+ run)"
 ```
 
-Expected: the mutated run reports `FAIL strips the template's HTML comments`. **Then restore the file** — the `git checkout` above does it — and re-run `bash tests/run-all.sh` to confirm green before committing. If the mutation does not redden it, the assertion is checking nothing and the task is not done.
+Expected: the mutated run reports `FAIL strips the template's HTML comments` and `21 run, 1 failed`; after the restore, all six suites are green again. If the mutation does not redden it, the assertion is checking nothing and the task is not done.
+
+**Restore with the backup copy, never `git checkout -- hooks/session-start.sh`.** This step runs BEFORE step 8's commit, so steps 4 and 5 are still uncommitted — `git checkout` would discard them along with the mutation, silently reverting the whole task to its pre-change state. Measured: an implementer hit exactly this and had to reapply steps 4 and 5 by hand.
 
 - [ ] **Step 8: Commit**
 
