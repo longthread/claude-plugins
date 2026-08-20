@@ -20,7 +20,10 @@ up writing into the wrong programme's ledger.
 
 ## Read, in this order
 
-1. `<docsRoot>/programmes/<SLUG>/ledger.md` — **in full**
+1. `<docsRoot>/programmes/<SLUG>/ledger.md` — **in full, starting with `## The arc`**: the goal, the
+   programme's terminal condition, and which phases are still `planned`. Read it before the
+   position, not after — a phase read without the arc around it is a phase you cannot refuse work
+   inside.
 2. `<docsRoot>/programmes/<SLUG>/NEXT-SESSION.md` — follow its "Start here" block **verbatim**
 
 Read the prompt file itself rather than acting on any summary of it, including one in this
@@ -37,6 +40,7 @@ Report any figure that has drifted, and correct `NEXT-SESSION.md` before continu
 
 ## Then report, before doing any work
 
-State: which programme you resolved and how; the position as the ledger records it; what you
-measured and what drifted; and the terminal condition you are working toward, quoting its command
-and expected output. Then ask whether to proceed.
+State: which programme you resolved and how; **the arc — the goal, the programme's terminal
+condition, the `current` phase, and every phase still `planned`**; the position as the ledger
+records it; what you measured and what drifted; and the phase's terminal condition you are working
+toward, quoting its command and expected output. Then ask whether to proceed.
