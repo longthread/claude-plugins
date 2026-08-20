@@ -28,6 +28,10 @@ assert_contains "$INIT" "a one-row arc is honest" "init: an unknown decompositio
 assert_contains "$INIT" "the output that means the WHOLE programme is done" \
   "init: interviews for the programme's terminal condition, distinct from the phase's"
 
+# --- resume: the arc frames the phase rather than trailing it ---
+assert_contains "$RESUME" "starting with \`## The arc\`" "resume: reads the arc before the position"
+assert_contains "$RESUME" "every phase still \`planned\`" "resume: its report names what remains"
+
 # --- status is read-only, and that is the property the whole command rests on ---
 assert_contains "$STATUS" "writes nothing" "status: states it writes nothing"
 assert_contains "$STATUS" "/programme:handoff" "status: names handoff as the thing that writes"
