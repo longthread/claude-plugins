@@ -20,6 +20,12 @@ assert_contains "$OUT" "The position line." "injects the position body"
 assert_contains "$OUT" "The arc" "injects the arc"
 assert_contains "$OUT" "The goal line." "injects the arc body"
 assert_not_contains "$OUT" "seeded illustrations" "strips the template's HTML comments"
+# The fixture carries BOTH comment shapes deliberately. `seeded illustrations` above sits in a
+# single-line comment, so a stripper that only handles `<!-- ... -->` on one line still passes it.
+# This phrase is on the THIRD line of the multi-line block, so only a stripper that carries `skip`
+# across lines removes it.
+assert_not_contains "$OUT" "Edit it only when the decomposition itself changes" \
+  "strips a MULTI-LINE HTML comment"
 assert_eq "$HEAD_SHA" "$(cat "$STATE_HOME/claude-programme/s2.state" | sed -n 's/^baseline=//p')" \
   "stamps the baseline sha"
 

@@ -50,6 +50,9 @@ EOF
 
 ## The arc
 
+<!-- The one section here that handoff does NOT rewrite and archiving does NOT move. Every other
+     section is one or both, which is how a programme's reason for existing leaves the working set.
+     Edit it only when the decomposition itself changes, and say what changed. -->
 <!-- Rows marked (example) are seeded illustrations — /programme:init deletes them. -->
 
 **Goal:** The goal line.

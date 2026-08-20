@@ -60,6 +60,12 @@ the plan against the tree.
 **The arc is corrected here or nowhere.** If question 5 moved a phase, split one, dropped one, or
 changed what a phase delivers, edit `## The arc` now and say what changed in the position narrative.
 
+**A ledger with no `## The arc` gets one here.** Programmes that predate the section are the ones
+whose arc has never been written down. Copy the section from
+`${CLAUDE_PLUGIN_ROOT}/templates/ledger.md` above `## Current position`, and fill it by asking what
+`/programme:init` asks for it — do not infer the phases from the archive, which records archiving
+events rather than a plan.
+
 Diff what the ledger claims against what you measured in step 1, and update it. Fill the tables —
 Gates, Settled decisions, Open forks — and rewrite the Current position narrative to include
 question 2's answer — a still-empty second ask belongs in the position too, not only in the
@@ -85,6 +91,11 @@ Replace the file; do not append a section. Fill the Terminal condition command a
 from interview answer 4, and give every row of the State table a working `verify with` command.
 
 ## 6. If this handoff closes the programme
+
+**Every arc row must be `done` first.** A row still `current` or `planned` means the programme has
+work left and this closure is premature — either the work is not finished, or the phase was dropped
+and the arc should say so, with the reason. Closing is where the one-`current`-row rule is spent:
+after it, no row is `current`, because there is no next phase.
 
 **Do not mark it closed while `<docsRoot>/programmes/<SLUG>/deferred.md` has open rows.** Each must
 be either **promoted** to `<docsRoot>/deferred-work.md` with its fix shape intact and

@@ -47,6 +47,12 @@ assert_contains "$STATUS" "that table's own note says why" "status: defers to th
 assert_not_contains "$STATUS" "moved out purely for length" \
   "status: does NOT restate why the Archive index is not a phase count"
 
+# --- the arc's two lifecycle edges: adopting it, and spending it at closure ---
+assert_contains "$HANDOFF" "Every arc row must be \`done\` first" \
+  "handoff: a programme cannot close with a row still current or planned"
+assert_contains "$HANDOFF" "Programmes that predate the section" \
+  "handoff: a ledger with no arc gets one written"
+
 # --- status is read-only, and that is the property the whole command rests on ---
 assert_contains "$STATUS" "writes nothing" "status: states it writes nothing"
 assert_contains "$STATUS" "/programme:handoff" "status: names handoff as the thing that writes"
