@@ -39,8 +39,8 @@ ledger=$(sc_ledger_path "$slug"); [ -f "$ledger" ] || exit 0
 # HTML comments are dropped: they instruct whoever writes the file and are noise to a reader.
 sc_section() { # sc_section <heading> <file> — the heading and its body, to the next `## `
   awk -v h="$1" '
+    grab && /^## / { exit }
     index($0, h) == 1 { grab = 1; print; next }
-    /^## / { if (grab) exit }
     !grab { next }
     /<!--/ { skip = 1 }
     skip { if (/-->/) skip = 0; next }
