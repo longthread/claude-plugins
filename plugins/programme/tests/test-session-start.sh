@@ -17,6 +17,9 @@ assert_contains "$OUT" "additionalContext" "emits additionalContext"
 assert_contains "$OUT" "SessionStart" "names the event in hookSpecificOutput"
 assert_contains "$OUT" "Current position" "injects the current-position section"
 assert_contains "$OUT" "The position line." "injects the position body"
+assert_contains "$OUT" "The arc" "injects the arc"
+assert_contains "$OUT" "The goal line." "injects the arc body"
+assert_not_contains "$OUT" "seeded illustrations" "strips the template's HTML comments"
 assert_eq "$HEAD_SHA" "$(cat "$STATE_HOME/claude-programme/s2.state" | sed -n 's/^baseline=//p')" \
   "stamps the baseline sha"
 
@@ -65,6 +68,16 @@ assert_eq "0" "$RC" "give-up path stays non-blocking"
 assert_empty "$(SC_SESSION_ID=s5 sc_state_get baseline)" "give-up path leaves no stamp"
 assert_contains "$ERR" "baseline" "give-up is reported on stderr"
 assert_contains "$OUT" "Current position" "give-up path still re-injects the position"
+
+# A ledger written before the arc existed must still inject its position, unchanged. Strip the arc
+# back off the fixture rather than building a second one — the two shapes then differ in exactly the
+# thing under test. The rewrite goes via a temp file that is moved away in the same command, so it
+# never shows up in the `git status --porcelain` the other hooks read.
+L="$REPO/docs/programmes/headless/ledger.md"
+sed -n '/^## Current position/,$p' "$L" >"$L.tmp" && mv "$L.tmp" "$L"
+run_hook session-start.sh "$(payload SessionStart s9 startup)" "$REPO"
+assert_contains "$OUT" "The position line." "a pre-arc ledger still injects its position"
+assert_not_contains "$OUT" "The goal line." "and injects no arc, because it has none"
 
 rm -rf "$REPO" "$STATE_HOME"
 finish
