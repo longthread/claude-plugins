@@ -36,6 +36,36 @@ assert_contains "$L" "| date | decision | who | why |" "ledger: decisions table 
 assert_contains "$L" "| opened | fork | options | what would settle it |" "ledger: forks table forces a settler and an opened date"
 assert_contains "$L" "| date | phase | file |" "ledger: archive index table"
 
+# --- the arc: the one section that is neither rewritten at handoff nor moved by archiving ---
+assert_contains "$L" "## The arc" "ledger: the arc section exists"
+assert_contains "$L" "**Goal:**" "ledger: the arc carries the programme's goal"
+assert_contains "$L" "the programme's, not the phase's" "ledger: the arc's terminal condition is scoped to the programme"
+assert_contains "$L" "| phase | status | what it delivers |" "ledger: the arc is a table with a status column"
+assert_contains "$L" "exactly one row is \`current\`" "ledger: the arc's status vocabulary is pinned"
+assert_contains "$L" "handoff does NOT rewrite and archiving does NOT move" "ledger: the arc states why it is durable"
+assert_contains "$L" "Row count is NOT a phase count" "ledger: the Archive index states its own grain"
+
+# The phase-level terminal condition stays distinct from the programme-level one. Both use the same
+# Command/Expected-output schema deliberately — the scope line is the only thing separating them, so
+# it has to live in exactly one of the two files.
+assert_contains "$N" "once this phase is done" "prompt: its terminal condition is the PHASE's"
+assert_not_contains "$N" "not the phase's" "prompt does NOT restate the programme-level scope"
+
+# Ordering is invisible to read_t, which folds the file to one line. The arc's whole claim is that
+# it frames the position rather than trailing it, and placement is the only thing making that true —
+# so this check reads the file unfolded. `|| true` because grep exits 1 on no match and this file
+# runs under `set -e`, which would otherwise kill the suite instead of reporting the failure.
+# `||` binds to the whole pipeline, not just `cut` — verified in this shell, both with and without
+# a match. Do not "fix" this into a brace group; it already covers the grep.
+arc_ln=$(grep -n '^## The arc$' "$T/ledger.md" | head -1 | cut -d: -f1 || true)
+pos_ln=$(grep -n '^## Current position' "$T/ledger.md" | head -1 | cut -d: -f1 || true)
+if [ -n "$arc_ln" ] && [ -n "$pos_ln" ] && [ "$arc_ln" -lt "$pos_ln" ]; then
+  ord=above
+else
+  ord="arc=${arc_ln:-missing} pos=${pos_ln:-missing}"
+fi
+assert_eq "above" "$ord" "ledger: the arc sits ABOVE Current position"
+
 # --- CLAUDE-pointer.md: WHEN to write, and cross-file precedence ---
 assert_contains "$C" "not at session end" "pointer: cadence is here"
 assert_contains "$C" "a gate runs and produces a number" "pointer: a concrete trigger"
