@@ -21,6 +21,13 @@ for f in init resume handoff status; do
   assert_contains "$(read_c $f.md)" "description:" "$f: has frontmatter description"
 done
 
+# --- init seeds the arc, or it ships permanently empty ---
+assert_contains "$INIT" "What are its phases, in order, and which one are you starting?" \
+  "init: interviews for the phase map"
+assert_contains "$INIT" "a one-row arc is honest" "init: an unknown decomposition still yields a row"
+assert_contains "$INIT" "the output that means the WHOLE programme is done" \
+  "init: interviews for the programme's terminal condition, distinct from the phase's"
+
 # --- status is read-only, and that is the property the whole command rests on ---
 assert_contains "$STATUS" "writes nothing" "status: states it writes nothing"
 assert_contains "$STATUS" "/programme:handoff" "status: names handoff as the thing that writes"
