@@ -41,10 +41,11 @@ say to bootstrap anyway.
 Copy from `${CLAUDE_PLUGIN_ROOT}/templates/`, substituting `<PROGRAMME_NAME>`, `<SLUG>`, `<DATE>`,
 `<BRANCH>`, `<COMPARE_BRANCH>`, `<DOCS_ROOT>`. Substitute **only** those six literal token strings —
 every other angle-bracketed span in a template is content, not a placeholder for you to fill:
-`ledger.md`'s `archive/<YYYY-MM-DD>-<phase>.md` and `NEXT-SESSION.md`'s
-`<a command a later session can actually run>`, `<what it prints once this phase is done>`, and
-`<the spec or plan this phase executes>` are filled in later, by whoever writes those entries — not
-by this command. A blanket replace of every `<…>` corrupts all five. **Copy each template's header
+`ledger.md`'s `archive/<YYYY-MM-DD>-<phase>.md` and `NEXT-SESSION.md`'s `<the spec or plan this
+phase executes>` are filled in later, by whoever writes those entries. `## The arc`'s three spans
+and `NEXT-SESSION.md`'s `<a command a later session can actually run>` /
+`<what it prints once this phase is done>` are filled by **step 5's interview**, not by this copy.
+A blanket replace of every `<…>` corrupts all eight. **Copy each template's header
 verbatim** — those headers are the mechanism, and every rule in them is stated in exactly one place.
 
 - `ledger.md` → `<docsRoot>/programmes/<SLUG>/ledger.md`
@@ -77,27 +78,36 @@ header states how to write it is what actually kept a ledger current across ~15 
 hook and no command that ever triggered a write — a read-only precursor to `/programme:resume`
 existed for most of that window but never caused one.
 
-## 5. Seed the position and the gates, by interview
+## 5. Seed the arc, the position and the gates, by interview
 
 Do not write a placeholder position. Ask, and write the answers in:
 
 1. What is this programme trying to achieve, in one sentence?
-2. **What is its terminal condition — a command a later session can run, and the output that means
-   it is done?** Put it in `NEXT-SESSION.md`'s Terminal condition fields.
-3. What is already true today that a fresh session would otherwise re-derive?
-4. What decisions are already settled, who settled them, and why? One row each in Settled decisions.
-5. **What are this project's gates, and which of them are flaky?** One row each in the ledger's
+2. **What is the programme's terminal condition — a command a later session can run, and the output
+   that means the WHOLE programme is done?**
+3. **What are its phases, in order, and which one are you starting?** One row each in `## The arc`,
+   `status` `current` on the one being started and `planned` on the rest. If the decomposition does
+   not exist yet, write the single row for the phase being started and say that is all that is
+   known — a one-row arc is honest; an empty one is the omission this section exists to prevent.
+4. **What is THIS phase's terminal condition — a command, and the output that means the phase is
+   done?** Put it in `NEXT-SESSION.md`'s Terminal condition fields. It is question 2's answer only
+   if this is the only phase; if it is not, writing the same condition in both places makes the
+   programme look finished the moment the first phase closes.
+5. What is already true today that a fresh session would otherwise re-derive?
+6. What decisions are already settled, who settled them, and why? One row each in Settled decisions.
+7. **What are this project's gates, and which of them are flaky?** One row each in the ledger's
    Gates table, filling the `trust` column. Ask for the flake rate where there is one.
 
-Each answer **replaces** a placeholder already sitting in the file it targets — questions 1 and 3
-replace `ledger.md`'s `_Nothing recorded yet._` under `## Current position` with the actual
-narrative, and question 2 replaces `NEXT-SESSION.md`'s `<a command a later session can actually
-run>` / `<what it prints once this phase is done>` tokens. Leaving the placeholder text next to the
-answer is the same defect as not asking.
+Each answer **replaces** a placeholder already sitting in the file it targets — questions 1–3
+replace `ledger.md`'s three `## The arc` spans and its example rows, question 5 replaces
+`_Nothing recorded yet._` under `## Current position` with the actual narrative, and question 4
+replaces `NEXT-SESSION.md`'s `<a command a later session can actually run>` / `<what it prints once
+this phase is done>` tokens. Leaving the placeholder text next to the answer is the same defect as
+not asking.
 
 `NEXT-SESSION.md`'s `Start here` block gets the same treatment: `/programme:resume` follows it
 **verbatim**, so `_Nothing to resume yet._` cannot stand next to a position and terminal condition
-the interview just established. Write the first concrete step toward question 2's terminal
+the interview just established. Write the first concrete step toward question 4's terminal
 condition — if that step really is just "read the ledger and begin," say so explicitly rather than
 leaving the template's placeholder sentence in place.
 
