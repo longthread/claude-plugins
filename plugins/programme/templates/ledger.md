@@ -16,6 +16,30 @@
 >   add its row to the index below. An unread ledger fails silently, and length is what makes it
 >   unread.
 
+## The arc
+
+<!-- The one section here that handoff does NOT rewrite and archiving does NOT move. Every other
+     section is one or both, which is how a programme's reason for existing leaves the working set.
+     Edit it only when the decomposition itself changes, and say what changed. -->
+<!-- Rows marked (example) are seeded illustrations — /programme:init deletes them. -->
+
+**Goal:** <what this programme is for, in one sentence>
+
+**Terminal condition — the programme's, not the phase's.**
+
+**Command:** `<a command a later session can run to prove the whole programme is done>`
+**Expected output:** `<what that command prints once the whole programme is done>`
+
+| phase                                  | status  | what it delivers                                    |
+| -------------------------------------- | ------- | --------------------------------------------------- |
+| (example) 1 — the differential harness | done    | a replay harness a deliberate mutation reddens      |
+| (example) 2 — the notification bus     | current | delivery reaches a device with no client attached   |
+| (example) 3 — the compound engine      | planned | multi-condition rules evaluate outside the frontend |
+
+`status` is `done` · `current` · `planned`, and **exactly one row is `current`**. A later phase's row
+is what makes work in front of you refusable: code that a `planned` phase deletes is not worth
+writing, and a `planned` phase's work is sometimes cheaper taken now.
+
 ## Current position — <DATE>
 
 _Nothing recorded yet. Written by `/programme:init` on <DATE>._
@@ -23,7 +47,6 @@ _Nothing recorded yet. Written by `/programme:init` on <DATE>._
 ## Gates
 
 <!-- trust: `reliable` | `flaky (1 in N)` | `unverified`. A result is only as good as its trust. -->
-<!-- Rows marked (example) are seeded illustrations — /programme:init deletes them. -->
 
 | gate                | command         | last run   | result | trust    |
 | ------------------- | --------------- | ---------- | ------ | -------- |
@@ -42,6 +65,9 @@ _Nothing recorded yet. Written by `/programme:init` on <DATE>._
 | 2026-01-01 | (example) sync via polling vs. websocket | polling (simple, higher latency) · websocket (complex, real-time) | a latency budget from the product spec |
 
 ## Archive index
+
+<!-- Every archiving event lands here, including a position moved out purely for length. Row count
+     is NOT a phase count — `## The arc`'s status column is what says what has closed. -->
 
 | date | phase | file |
 | ---- | ----- | ---- |
