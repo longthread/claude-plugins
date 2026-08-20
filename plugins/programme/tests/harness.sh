@@ -48,6 +48,16 @@ EOF
   cat >"$dir/docs/programmes/$slug/ledger.md" <<'EOF'
 # Test — programme ledger
 
+## The arc
+
+<!-- Rows marked (example) are seeded illustrations — /programme:init deletes them. -->
+
+**Goal:** The goal line.
+
+| phase         | status  | what it delivers          |
+| ------------- | ------- | ------------------------- |
+| 1 — the slice | current | the goal line, end to end |
+
 ## Current position — 2026-08-12 (TESTING)
 
 The position line.
