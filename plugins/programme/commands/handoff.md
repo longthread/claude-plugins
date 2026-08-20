@@ -36,6 +36,12 @@ changelog.
 2. **What did you get wrong, and what would the next session repeat if you do not say so?**
 3. **Which claims already in the ledger are now false?**
 4. **What is the next terminal condition — a command, and the output that means it is done?**
+5. **Does the next phase still sit where `## The arc` says — and is any later phase's work cheaper
+   taken now?** Ask it against the table, row by row, not from memory. Two shapes to name out loud:
+   work this phase would build that a `planned` phase later deletes, and work scoped out as "a later
+   phase's" that costs less inside this one than it will on its own. **If the answer is "nothing
+   to change", name which rows you read to conclude that** — the failure this question exists to
+   catch is answering it from memory.
 
 **On question 2: if the session changed anything — code, plan, or doc — and the answer is
 "nothing", ask again.** Rephrase toward the concrete — a wrong assumption, a review finding, a
@@ -49,7 +55,10 @@ passed review, compile, and a green replay; seven guards passed while checking n
 defects against zero implementation defects, which redirected effort from code review to re-reading
 the plan against the tree.
 
-## 3. Write the ledger and `deferred.md`
+## 3. Write the arc, the ledger and `deferred.md`
+
+**The arc is corrected here or nowhere.** If question 5 moved a phase, split one, dropped one, or
+changed what a phase delivers, edit `## The arc` now and say what changed in the position narrative.
 
 Diff what the ledger claims against what you measured in step 1, and update it. Fill the tables —
 Gates, Settled decisions, Open forks — and rewrite the Current position narrative to include
@@ -65,6 +74,10 @@ Naming question 4's terminal condition surfaces what it leaves out: record that 
 A closed phase is archived immediately, not only once the ledger crosses the header's length
 threshold — apply the header's archiving rule now regardless of length. Then run `wc -l` on the
 ledger and archive further if it is still over that threshold.
+
+**Flip the arc's rows in the same edit**: the phase that closed becomes `done`, and the one being
+started becomes `current`. Archiving without the flip leaves the programme's own map claiming it is
+somewhere it left.
 
 ## 5. Rewrite `NEXT-SESSION.md` wholesale
 
@@ -89,6 +102,7 @@ into a table whose header still has four.
 ## 7. Report
 
 Show: what you measured versus what the ledger claimed, with each gate's result quoted alongside its
-`trust`; every claim you corrected; the interview answers as recorded — if question 2's second ask
+`trust`; the arc as it now stands, naming any row whose `status` or wording you changed and why;
+every claim you corrected; the interview answers as recorded — if question 2's second ask
 still yielded nothing, record `asked twice, none recorded`; what was archived; and anything you
 could not verify, named as unverified.

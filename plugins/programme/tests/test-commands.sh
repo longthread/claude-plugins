@@ -32,6 +32,13 @@ assert_contains "$INIT" "the output that means the WHOLE programme is done" \
 assert_contains "$RESUME" "starting with \`## The arc\`" "resume: reads the arc before the position"
 assert_contains "$RESUME" "every phase still \`planned\`" "resume: its report names what remains"
 
+# --- handoff: the one question that makes a later phase's work refusable, and the row flip ---
+assert_contains "$HANDOFF" "cheaper taken now" "handoff: asks whether later-phase work should be pulled forward"
+assert_contains "$HANDOFF" "The arc is corrected here or nowhere" "handoff: the arc is reconciled at handoff"
+assert_contains "$HANDOFF" "becomes \`done\`" "handoff: closing a phase flips its arc row"
+assert_contains "$HANDOFF" "name which rows you read to conclude that" \
+  "handoff: a no-change answer to question 5 must still cite the rows"
+
 # --- status is read-only, and that is the property the whole command rests on ---
 assert_contains "$STATUS" "writes nothing" "status: states it writes nothing"
 assert_contains "$STATUS" "/programme:handoff" "status: names handoff as the thing that writes"
