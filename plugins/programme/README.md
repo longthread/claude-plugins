@@ -175,24 +175,26 @@ the guard passes precisely when it should fire. That hole was live until 2026-08
 position after compaction; whether that is duplication or the only thing carrying those two rules
 across a compaction boundary is open (the live-run checklist's Question 2, in the repo this was extracted from).
 
-| rule                               | home                    | form                                        |
-| ---------------------------------- | ----------------------- | ------------------------------------------- |
-| when to write (the cadence)        | `CLAUDE.md` pointer     | prose — needed away from the file           |
-| ledger outranks every handoff      | `CLAUDE.md` pointer     | prose — the only file above both            |
-| correct in place                   | `ledger.md` header      | prose — genuinely about that file           |
-| cite or flag `UNVERIFIED`          | `ledger.md` header      | prose — governs its narrative               |
-| absolute dates                     | `ledger.md` header      | prose                                       |
-| archive past 250 lines             | `ledger.md` header      | prose — about its own size                  |
-| who decided, and why               | `ledger.md`             | schema — `who` \| `why` columns             |
-| gate trust                         | `ledger.md` Gates table | schema — `trust` column                     |
-| don't trust a figure, re-derive    | `NEXT-SESSION.md`       | schema — `verify with` column               |
-| terminal conditions as observables | `NEXT-SESSION.md`       | schema — `command` + `expected`             |
-| fix shape, not a title             | both deferred tables    | schema — `current behaviour` \| `fix shape` |
-| promotion before close             | `deferred.md` header    | prose — that file's lifecycle               |
-| verify against the tree            | `commands/resume.md`    | procedure                                   |
-| resolve which programme is active  | `commands/resume.md`    | procedure — the others defer to it          |
-| report without repairing           | `commands/status.md`    | procedure                                   |
-| the four interview questions       | `commands/handoff.md`   | procedure                                   |
+| rule                                 | home                      | form                                        |
+| ------------------------------------ | ------------------------- | ------------------------------------------- |
+| when to write (the cadence)          | `CLAUDE.md` pointer       | prose — needed away from the file           |
+| ledger outranks every handoff        | `CLAUDE.md` pointer       | prose — the only file above both            |
+| correct in place                     | `ledger.md` header        | prose — genuinely about that file           |
+| cite or flag `UNVERIFIED`            | `ledger.md` header        | prose — governs its narrative               |
+| absolute dates                       | `ledger.md` header        | prose                                       |
+| archive past 250 lines               | `ledger.md` header        | prose — about its own size                  |
+| who decided, and why                 | `ledger.md`               | schema — `who` \| `why` columns             |
+| gate trust                           | `ledger.md` Gates table   | schema — `trust` column                     |
+| the goal, and which phases remain    | `ledger.md` The arc       | schema — `status` column                    |
+| an archive row is not a closed phase | `ledger.md` Archive index | prose — about its own table                 |
+| don't trust a figure, re-derive      | `NEXT-SESSION.md`         | schema — `verify with` column               |
+| terminal conditions as observables   | `NEXT-SESSION.md`         | schema — `command` + `expected`             |
+| fix shape, not a title               | both deferred tables      | schema — `current behaviour` \| `fix shape` |
+| promotion before close               | `deferred.md` header      | prose — that file's lifecycle               |
+| verify against the tree              | `commands/resume.md`      | procedure                                   |
+| resolve which programme is active    | `commands/resume.md`      | procedure — the others defer to it          |
+| report without repairing             | `commands/status.md`      | procedure                                   |
+| the five interview questions         | `commands/handoff.md`     | procedure                                   |
 
 `fix shape` appears in two tables — `deferred.md` and `deferred-work.md` — because deferred work has
 two lifetimes: some items die with the programme, some outlive it. That is one schema definition
