@@ -12,7 +12,7 @@ git rev-parse --abbrev-ref HEAD
 cat "<docsRoot>/programmes/INDEX.md"
 ```
 
-Match the current branch against the `branch` column. `$1` wins if given. **Skip any row whose
+Match the current branch against the `branch` column. `$1` wins if given; otherwise `PROGRAMME_SLUG`, when it names a programme directory, wins over the branch — it is how a relayed session is told its programme. **Skip any row whose
 `status` is `closed`** — it is not a candidate, even if its branch matches. If nothing matches and
 there is exactly one open programme, use it. If several exist and none matches, **list them and
 ask** — do not guess, and do not fall back to "most recently modified", which is how a session ends
@@ -42,7 +42,25 @@ Report any figure that has drifted, and correct `NEXT-SESSION.md` before continu
 
 ## Then report, before doing any work
 
-State: which programme you resolved and how; **the arc — the goal, the programme's terminal
+Begin the report with exactly this line — a relaying session waits for it in this pane's output:
+
+    Resumed programme "<SLUG>"
+
+Then state: which programme you resolved and how; **the arc — the goal, the programme's terminal
 condition, the `current` phase, and every phase still `planned`**; the position as the ledger
 records it; what you measured and what drifted; and the phase's terminal condition you are working
-toward, quoting its command and expected output. Then ask whether to proceed.
+toward, quoting its command and expected output.
+
+Then, by the programme's mode — `INDEX.md`'s `mode` column, which the session-start context also
+states (a blank cell or no column means `assisted`):
+
+- **assisted, supervised** — ask whether to proceed.
+- **autonomous** — proceed into `Start here` without asking. If drift left the next step ambiguous,
+  stop and notify the user through the herdr skill instead of guessing.
+
+## Autonomous: when to hand off
+
+Nobody is present to say "hand off". In autonomous mode, run `/programme:handoff` yourself when
+**either** the phase's terminal condition in `NEXT-SESSION.md` now passes, **or** you cannot make
+further progress — a gate stays red after a fix attempt, or the next step needs a human decision.
+The handoff's own stop conditions decide whether the chain continues.

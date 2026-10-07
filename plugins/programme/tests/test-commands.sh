@@ -119,4 +119,15 @@ assert_contains "$INIT" "Which mode" "init: interviews for the mode"
 assert_contains "$INIT" "| programmes/<SLUG>/ledger.md | assisted |" "init: the row carries a mode cell"
 assert_contains "$STATUS" "the herdr dependency check's three results" "status: reports the check for relaying modes"
 
+# --- resume: the relay's half ---
+assert_contains "$RESUME" "otherwise \`PROGRAMME_SLUG\`, when it names a programme directory, wins over the branch" \
+  "resume: PROGRAMME_SLUG precedence"
+assert_contains "$RESUME" "Resumed programme \"<SLUG>\"" "resume: the fixed opening line"
+assert_contains "$RESUME" "proceed into \`Start here\` without asking" "resume: autonomous proceeds"
+assert_contains "$RESUME" "run \`/programme:handoff\` yourself when" "resume: autonomous starts its own handoff"
+for other in "$INIT" "$HANDOFF" "$STATUS" "$MODE"; do
+  assert_not_contains "$other" "otherwise \`PROGRAMME_SLUG\`" "PROGRAMME_SLUG precedence lives only in resume.md"
+  assert_not_contains "$other" "run \`/programme:handoff\` yourself" "the autonomous trigger lives only in resume.md"
+done
+
 finish
