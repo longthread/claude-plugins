@@ -41,19 +41,21 @@ The writing rules are in <code>templates/CHANGELOG.md</code> at the repo root.</
 </blockquote>
 <h2>0.4.0 — 2026-10-07</h2>
 <p><strong>Nothing to do to upgrade.</strong> A programme with no <code>mode</code> in <code>INDEX.md</code> is <code>assisted</code>, which behaves
-as 0.3.0 did apart from the drafted interview below. An unknown or blank mode reads as <code>assisted</code>.</p>
+as 0.3.0 did apart from the drafted interview and the printed next-session commands. An unknown or
+blank mode reads as <code>assisted</code>.</p>
 <h3>Added</h3>
 <ul>
 <li><strong>Three modes per programme — <code>assisted</code>, <code>supervised</code>, <code>autonomous</code> — chosen at <code>/programme:init</code>
 and switched with the new <code>/programme:mode</code>.</strong> The mode is a column in <code>INDEX.md</code>, and every
-session is told it at start.</li>
+session whose programme resolves is told it at start.</li>
 <li><strong>Handoff relays to the next session.</strong> In supervised and autonomous mode it opens the next session
 in a herdr pane, primed with <code>/programme:resume</code>, and closes its own pane once the successor has
 resumed — only ever a pane the relay opened. Autonomous sessions start their own handoff when the
 phase&#39;s terminal condition passes or they cannot progress, and the chain stops at a failing gate,
 a blocked dialog, the programme&#39;s terminal condition, a missing next target, a next step that needs
 a human decision, or the relay cap (<code>relayCap</code>, default 10). A successor that is blocked, exits,
-errors or times out leaves both panes open and stops the chain.</li>
+errors or times out leaves both panes open and stops the chain. Autonomous never closes a
+programme on its own: it writes the rest of the handoff and tells you closure awaits you.</li>
 <li><strong>Relayed sessions inherit the permission mode of the session that handed off</strong> — never a more
 permissive one.</li>
 </ul>

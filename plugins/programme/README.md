@@ -152,20 +152,21 @@ Each programme has a mode in `INDEX.md` — `assisted` (the default), `supervise
 set at `/programme:init` or with `/programme:mode`. It decides two things: how much of the handoff
 interview is put to you, and whether a handoff starts the next session itself.
 
-| relay point       | assisted                           | supervised                        | autonomous                                |
-| ----------------- | ---------------------------------- | --------------------------------- | ----------------------------------------- |
-| handoff interview | drafted with evidence; you edit it | you're asked only the unevidenced | evidenced answers only; the rest left out |
-| the next session  | printed for you to start           | opened in a herdr pane            | opened in a herdr pane                    |
-| after it resumes  | asks to proceed                    | asks to proceed                   | proceeds; hands off by itself             |
-| a phase closes    | stop                               | stop                              | continue                                  |
+| relay point       | assisted                                               | supervised                        | autonomous                                |
+| ----------------- | ------------------------------------------------------ | --------------------------------- | ----------------------------------------- |
+| handoff interview | drafted with evidence; you edit it                     | you're asked only the unevidenced | evidenced answers only; the rest left out |
+| the next session  | printed for you to start (a pane offered inside herdr) | opened in a herdr pane            | opened in a herdr pane                    |
+| after it resumes  | asks to proceed                                        | asks to proceed                   | proceeds; hands off by itself             |
+| a phase closes    | stop                                                   | stop                              | continue                                  |
 
 Supervised and autonomous need [herdr](https://herdr.dev) and its skill; they do every herdr step
 through that skill, so this plugin carries no herdr code of its own. A relayed session gets the same
 permission mode as the one that handed off, and only a pane the relay opened is ever closed, and
-only once the successor's `Resumed programme` line has appeared. The chain stops at a failing gate,
-a blocked dialog, the programme's terminal condition, a missing next target, a next step that needs a
-human decision, or `relayCap` relays (default 10); a successor that is blocked, exits, errors or
-times out leaves both panes open. An unknown or blank mode reads as `assisted`.
+only once the successor's `Resumed programme` line has appeared — the pane you started the chain in,
+relay 0's, never is. The chain stops at a failing gate, a blocked dialog, the programme's terminal
+condition, a missing next target, a next step that needs a human decision, or `relayCap` relays
+(default 10); a successor that is blocked, exits, errors or times out leaves both panes open. An
+unknown or blank mode reads as `assisted`.
 
 ## When NOT to use it
 
@@ -219,34 +220,35 @@ the guard passes precisely when it should fire. That hole was live until 2026-08
 position after compaction; whether that is duplication or the only thing carrying those two rules
 across a compaction boundary is open (the live-run checklist's Question 2, in the repo this was extracted from).
 
-| rule                                 | home                      | form                                        |
-| ------------------------------------ | ------------------------- | ------------------------------------------- |
-| when to write (the cadence)          | `CLAUDE.md` pointer       | prose — needed away from the file           |
-| ledger outranks every handoff        | `CLAUDE.md` pointer       | prose — the only file above both            |
-| correct in place                     | `ledger.md` header        | prose — genuinely about that file           |
-| cite or flag `UNVERIFIED`            | `ledger.md` header        | prose — governs its narrative               |
-| absolute dates                       | `ledger.md` header        | prose                                       |
-| archive past 250 lines               | `ledger.md` header        | prose — about its own size                  |
-| who decided, and why                 | `ledger.md`               | schema — `who` \| `why` columns             |
-| gate trust                           | `ledger.md` Gates table   | schema — `trust` column                     |
-| the goal, and which phases remain    | `ledger.md` The arc       | schema — `status` column                    |
-| an archive row is not a closed phase | `ledger.md` Archive index | prose — about its own table                 |
-| don't trust a figure, re-derive      | `NEXT-SESSION.md`         | schema — `verify with` column               |
-| terminal conditions as observables   | `NEXT-SESSION.md`         | schema — `command` + `expected`             |
-| fix shape, not a title               | both deferred tables      | schema — `current behaviour` \| `fix shape` |
-| promotion before close               | `deferred.md` header      | prose — that file's lifecycle               |
-| verify against the tree              | `commands/resume.md`      | procedure                                   |
-| resolve which programme is active    | `commands/resume.md`      | procedure — the others defer to it          |
-| resolve a shared branch by asking    | `commands/resume.md`      | procedure — the hooks stay silent instead   |
-| report without repairing             | `commands/status.md`      | procedure                                   |
-| the five interview questions         | `commands/handoff.md`     | procedure                                   |
-| the herdr dependency check           | `commands/mode.md`        | procedure                                   |
-| what a mode does at each relay point | `commands/handoff.md` · `commands/resume.md` | procedure, where each point happens |
-| `PROGRAMME_SLUG` precedence          | `commands/resume.md`      | procedure                                   |
-| when an autonomous session hands off | `commands/resume.md`      | procedure                                   |
-| relay stop conditions, the cap       | `commands/handoff.md`     | procedure                                   |
-| which pane a relay may close         | `commands/handoff.md`     | procedure                                   |
-| what the `mode` column means, and how to read it | `templates/INDEX.md` | prose — its header comment            |
+| rule                                             | home                                         | form                                        |
+| ------------------------------------------------ | -------------------------------------------- | ------------------------------------------- |
+| when to write (the cadence)                      | `CLAUDE.md` pointer                          | prose — needed away from the file           |
+| ledger outranks every handoff                    | `CLAUDE.md` pointer                          | prose — the only file above both            |
+| correct in place                                 | `ledger.md` header                           | prose — genuinely about that file           |
+| cite or flag `UNVERIFIED`                        | `ledger.md` header                           | prose — governs its narrative               |
+| absolute dates                                   | `ledger.md` header                           | prose                                       |
+| archive past 250 lines                           | `ledger.md` header                           | prose — about its own size                  |
+| who decided, and why                             | `ledger.md`                                  | schema — `who` \| `why` columns             |
+| gate trust                                       | `ledger.md` Gates table                      | schema — `trust` column                     |
+| the goal, and which phases remain                | `ledger.md` The arc                          | schema — `status` column                    |
+| an archive row is not a closed phase             | `ledger.md` Archive index                    | prose — about its own table                 |
+| don't trust a figure, re-derive                  | `NEXT-SESSION.md`                            | schema — `verify with` column               |
+| terminal conditions as observables               | `NEXT-SESSION.md`                            | schema — `command` + `expected`             |
+| fix shape, not a title                           | both deferred tables                         | schema — `current behaviour` \| `fix shape` |
+| promotion before close                           | `deferred.md` header                         | prose — that file's lifecycle               |
+| verify against the tree                          | `commands/resume.md`                         | procedure                                   |
+| resolve which programme is active                | `commands/resume.md`                         | procedure — the others defer to it          |
+| resolve a shared branch by asking                | `commands/resume.md`                         | procedure — the hooks stay silent instead   |
+| report without repairing                         | `commands/status.md`                         | procedure                                   |
+| the five interview questions                     | `commands/handoff.md`                        | procedure                                   |
+| the herdr dependency check                       | `commands/mode.md`                           | procedure                                   |
+| what a mode does at each relay point             | `commands/handoff.md` · `commands/resume.md` | procedure, where each point happens         |
+| `PROGRAMME_SLUG` precedence                      | `commands/resume.md`                         | procedure                                   |
+| the resume report's fixed opening line           | `commands/resume.md`                         | procedure                                   |
+| when an autonomous session hands off             | `commands/resume.md`                         | procedure                                   |
+| relay stop conditions, the cap                   | `commands/handoff.md`                        | procedure                                   |
+| which pane a relay may close                     | `commands/handoff.md`                        | procedure                                   |
+| what the `mode` column means, and how to read it | `templates/INDEX.md`                         | prose — its header comment                  |
 
 `fix shape` appears in two tables — `deferred.md` and `deferred-work.md` — because deferred work has
 two lifetimes: some items die with the programme, some outlive it. That is one schema definition

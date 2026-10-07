@@ -7,20 +7,22 @@
 ## 0.4.0 — 2026-10-07
 
 **Nothing to do to upgrade.** A programme with no `mode` in `INDEX.md` is `assisted`, which behaves
-as 0.3.0 did apart from the drafted interview below. An unknown or blank mode reads as `assisted`.
+as 0.3.0 did apart from the drafted interview and the printed next-session commands. An unknown or
+blank mode reads as `assisted`.
 
 ### Added
 
 - **Three modes per programme — `assisted`, `supervised`, `autonomous` — chosen at `/programme:init`
   and switched with the new `/programme:mode`.** The mode is a column in `INDEX.md`, and every
-  session is told it at start.
+  session whose programme resolves is told it at start.
 - **Handoff relays to the next session.** In supervised and autonomous mode it opens the next session
   in a herdr pane, primed with `/programme:resume`, and closes its own pane once the successor has
   resumed — only ever a pane the relay opened. Autonomous sessions start their own handoff when the
   phase's terminal condition passes or they cannot progress, and the chain stops at a failing gate,
   a blocked dialog, the programme's terminal condition, a missing next target, a next step that needs
   a human decision, or the relay cap (`relayCap`, default 10). A successor that is blocked, exits,
-  errors or times out leaves both panes open and stops the chain.
+  errors or times out leaves both panes open and stops the chain. Autonomous never closes a
+  programme on its own: it writes the rest of the handoff and tells you closure awaits you.
 - **Relayed sessions inherit the permission mode of the session that handed off** — never a more
   permissive one.
 

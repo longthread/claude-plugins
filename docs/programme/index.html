@@ -287,7 +287,7 @@ interview is put to you, and whether a handoff starts the next session itself.</
 </tr>
 <tr>
 <td>the next session</td>
-<td>printed for you to start</td>
+<td>printed for you to start (a pane offered inside herdr)</td>
 <td>opened in a herdr pane</td>
 <td>opened in a herdr pane</td>
 </tr>
@@ -307,10 +307,11 @@ interview is put to you, and whether a handoff starts the next session itself.</
 </div><p>Supervised and autonomous need <a href="https://herdr.dev">herdr</a> and its skill; they do every herdr step
 through that skill, so this plugin carries no herdr code of its own. A relayed session gets the same
 permission mode as the one that handed off, and only a pane the relay opened is ever closed, and
-only once the successor&#39;s <code>Resumed programme</code> line has appeared. The chain stops at a failing gate,
-a blocked dialog, the programme&#39;s terminal condition, a missing next target, a next step that needs a
-human decision, or <code>relayCap</code> relays (default 10); a successor that is blocked, exits, errors or
-times out leaves both panes open. An unknown or blank mode reads as <code>assisted</code>.</p>
+only once the successor&#39;s <code>Resumed programme</code> line has appeared — the pane you started the chain in,
+relay 0&#39;s, never is. The chain stops at a failing gate, a blocked dialog, the programme&#39;s terminal
+condition, a missing next target, a next step that needs a human decision, or <code>relayCap</code> relays
+(default 10); a successor that is blocked, exits, errors or times out leaves both panes open. An
+unknown or blank mode reads as <code>assisted</code>.</p>
 <h2>When NOT to use it</h2>
 <p>This fits multi-session programme work with a running thread — the kind where a session would ever
 have to ask &quot;where were we?&quot; It does not fit a repo that is a series of unrelated tickets. Point it
@@ -469,6 +470,11 @@ across a compaction boundary is open (the live-run checklist&#39;s Question 2, i
 </tr>
 <tr>
 <td><code>PROGRAMME_SLUG</code> precedence</td>
+<td><code>commands/resume.md</code></td>
+<td>procedure</td>
+</tr>
+<tr>
+<td>the resume report&#39;s fixed opening line</td>
 <td><code>commands/resume.md</code></td>
 <td>procedure</td>
 </tr>
