@@ -17,13 +17,14 @@ blank mode reads as `assisted`.
   session whose programme resolves is told it at start.
 - **Handoff relays to the next session.** In supervised and autonomous mode it opens the next
   session in a herdr pane, primed with `/programme:resume`, and closes its own pane once the
-  successor has resumed — only ever a pane the relay opened. Autonomous sessions start their own
-  handoff when the phase's terminal condition passes or they cannot progress, and the chain stops at
-  a failing gate, a blocked dialog, the programme's terminal condition, a missing next target, a
-  session that could not progress (a next step that needs a human decision among them), or the relay
-  cap (`relayCap`, default 10). A successor that is blocked, exits, errors or times out leaves both
-  panes open and stops the chain. Autonomous never closes a programme on its own: it writes the rest
-  of the handoff and tells you closure awaits you.
+  successor has resolved the programme and started — only ever a pane the relay opened. Autonomous
+  sessions start their own handoff when the phase's terminal condition passes or they cannot
+  progress, and the chain stops at a failing gate, a blocked dialog, the programme's terminal
+  condition, a missing next target, a session that could not progress (a next step that needs a
+  human decision among them), or the relay cap (`relayCap`, default 10). A successor that is
+  blocked, exits, errors or times out leaves both panes open and stops the chain. Autonomous never
+  closes a programme on its own: it writes the rest of the handoff and tells you closure awaits
+  you.
 - **Relayed sessions inherit the permission mode of the session that handed off** — never a more
   permissive one.
 
@@ -32,8 +33,9 @@ blank mode reads as `assisted`.
 - **The handoff interview is drafted, with evidence, before anything is asked.** Assisted shows the
   whole draft for you to edit; supervised asks only what it could not back with evidence; autonomous
   keeps only evidenced answers and lists the rest by number.
-- **`/programme:resume` honours `PROGRAMME_SLUG`** and opens its report with a fixed line, which a
-  relaying session waits for.
+- **`/programme:resume` honours `PROGRAMME_SLUG`** and prints a fixed first line as soon as it has
+  resolved the programme and started, in every mode, before the ledger is read; a relaying session
+  waits for that line, not for the checks or the report.
 - **The relaying modes need herdr and its skill**; `/programme:mode` checks both and refuses without
   them. Assisted needs neither.
 

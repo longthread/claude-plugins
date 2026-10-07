@@ -183,8 +183,9 @@ is. Otherwise, using the herdr skill:
    `--permission-mode default` explicitly, never leaving it to settings' `defaultMode`, and say so.
    **Never pass a more permissive mode than the one recorded.**
 3. send `/programme:resume <SLUG>`, and wait until its output shows the line
-   `Resumed programme "<SLUG>"`, or until it is blocked. Do not wait for it to go idle — an
-   autonomous successor keeps working after its report;
+   `Resumed programme "<SLUG>"` — the line the successor prints once it has resolved the programme
+   — or until it is blocked. Do not wait for its checks or its report, or for it to go idle — an
+   autonomous successor keeps working after them;
 4. if it is blocked — a trust or permission dialog — or ends any other way without that line (it
    exited, errored, or the wait timed out), treat that like blocked: notify the user, leave both
    panes, and stop.

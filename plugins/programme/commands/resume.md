@@ -22,16 +22,30 @@ recently modified", which is how a session ends up writing into the wrong progra
 and take the answer as the user re-running `/programme:resume <name>`: the re-run is what pins the
 programme for the rest of the session, including after a compaction.
 
+## Say you have started, before reading anything
+
+As soon as the programme is resolved — before reading the ledger — print this as the first line of
+your first reply, **in every mode, including autonomous**:
+
+    Resumed programme "<SLUG>"
+
+It signals that this session has resolved the programme and has started. A relaying predecessor
+waits for it in this pane's output, and the checks below can take many minutes, so it must not wait
+behind them. It says nothing of the checks, which come after.
+
 ## Read, in this order
 
 1. `<docsRoot>/programmes/<SLUG>/ledger.md` — **in full, starting with `## The arc`**: the goal, the
    programme's terminal condition, and which phases are still `planned`. Read it before the
    position, not after — a phase read without the arc around it is a phase you cannot refuse work
    inside.
-2. `<docsRoot>/programmes/<SLUG>/NEXT-SESSION.md` — follow its "Start here" block **verbatim**
+2. `<docsRoot>/programmes/<SLUG>/NEXT-SESSION.md` — read its "Start here" block now, but it is
+   acted on only after the State-table checks and the report below: it is followed after the
+   report, and in assisted and supervised mode after the user says proceed.
 
 Read the prompt file itself rather than acting on any summary of it, including one in this
-conversation. That is deliberate: it stops the instructions being invoked in a stale copied form.
+conversation. That is deliberate: it stops the instructions being invoked in a stale copied form,
+and acting on `Start here` before the checks would act on a figure that may have drifted.
 
 ## Run every check in the State table before acting
 
@@ -44,11 +58,7 @@ Report any figure that has drifted, and correct `NEXT-SESSION.md` before continu
 
 ## Then report, before doing any work
 
-Begin the report with exactly this line — a relaying session waits for it in this pane's output:
-
-    Resumed programme "<SLUG>"
-
-Then state: which programme you resolved and how; **the arc — the goal, the programme's terminal
+The report follows the `Resumed programme "<SLUG>"` line you already printed. State: which programme you resolved and how; **the arc — the goal, the programme's terminal
 condition, the `current` phase, and every phase still `planned`**; the position as the ledger
 records it; what you measured and what drifted; and the phase's terminal condition you are working
 toward, quoting its command and expected output.

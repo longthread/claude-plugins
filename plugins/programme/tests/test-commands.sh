@@ -124,6 +124,18 @@ assert_contains "$STATUS" "run the herdr dependency check \`/programme:mode\` st
 assert_contains "$RESUME" "otherwise \`PROGRAMME_SLUG\`, when it names a programme directory, wins over the branch" \
   "resume: PROGRAMME_SLUG precedence"
 assert_contains "$RESUME" "Resumed programme \"<SLUG>\"" "resume: the fixed opening line"
+assert_contains "$RESUME" "in every mode, including autonomous" "resume: the fixed line is printed in every mode"
+assert_contains "$RESUME" "acted on only after the State-table checks and the report" \
+  "resume: Start here is read now, followed after the report"
+assert_not_contains "$RESUME" "\"Start here\" block **verbatim**" "resume: Start here is no longer followed verbatim up front"
+# ORDER, read UNFOLDED: the fixed line must come before the checks and before the ledger read.
+fixed_ln=$(grep -n 'Resumed programme "<SLUG>"' "$C/resume.md" | head -1 | cut -d: -f1)
+checks_ln=$(grep -n '^## Run every check' "$C/resume.md" | head -1 | cut -d: -f1)
+ledger_ln=$(grep -n '^1\. `<docsRoot>/programmes/<SLUG>/ledger.md`' "$C/resume.md" | head -1 | cut -d: -f1)
+assert_eq "yes" "$([ -n "$fixed_ln" ] && [ -n "$checks_ln" ] && [ -n "$ledger_ln" ] && [ "$fixed_ln" -lt "$checks_ln" ] && [ "$fixed_ln" -lt "$ledger_ln" ] && echo yes || echo no)" \
+  "resume: the fixed line is printed before the ledger read and before the checks"
+assert_contains "$HANDOFF" "the line the successor prints once it has resolved the programme" \
+  "handoff: the awaited line signals resolved-and-started, not a finished report"
 assert_contains "$RESUME" "proceed into \`Start here\` without asking" "resume: autonomous proceeds"
 assert_contains "$RESUME" "run \`/programme:handoff\` yourself when" "resume: autonomous starts its own handoff"
 for other in "$INIT" "$HANDOFF" "$STATUS" "$MODE"; do

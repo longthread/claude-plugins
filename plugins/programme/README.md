@@ -160,13 +160,14 @@ interview is put to you, and whether a handoff starts the next session itself.
 | a phase closes    | stop                                                   | stop                              | continue                                  |
 
 Supervised and autonomous need [herdr](https://herdr.dev) and its skill; they do every herdr step
-through that skill, so this plugin carries no herdr code of its own. A relayed session gets the same
-permission mode as the one that handed off, and only a pane the relay opened is ever closed, and
-only once the successor's `Resumed programme` line has appeared — the pane you started the chain in,
-relay 0's, never is. The chain stops at a failing gate, a blocked dialog, the programme's terminal
-condition, a missing next target, a session that could not progress (a next step that needs a human
-decision among them), or `relayCap` relays (default 10); a successor that is blocked, exits, errors
-or times out leaves both panes open. An unknown or blank mode reads as `assisted`.
+through that skill, so this plugin carries no herdr code of its own. A relayed session gets the
+same permission mode as the one that handed off, and only a pane the relay opened is ever closed,
+and only once the successor's `Resumed programme` line has appeared (it prints that as soon as it
+has resolved the programme and started) — the pane you started the chain in, relay 0's, never is.
+The chain stops at a failing gate, a blocked dialog, the programme's terminal condition, a missing
+next target, a session that could not progress (a next step that needs a human decision among
+them), or `relayCap` relays (default 10); a successor that is blocked, exits, errors or times out
+leaves both panes open. An unknown or blank mode reads as `assisted`.
 
 ## When NOT to use it
 
@@ -244,7 +245,7 @@ across a compaction boundary is open (the live-run checklist's Question 2, in th
 | the herdr dependency check                       | `commands/mode.md`                           | procedure                                   |
 | what a mode does at each relay point             | `commands/handoff.md` · `commands/resume.md` | procedure, where each point happens         |
 | `PROGRAMME_SLUG` precedence                      | `commands/resume.md`                         | procedure                                   |
-| the resume report's fixed opening line           | `commands/resume.md`                         | procedure                                   |
+| the resume's fixed first line                    | `commands/resume.md`                         | procedure                                   |
 | when an autonomous session hands off             | `commands/resume.md`                         | procedure                                   |
 | relay stop conditions, the cap                   | `commands/handoff.md`                        | procedure                                   |
 | which pane a relay may close                     | `commands/handoff.md`                        | procedure                                   |
