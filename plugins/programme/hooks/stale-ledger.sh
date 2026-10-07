@@ -45,10 +45,32 @@ if [ -n "$stamped_root" ] && [ "$stamped_root" != "$root" ]; then
   : # The session moved to another worktree: its fingerprint describes a different tree. Committed
     # range only — silence over a guess.
 elif [ -n "$stamped_root" ] && [ -f "$dirt" ] && ! grep -qx overflow "$dirt"; then
-  changed="$changed
-$(sc_dirt_new "$dirt" "$(sc_dirt_snapshot "$root" "${pathspec[@]}")")"
-  touched="$touched
+  # The whole tree, exactly as SessionStart took it: a pathspec-limited snapshot reports a rename
+  # that straddles the pathspec (notes.md -> src/notes.ts) as an add, which the fingerprint never
+  # recorded. Diff like with like, then sort what is new into code and ledger.
+  # A path dirty at start and since reverted to clean is not in the new snapshot, so it is not
+  # counted — deliberately: undoing pre-existing dirt is not this session writing code.
+  new=$(sc_dirt_new "$dirt" "$(sc_dirt_snapshot "$root")")
+  if [ "$new" = overflow ]; then
+    changed="$changed
+overflow"   # too dirty now to tell: as before, that counts as changed code
+    touched="$touched
 $(sc_dirt_new "$dirt" "$(sc_dirt_snapshot "$root" "$rel_ledger")")"
+  elif [ -n "$new" ]; then
+    declare -A is_code=()
+    while IFS= read -r -d '' entry; do
+      case ${entry:0:2} in R*|C*) IFS= read -r -d '' _ || true ;; esac
+      is_code[${entry:3}]=1
+    done < <(git -C "$root" status --porcelain=v1 -z --untracked-files=all -- "${pathspec[@]}" 2>/dev/null)
+    while IFS= read -r line; do
+      path=${line#*$'\t'}; path=${path%$'\t'*}
+      [ -n "$path" ] || continue
+      [ -n "${is_code[$path]:-}" ] && changed="$changed
+$path"
+      [ "$path" = "$rel_ledger" ] && touched="$touched
+$path"
+    done <<<"$new"
+  fi
 else
   # No fingerprint (a session stamped before this version, or one too dirty to fingerprint): the
   # whole working tree, as before.

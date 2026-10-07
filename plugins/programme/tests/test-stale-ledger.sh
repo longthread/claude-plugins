@@ -122,12 +122,40 @@ run_hook stale-ledger.sh "$(payload Stop f4)" "$REPO"
 assert_contains "$OUT" "additionalContext" "and does not spend the latch"
 git -C "$REPO" checkout -q -- .
 
+# A staged rename straddling the code pathspec (.md -> .ts) that predates the session is not a change.
+echo "notes" >"$REPO/notes.md"
+git -C "$REPO" add notes.md && git -C "$REPO" commit -qm "notes"
+git -C "$REPO" mv notes.md src/notes.ts
+start r1
+run_hook stale-ledger.sh "$(payload Stop r1)" "$REPO"
+assert_empty "$OUT" "a rename across the pathspec staged before the session does not warn"
+git -C "$REPO" mv src/notes.ts notes.md
+
+start r2
+echo prose >"$REPO/docs/new notes.md"
+run_hook stale-ledger.sh "$(payload Stop r2)" "$REPO"
+assert_empty "$OUT" "fingerprinted: a new markdown file outside the code pathspec does not warn"
+echo code >"$REPO/src/new file.ts"
+run_hook stale-ledger.sh "$(payload Stop r2)" "$REPO"
+assert_contains "$OUT" "additionalContext" "fingerprinted: a new code file with a space in its path warns"
+rm -f "$REPO/docs/new notes.md" "$REPO/src/new file.ts"
+start r3
+echo code >>"$REPO/src/app.ts"; echo note >>"$REPO/docs/programmes/headless/ledger.md"
+run_hook stale-ledger.sh "$(payload Stop r3)" "$REPO"
+assert_empty "$OUT" "fingerprinted: a ledger edited this session silences it"
+git -C "$REPO" checkout -q -- .
+
 # Over the cap: whole-tree comparison, said once on stderr, never blocking.
 mkdir -p "$REPO/gen" && for i in 1 2 3 4; do echo "$i" >"$REPO/gen/f$i.ts"; done
 SC_DIRT_CAP=3 run_hook session-start.sh "$(payload SessionStart f5 startup)" "$REPO"
 assert_contains "$ERR" "more than 3 dirty paths" "overflow is reported once on stderr"
 run_hook stale-ledger.sh "$(payload Stop f5)" "$REPO"
 assert_contains "$OUT" "additionalContext" "overflow falls back to the whole working tree"
+rm -rf "$REPO/gen"
+start f6
+mkdir -p "$REPO/gen" && for i in 1 2 3 4; do echo "$i" >"$REPO/gen/f$i.ts"; done
+SC_DIRT_CAP=3 run_hook stale-ledger.sh "$(payload Stop f6)" "$REPO"
+assert_contains "$OUT" "additionalContext" "a tree that overflows only at Stop counts as changed code"
 rm -rf "$REPO/gen"
 
 # The session moved to another worktree: the fingerprint is not comparable; committed range only.

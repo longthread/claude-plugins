@@ -129,7 +129,19 @@ sed -i 's/| alpha | active | main |/| alpha | closed | main |/' "$S/docs/program
 SC_SESSION_ID=pin3 sc_state_set programme alpha
 assert_eq "alpha" "$(SC_SESSION_ID=pin3 CLAUDE_PROJECT_DIR="$S" sc_resolve_programme)" \
   "a pin naming a closed programme still resolves — it was asked for by name"
-rm -rf "$R" "$S"
+
+# --- A stale or duplicated INDEX row is not a second candidate ---
+G=$(make_repo)
+add_programme "$G" "alpha" "main"
+printf '| ghost | active | main | programmes/ghost/ledger.md |\n' >>"$G/docs/programmes/INDEX.md"
+assert_eq "alpha" "$(CLAUDE_PROJECT_DIR="$G" sc_resolve_programme)" \
+  "an INDEX row with no programme dir does not make a real programme ambiguous"
+printf '| alpha | active | main | programmes/alpha/ledger.md |\n' >>"$G/docs/programmes/INDEX.md"
+assert_eq "alpha" "$(CLAUDE_PROJECT_DIR="$G" sc_resolve_programme)" \
+  "a duplicated INDEX row for one programme resolves it, not ambiguity"
+assert_eq "alpha" "$(CLAUDE_PROJECT_DIR="$G" sc_branch_candidates)" \
+  "candidates are existing dirs, de-duplicated"
+rm -rf "$R" "$S" "$G"
 
 rm -rf "$REPO" "$STATE_HOME"
 finish

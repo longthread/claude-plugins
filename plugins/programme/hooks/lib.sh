@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Shared config, programme resolution, and output helpers for the programme hooks.
 #
-# Programme identity resolves from the branch rather than from a stored "active" value because the
-# Stop hook runs with no user present to disambiguate — so both hooks and commands must share one
-# tree-derived algorithm.
+# Programme identity resolves from the tree (the branch, INDEX.md, the programme dirs) plus a
+# per-session pin and PROGRAMME_SLUG — never from a stored "active" value, because the Stop hook runs
+# with no user present to disambiguate. The commands share the tree-derived part of the algorithm.
 
 SC_JSON=""
 if command -v jq >/dev/null 2>&1; then SC_JSON=jq
@@ -122,26 +122,31 @@ sc_valid_slug() { # a slug is a directory name, never a path
   printf '%s' "$1" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9._-]*$'
 }
 
-# Open INDEX.md slugs whose branch column equals the current branch, one per line.
+# Open INDEX.md slugs whose branch column equals the current branch, one per line, first-seen
+# order. Only rows naming an existing programme dir count, once each: a stale row for a deleted
+# programme, or a row pasted twice, would otherwise turn the one real programme into "ambiguous".
 sc_branch_candidates() {
-  local dir branch
+  local dir branch slug
   dir=$(sc_programmes_dir); branch=$(sc_current_branch)
   [ -n "$dir" ] && [ -n "$branch" ] && [ -f "$dir/INDEX.md" ] || { printf ''; return 0; }
   awk -F'|' -v b="$branch" '
     /^\|/ {
       gsub(/^[ \t]+|[ \t]+$/, "", $2); gsub(/^[ \t]+|[ \t]+$/, "", $3); gsub(/^[ \t]+|[ \t]+$/, "", $4)
-      if ($4 == b && $3 != "closed" && $2 != "programme" && $2 !~ /^-+$/) print $2
-    }' "$dir/INDEX.md"
+      if ($4 == b && $3 != "closed" && $2 != "programme" && $2 !~ /^-+$/ && !seen[$2]++) print $2
+    }' "$dir/INDEX.md" \
+  | while IFS= read -r slug; do
+      sc_valid_slug "$slug" && [ -d "$dir/$slug" ] && printf '%s\n' "$slug"
+    done || true
 }
 
 # Explicit arg > session pin > PROGRAMME_SLUG > the UNIQUE open INDEX.md row on the current branch
-# > sole open programme dir > empty. Two or more rows on the branch is ambiguity, and ambiguity
+# > sole open programme dir > empty. Two or more candidates on the branch is ambiguity, and ambiguity
 # resolves to nothing: the first match is how every session on a shared branch was told the same,
 # wrong, programme. A pin or PROGRAMME_SLUG naming a closed programme still resolves — it was asked
 # for by name; only the inferred paths skip closed rows.
 sc_resolve_programme() {
   [ -n "${1:-}" ] && { printf '%s' "$1"; return 0; }
-  local dir pin cands n count sole d
+  local dir pin cands count sole d
   dir=$(sc_programmes_dir)
   [ -n "$dir" ] && [ -d "$dir" ] || { printf ''; return 0; }
 
@@ -156,9 +161,11 @@ sc_resolve_programme() {
   fi
 
   cands=$(sc_branch_candidates)
-  n=$(printf '%s' "$cands" | grep -c . || true)
-  [ "$n" -eq 1 ] && { printf '%s' "$cands"; return 0; }
-  [ "$n" -gt 1 ] && { printf ''; return 0; }
+  case "$cands" in
+    '') ;;
+    *$'\n'*) printf ''; return 0 ;;   # two or more: ambiguous
+    *) printf '%s' "$cands"; return 0 ;;
+  esac
 
   count=0
   for d in "$dir"/*/; do
@@ -249,12 +256,16 @@ sc_dirt_new() {
   printf '%s\n' "$2" | grep -vxF -f "$1" | grep . || true
 }
 
-_sc_state_file() {
-  local base key
-  base="${XDG_STATE_HOME:-$HOME/.local/state}/claude-programme"
+sc_state_dir() {
+  local base="${XDG_STATE_HOME:-$HOME/.local/state}/claude-programme"
   mkdir -p "$base" 2>/dev/null || true
+  printf '%s' "$base"
+}
+
+_sc_state_file() {
+  local key
   key=$(printf '%s' "${SC_SESSION_ID:-unknown}" | tr -c 'A-Za-z0-9._-' '_')
-  printf '%s/%s.state' "$base" "$key"
+  printf '%s/%s.state' "$(sc_state_dir)" "$key"
 }
 
 sc_state_get() {
@@ -302,9 +313,9 @@ sc_emit_system_message() {
 }
 
 # SessionStart and Stop both carry hookSpecificOutput.additionalContext to the model — Stop's was
-# verified live on 2026-10-06 (Claude Code 2.1.292): the model's next
-# turn read it, and the follow-up Stop arrived with stop_hook_active=true. PreCompact remains
-# unverified and keeps a user-only systemMessage.
+# verified live on 2026-10-06 (Claude Code 2.1.292): the model's next turn read it, and the
+# follow-up Stop arrived with stop_hook_active=true. PreCompact remains unverified and keeps a
+# user-only systemMessage.
 sc_emit_additional_context() {
   [ -n "$SC_JSON" ] || return 0
   printf '{"hookSpecificOutput":{"hookEventName":"%s","additionalContext":%s}}\n' \

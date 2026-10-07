@@ -106,6 +106,14 @@ assert_contains "$OUT" '\"alpha\", \"beta\", \"gamma\" all record branch \"main\
 assert_contains "$OUT" "/programme:resume <name>" "ambiguity says how to pick"
 assert_not_contains "$OUT" "The position line." "ambiguity injects no ledger"
 
+S2=$(make_repo)
+for p in alpha beta; do add_programme "$S2" "$p" "main"; done
+printf '| ghost | active | main | programmes/ghost/ledger.md |\n' >>"$S2/docs/programmes/INDEX.md"
+run_hook session-start.sh "$(PAYLOAD_CWD="$S2" payload SessionStart amb2 startup)" "$S2"
+assert_contains "$OUT" 'Programmes \"alpha\", \"beta\" all record branch' \
+  "two candidates join as a pair, and a stale row is not named"
+rm -rf "$S2"
+
 # --- A worktree session gets its own branch's programme ---
 R=$(make_repo)
 add_programme "$R" "headless" "main"
@@ -137,7 +145,39 @@ BEFORE=$(cat "$D")
 echo y >"$C/tool-cache/b.ts"
 run_hook session-start.sh "$(PAYLOAD_CWD="$C" payload SessionStart c1 compact)" "$C"
 assert_eq "$BEFORE" "$(cat "$D")" "compact on a stamped session does not rewrite the fingerprint"
+
+# A lost root write must never re-fingerprint mid-session: the .dirt file is the "stamped" mark.
+F=$(SC_SESSION_ID=c1 _sc_state_file)
+grep -v '^root=' "$F" >"$F.x"; mv "$F.x" "$F"
+echo z >"$C/tool-cache/c.ts"
+run_hook session-start.sh "$(PAYLOAD_CWD="$C" payload SessionStart c1 compact)" "$C"
+assert_eq "$BEFORE" "$(cat "$D")" "compact with root missing but .dirt present does not rewrite .dirt"
 rm -rf "$C"
+
+# --- SessionStart prunes other sessions' state older than 30 days, and only that ---
+P=$(make_repo)
+add_programme "$P" "headless" "main"
+git -C "$P" add -A && git -C "$P" commit -qm "add programme"
+SD="$STATE_HOME/claude-programme"
+for x in old.state old.dirt old.lock; do touch -d '40 days ago' "$SD/$x"; done
+for x in fresh.state fresh.dirt; do touch "$SD/$x"; done
+OUTSIDE=$(mktemp); touch -d '40 days ago' "$OUTSIDE"
+touch -d '40 days ago' "$SD/old.txt"
+run_hook session-start.sh "$(PAYLOAD_CWD="$P" payload SessionStart pr1 startup)" "$P"
+assert_eq "absent absent absent" \
+  "$(for x in old.state old.dirt old.lock; do [ -e "$SD/$x" ] && printf present || printf absent; printf ' '; done | sed 's/ $//')" \
+  "old foreign .state/.dirt/.lock files are pruned"
+assert_eq "present present" \
+  "$(for x in fresh.state fresh.dirt; do [ -e "$SD/$x" ] && printf present || printf absent; printf ' '; done | sed 's/ $//')" \
+  "fresh ones are kept"
+assert_eq "present present" \
+  "$([ -e "$OUTSIDE" ] && printf present || printf absent) $([ -e "$SD/old.txt" ] && printf present || printf absent)" \
+  "nothing outside the state dir, nor of another kind, is touched"
+assert_eq "$P" "$(SC_SESSION_ID=pr1 sc_state_get root)" "the current session still stamps"
+printf 'baseline=keepme\n' >"$SD/pr2.state"; touch -d '40 days ago' "$SD/pr2.state"
+run_hook session-start.sh "$(PAYLOAD_CWD="$P" payload SessionStart pr2 resume)" "$P"
+assert_eq "keepme" "$(SC_SESSION_ID=pr2 sc_state_get baseline)" "the current session's own old state is never pruned"
+rm -rf "$P" "$OUTSIDE"
 
 rm -rf "$REPO" "$STATE_HOME"
 finish
