@@ -16,8 +16,9 @@ INIT=$(read_c init.md)
 RESUME=$(read_c resume.md)
 HANDOFF=$(read_c handoff.md)
 STATUS=$(read_c status.md)
+MODE=$(read_c mode.md)
 
-for f in init resume handoff status; do
+for f in init resume handoff status mode; do
   assert_contains "$(read_c $f.md)" "description:" "$f: has frontmatter description"
 done
 
@@ -77,7 +78,7 @@ assert_contains "$STATUS" "cannot be closed" "status: says open deferred rows bl
 # --- single-homing: resolution lives in resume.md, and nowhere else ---
 assert_contains "$RESUME" "Match the current branch against the" "resume: homes the resolution algorithm"
 assert_contains "$RESUME" "status" "resume: homes the closed-status skip rule"
-for pair in "handoff:$HANDOFF" "status:$STATUS"; do
+for pair in "handoff:$HANDOFF" "status:$STATUS" "mode:$MODE"; do
   name=${pair%%:*}
   body=${pair#*:}
   assert_contains "$body" "resolve as \`/programme:resume\` does" "$name: defers resolution to resume"
@@ -102,5 +103,20 @@ for other in "$INIT" "$HANDOFF" "$STATUS"; do
   assert_not_contains "$other" "Several open rows on the current branch" \
     "the shared-branch rule lives only in resume.md"
 done
+
+# --- the dependency check and the column rule live in mode.md only ---
+assert_contains "$MODE" "The herdr dependency check passes only if all three hold" "mode: homes the dependency check"
+assert_contains "$MODE" "command -v herdr" "mode: check 1, the binary"
+assert_contains "$MODE" "herdr status" "mode: check 2, a running server"
+assert_contains "$MODE" "this session's own list of available skills" "mode: check 3, the skill is usable here"
+assert_contains "$MODE" "add it as the **last** column" "mode: homes how a missing column is added"
+assert_contains "$MODE" "do not commit" "mode: the switch is not a commit"
+for other in "$INIT" "$RESUME" "$HANDOFF" "$STATUS"; do
+  assert_not_contains "$other" "passes only if all three hold" "the dependency check lives only in mode.md"
+  assert_not_contains "$other" "add it as the **last** column" "the column rule lives only in mode.md"
+done
+assert_contains "$INIT" "Which mode" "init: interviews for the mode"
+assert_contains "$INIT" "| programmes/<SLUG>/ledger.md | assisted |" "init: the row carries a mode cell"
+assert_contains "$STATUS" "the herdr dependency check's three results" "status: reports the check for relaying modes"
 
 finish

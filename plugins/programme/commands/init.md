@@ -57,7 +57,9 @@ verbatim** — those headers are the mechanism, and every rule in them is stated
 - `session-continuity.json` → `.claude/session-continuity.json` **only if absent**, with `docsRoot`
   and `compareBranch` set to what you measured
 
-The `INDEX.md` row is `| <SLUG> | active | <BRANCH> | programmes/<SLUG>/ledger.md |`.
+The `INDEX.md` row is `| <SLUG> | active | <BRANCH> | programmes/<SLUG>/ledger.md | assisted |`.
+If `INDEX.md` already existed without a `mode` column, add the column the way `/programme:mode` does
+before appending the row. Step 5's last question may change the cell.
 
 **Delete every table row containing `(example)`, and the `<!-- Rows marked (example) … -->` comment
 line, in every file you just wrote above** (`ledger.md`, `deferred.md`, and `deferred-work.md` when
@@ -97,6 +99,12 @@ Do not write a placeholder position. Ask, and write the answers in:
 6. What decisions are already settled, who settled them, and why? One row each in Settled decisions.
 7. **What are this project's gates, and which of them are flaky?** One row each in the ledger's
    Gates table, filling the `trust` column. Ask for the flake rate where there is one.
+8. **Which mode — `assisted`, `supervised` or `autonomous`?** Default `assisted`. In one line each:
+   assisted — the user approves each handoff and starts each session; supervised — each handoff
+   opens the next session in a herdr pane, and every session still asks before working; autonomous
+   — the chain runs itself until something stops it. For supervised or autonomous, run the herdr
+   dependency check `/programme:mode` states; if it fails, keep `assisted` and say which check
+   failed. Write the answer into the programme's `mode` cell in `INDEX.md`.
 
 Each answer **replaces** a placeholder already sitting in the file it targets — questions 1–3
 replace `ledger.md`'s three `## The arc` spans and its example rows, question 5 replaces
