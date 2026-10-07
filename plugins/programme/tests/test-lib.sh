@@ -87,5 +87,49 @@ for i in $(seq 1 "$RACE_N"); do
 done
 assert_eq "$RACE_N" "$SURVIVED" "$RACE_N concurrent writers to distinct keys all survive"
 
+# --- The root follows the session, not the directory it started in ---
+R=$(make_repo)
+add_programme "$R" "headless" "main"
+git -C "$R" add -A && git -C "$R" commit -qm "add programme"
+WT=$(mktemp -d); rmdir "$WT"
+git -C "$R" worktree add -q -b feat/wt "$WT"
+add_programme "$WT" "wtprog" "feat/wt"
+assert_eq "$WT" "$(SC_CWD="$WT" CLAUDE_PROJECT_DIR="$R" sc_project_root)" \
+  "root follows the hook's cwd into a worktree"
+assert_eq "wtprog" "$(SC_CWD="$WT" CLAUDE_PROJECT_DIR="$R" sc_resolve_programme)" \
+  "a worktree session resolves its own branch's programme"
+assert_eq "$R" "$(SC_CWD="$R/src" CLAUDE_PROJECT_DIR="$R" sc_project_root)" \
+  "a subdirectory cwd resolves to the repo top level"
+assert_eq "$R" "$(SC_CWD="/nonexistent-$$" CLAUDE_PROJECT_DIR="$R" sc_project_root)" \
+  "a vanished cwd falls back to CLAUDE_PROJECT_DIR"
+git -C "$R" worktree remove --force "$WT"
+
+# --- A shared branch is ambiguous, never first-match ---
+S=$(make_repo)
+for p in alpha beta gamma; do add_programme "$S" "$p" "main"; done
+assert_empty "$(CLAUDE_PROJECT_DIR="$S" sc_resolve_programme)" \
+  "three open programmes on one branch resolve to nothing"
+assert_eq $'alpha\nbeta\ngamma' "$(CLAUDE_PROJECT_DIR="$S" sc_branch_candidates)" \
+  "all three are reported as candidates"
+SC_SESSION_ID=pin1 sc_state_set programme beta
+assert_eq "beta" "$(SC_SESSION_ID=pin1 CLAUDE_PROJECT_DIR="$S" sc_resolve_programme)" \
+  "a session pin beats the branch"
+assert_eq "gamma" "$(PROGRAMME_SLUG=gamma CLAUDE_PROJECT_DIR="$S" sc_resolve_programme)" \
+  "PROGRAMME_SLUG beats the branch"
+assert_eq "beta" "$(SC_SESSION_ID=pin1 PROGRAMME_SLUG=gamma CLAUDE_PROJECT_DIR="$S" sc_resolve_programme)" \
+  "a pin beats PROGRAMME_SLUG"
+assert_empty "$(PROGRAMME_SLUG=nope CLAUDE_PROJECT_DIR="$S" sc_resolve_programme)" \
+  "PROGRAMME_SLUG naming no programme is ignored"
+assert_empty "$(PROGRAMME_SLUG=../programmes/alpha CLAUDE_PROJECT_DIR="$S" sc_resolve_programme)" \
+  "PROGRAMME_SLUG cannot be a path"
+SC_SESSION_ID=pin2 sc_state_set programme ghost
+assert_empty "$(SC_SESSION_ID=pin2 CLAUDE_PROJECT_DIR="$S" sc_resolve_programme)" \
+  "a pin naming no programme is ignored"
+sed -i 's/| alpha | active | main |/| alpha | closed | main |/' "$S/docs/programmes/INDEX.md"
+SC_SESSION_ID=pin3 sc_state_set programme alpha
+assert_eq "alpha" "$(SC_SESSION_ID=pin3 CLAUDE_PROJECT_DIR="$S" sc_resolve_programme)" \
+  "a pin naming a closed programme still resolves — it was asked for by name"
+rm -rf "$R" "$S"
+
 rm -rf "$REPO" "$STATE_HOME"
 finish

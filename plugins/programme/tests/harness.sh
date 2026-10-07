@@ -16,11 +16,13 @@ TESTS_FAILED=0
 # which runs in a command-substitution subshell, so an export inside it never reaches the caller.
 STATE_HOME=$(mktemp -d)
 export STATE_HOME XDG_STATE_HOME="$STATE_HOME"
+# A test run inside a herdr worker or a pinned session must not inherit its resolution inputs.
+unset PROGRAMME_SLUG SC_CWD SC_SESSION_ID
 
 make_repo() {
   local dir
   dir=$(mktemp -d)
-  git -C "$dir" init -q
+  git -C "$dir" init -q -b main
   git -C "$dir" config user.email t@example.com
   git -C "$dir" config user.name Test
   mkdir -p "$dir/src"
@@ -73,13 +75,14 @@ The position line.
 EOF
 }
 
-# run_hook <script> <json-stdin> [cwd] ; captures OUT, ERR, RC
+# run_hook <script> <json-stdin> [cwd] [project_dir] ; captures OUT, ERR, RC
+# project_dir defaults to cwd — the two differ only in the worktree cases, which is the point of them.
 run_hook() {
-  local script=$1 payload=$2 cwd=${3:-$PWD}
+  local script=$1 payload=$2 cwd=${3:-$PWD} proj=${4:-${3:-$PWD}}
   local tmp_out tmp_err
   tmp_out=$(mktemp); tmp_err=$(mktemp)
   set +e
-  (cd "$cwd" && CLAUDE_PROJECT_DIR="$cwd" bash "$PLUGIN_ROOT/hooks/$script") \
+  (cd "$cwd" && CLAUDE_PROJECT_DIR="$proj" bash "$PLUGIN_ROOT/hooks/$script") \
     <<<"$payload" >"$tmp_out" 2>"$tmp_err"
   RC=$?
   set -e
@@ -88,9 +91,10 @@ run_hook() {
 }
 
 payload() {
-  # payload <event> <session_id> [source]
-  printf '{"session_id":"%s","cwd":"%s","hook_event_name":"%s","source":"%s"}' \
-    "$2" "$PWD" "$1" "${3:-startup}"
+  # payload <event> <session_id> [source] [extra-json-members]
+  # cwd is ${PAYLOAD_CWD:-$PWD}: hooks now resolve from it, so a test aimed at another repo sets it.
+  printf '{"session_id":"%s","cwd":"%s","hook_event_name":"%s","source":"%s"%s}' \
+    "$2" "${PAYLOAD_CWD:-$PWD}" "$1" "${3:-startup}" "${4:+,$4}"
 }
 
 assert_eq() {

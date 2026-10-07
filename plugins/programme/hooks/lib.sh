@@ -41,6 +41,20 @@ print("\n".join(x for x in (d.get(sys.argv[1]) or []) if isinstance(x,str)))' "$
   esac
 }
 
+_sc_bool() { # _sc_bool <json> <key> -> "true" when the key is JSON true, else empty
+  [ -n "$SC_JSON" ] || { printf ''; return 0; }
+  case "$SC_JSON" in
+    jq) printf '%s' "$1" | jq -r --arg k "$2" 'if .[$k] == true then "true" else empty end' 2>/dev/null \
+          || printf '' ;;
+    python3)
+      printf '%s' "$1" | python3 -c 'import json,sys
+try: d=json.load(sys.stdin)
+except Exception: sys.exit(0)
+print("true" if d.get(sys.argv[1]) is True else "")' "$2" 2>/dev/null || printf ''
+      ;;
+  esac
+}
+
 sc_load_input() {
   local raw
   raw=$(cat)
@@ -48,12 +62,23 @@ sc_load_input() {
   SC_CWD=$(_sc_str "$raw" cwd)
   SC_EVENT=$(_sc_str "$raw" hook_event_name)
   SC_SOURCE=$(_sc_str "$raw" source)
-  export SC_SESSION_ID SC_CWD SC_EVENT SC_SOURCE
+  SC_PROMPT=$(_sc_str "$raw" prompt)
+  SC_STOP_HOOK_ACTIVE=$(_sc_bool "$raw" stop_hook_active)
+  export SC_SESSION_ID SC_CWD SC_EVENT SC_SOURCE SC_PROMPT SC_STOP_HOOK_ACTIVE
 }
 
+# The hook input's cwd first: Claude Code fixes CLAUDE_PROJECT_DIR at the directory the session
+# STARTED in, while cwd follows the session — into a worktree, or a subdirectory. Resolving from
+# CLAUDE_PROJECT_DIR first is how a session working in a worktree was told the main checkout's
+# programme, for days, in the field.
 sc_project_root() {
-  local start=${CLAUDE_PROJECT_DIR:-${SC_CWD:-$PWD}}
-  git -C "$start" rev-parse --show-toplevel 2>/dev/null || printf ''
+  local d top
+  for d in "${SC_CWD:-}" "${CLAUDE_PROJECT_DIR:-}" "$PWD"; do
+    [ -n "$d" ] && [ -d "$d" ] || continue
+    top=$(git -C "$d" rev-parse --show-toplevel 2>/dev/null) || continue
+    [ -n "$top" ] && { printf '%s' "$top"; return 0; }
+  done
+  printf ''
 }
 
 _sc_config_raw() {
@@ -92,22 +117,48 @@ sc_current_branch() {
   git -C "$root" rev-parse --abbrev-ref HEAD 2>/dev/null || printf ''
 }
 
-# Explicit arg > INDEX.md row matching the current branch > sole programme dir > empty.
+sc_valid_slug() { # a slug is a directory name, never a path
+  case "$1" in ''|.|..) return 1 ;; esac
+  printf '%s' "$1" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9._-]*$'
+}
+
+# Open INDEX.md slugs whose branch column equals the current branch, one per line.
+sc_branch_candidates() {
+  local dir branch
+  dir=$(sc_programmes_dir); branch=$(sc_current_branch)
+  [ -n "$dir" ] && [ -n "$branch" ] && [ -f "$dir/INDEX.md" ] || { printf ''; return 0; }
+  awk -F'|' -v b="$branch" '
+    /^\|/ {
+      gsub(/^[ \t]+|[ \t]+$/, "", $2); gsub(/^[ \t]+|[ \t]+$/, "", $3); gsub(/^[ \t]+|[ \t]+$/, "", $4)
+      if ($4 == b && $3 != "closed" && $2 != "programme" && $2 !~ /^-+$/) print $2
+    }' "$dir/INDEX.md"
+}
+
+# Explicit arg > session pin > PROGRAMME_SLUG > the UNIQUE open INDEX.md row on the current branch
+# > sole open programme dir > empty. Two or more rows on the branch is ambiguity, and ambiguity
+# resolves to nothing: the first match is how every session on a shared branch was told the same,
+# wrong, programme. A pin or PROGRAMME_SLUG naming a closed programme still resolves — it was asked
+# for by name; only the inferred paths skip closed rows.
 sc_resolve_programme() {
   [ -n "${1:-}" ] && { printf '%s' "$1"; return 0; }
-  local dir branch match count sole
+  local dir pin cands n count sole d
   dir=$(sc_programmes_dir)
   [ -n "$dir" ] && [ -d "$dir" ] || { printf ''; return 0; }
 
-  branch=$(sc_current_branch)
-  if [ -n "$branch" ] && [ -f "$dir/INDEX.md" ]; then
-    match=$(awk -F'|' -v b="$branch" '
-      /^\|/ {
-        gsub(/^[ \t]+|[ \t]+$/, "", $2); gsub(/^[ \t]+|[ \t]+$/, "", $3); gsub(/^[ \t]+|[ \t]+$/, "", $4)
-        if ($4 == b && $3 != "closed" && $2 != "programme" && $2 !~ /^-+$/) { print $2; exit }
-      }' "$dir/INDEX.md")
-    [ -n "$match" ] && { printf '%s' "$match"; return 0; }
+  if [ -n "${SC_SESSION_ID:-}" ]; then
+    pin=$(sc_state_get programme)
+    if [ -n "$pin" ] && sc_valid_slug "$pin" && [ -d "$dir/$pin" ]; then
+      printf '%s' "$pin"; return 0
+    fi
   fi
+  if [ -n "${PROGRAMME_SLUG:-}" ] && sc_valid_slug "$PROGRAMME_SLUG" && [ -d "$dir/$PROGRAMME_SLUG" ]; then
+    printf '%s' "$PROGRAMME_SLUG"; return 0
+  fi
+
+  cands=$(sc_branch_candidates)
+  n=$(printf '%s' "$cands" | grep -c . || true)
+  [ "$n" -eq 1 ] && { printf '%s' "$cands"; return 0; }
+  [ "$n" -gt 1 ] && { printf ''; return 0; }
 
   count=0
   for d in "$dir"/*/; do
