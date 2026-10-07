@@ -82,5 +82,75 @@ run_hook stale-ledger.sh "$(payload Stop s7)" "$REPO"
 assert_eq "0" "$RC" "unknown baseline exits 0 rather than crashing"
 assert_contains "$OUT" "systemMessage" "unknown baseline falls back to the worktree"
 
+# --- Only this session's changes count (fingerprint stamped by the real SessionStart) ---
+git -C "$REPO" checkout -q -- . ; git -C "$REPO" clean -qfd -- src
+start() { run_hook session-start.sh "$(payload SessionStart "$1" startup)" "$REPO"; }
+
+mkdir -p "$REPO/tool-cache" && echo x >"$REPO/tool-cache/a.ts" && echo x >"$REPO/src/my file.ts"
+start f1
+run_hook stale-ledger.sh "$(payload Stop f1)" "$REPO"
+assert_empty "$OUT" "dirt that predates the session (incl. a path with a space) does not warn"
+echo y >"$REPO/tool-cache/b.ts"
+run_hook stale-ledger.sh "$(payload Stop f1)" "$REPO"
+assert_contains "$OUT" "additionalContext" "a new file inside a pre-existing untracked dir warns"
+assert_contains "$OUT" '"hookEventName":"Stop"' "the warning is addressed to the model as Stop context"
+assert_contains "$OUT" "systemMessage" "and the user sees it too"
+assert_contains "$OUT" "say so in one line" "the warning gives the model a way out"
+rm -rf "$REPO/tool-cache" "$REPO/src/my file.ts"
+
+echo pre >>"$REPO/src/app.ts"
+start f2
+run_hook stale-ledger.sh "$(payload Stop f2)" "$REPO"
+assert_empty "$OUT" "a file dirty at start and untouched since does not warn"
+echo again >>"$REPO/src/app.ts"
+run_hook stale-ledger.sh "$(payload Stop f2)" "$REPO"
+assert_contains "$OUT" "additionalContext" "a file dirty at start and edited again warns"
+git -C "$REPO" checkout -q -- .
+
+echo note >>"$REPO/docs/programmes/headless/ledger.md"
+start f3
+echo code >>"$REPO/src/app.ts"
+run_hook stale-ledger.sh "$(payload Stop f3)" "$REPO"
+assert_contains "$OUT" "additionalContext" "a ledger dirty at start but untouched since is not 'the ledger moved'"
+git -C "$REPO" checkout -q -- .
+
+start f4
+echo code >>"$REPO/src/app.ts"
+run_hook stale-ledger.sh "$(payload Stop f4 startup '"stop_hook_active":true')" "$REPO"
+assert_empty "$OUT" "stop_hook_active suppresses the guard"
+run_hook stale-ledger.sh "$(payload Stop f4)" "$REPO"
+assert_contains "$OUT" "additionalContext" "and does not spend the latch"
+git -C "$REPO" checkout -q -- .
+
+# Over the cap: whole-tree comparison, said once on stderr, never blocking.
+mkdir -p "$REPO/gen" && for i in 1 2 3 4; do echo "$i" >"$REPO/gen/f$i.ts"; done
+SC_DIRT_CAP=3 run_hook session-start.sh "$(payload SessionStart f5 startup)" "$REPO"
+assert_contains "$ERR" "more than 3 dirty paths" "overflow is reported once on stderr"
+run_hook stale-ledger.sh "$(payload Stop f5)" "$REPO"
+assert_contains "$OUT" "additionalContext" "overflow falls back to the whole working tree"
+rm -rf "$REPO/gen"
+
+# The session moved to another worktree: the fingerprint is not comparable; committed range only.
+WT=$(mktemp -d); rmdir "$WT"
+git -C "$REPO" worktree add -q -b feat/moved "$WT"
+start m1
+echo wip >>"$WT/src/app.ts"
+run_hook stale-ledger.sh "$(PAYLOAD_CWD="$WT" payload Stop m1)" "$WT" "$REPO"
+assert_empty "$OUT" "moved root: uncommitted dirt in the new root is not compared"
+git -C "$WT" commit -qam "feat: code in the worktree"
+run_hook stale-ledger.sh "$(PAYLOAD_CWD="$WT" payload Stop m1)" "$WT" "$REPO"
+assert_contains "$OUT" "additionalContext" "moved root: the committed range still counts"
+git -C "$REPO" worktree remove --force "$WT"
+
+# Ambiguous programme: silent — it cannot ask, and naming the wrong one is the bug.
+A=$(make_repo)
+add_programme "$A" "one" "main"; add_programme "$A" "two" "main"
+git -C "$A" add -A && git -C "$A" commit -qm "two programmes"
+run_hook session-start.sh "$(PAYLOAD_CWD="$A" payload SessionStart a1 startup)" "$A"
+echo code >>"$A/src/app.ts"
+run_hook stale-ledger.sh "$(PAYLOAD_CWD="$A" payload Stop a1)" "$A"
+assert_empty "$OUT" "an ambiguous programme keeps the guard silent"
+rm -rf "$A"
+
 rm -rf "$REPO" "$STATE_HOME"
 finish

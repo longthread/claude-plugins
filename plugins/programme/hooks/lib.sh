@@ -301,10 +301,19 @@ sc_emit_system_message() {
   printf '{"systemMessage":%s}\n' "$(_sc_jsonstr "$1")"
 }
 
-# SessionStart is the only event confirmed to be a member of the hookSpecificOutput union; emitting
-# this shape for Stop fails validation silently. See the design doc's "Why those channels".
+# SessionStart and Stop both carry hookSpecificOutput.additionalContext to the model — Stop's was
+# verified live on 2026-10-06 (Claude Code 2.1.292): the model's next
+# turn read it, and the follow-up Stop arrived with stop_hook_active=true. PreCompact remains
+# unverified and keeps a user-only systemMessage.
 sc_emit_additional_context() {
   [ -n "$SC_JSON" ] || return 0
   printf '{"hookSpecificOutput":{"hookEventName":"%s","additionalContext":%s}}\n' \
     "$1" "$(_sc_jsonstr "$2")"
+}
+
+# The Stop warning: to the model as context (one extra turn), and to the user as a systemMessage.
+sc_emit_stop_warning() {
+  [ -n "$SC_JSON" ] || return 0
+  local s; s=$(_sc_jsonstr "$1")
+  printf '{"hookSpecificOutput":{"hookEventName":"Stop","additionalContext":%s},"systemMessage":%s}\n' "$s" "$s"
 }
