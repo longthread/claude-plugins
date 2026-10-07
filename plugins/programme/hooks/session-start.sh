@@ -30,7 +30,17 @@ if [ -z "$(sc_state_get baseline)" ]; then
   fi
 fi
 
-slug=$(sc_resolve_programme); [ -n "$slug" ] || exit 0
+slug=$(sc_resolve_programme)
+if [ -z "$slug" ]; then
+  # Ambiguity is a result, not a fallthrough: name every candidate and inject no ledger. Guessing
+  # is how every session on a shared branch was handed the same wrong programme.
+  cands=$(sc_branch_candidates)
+  if [ "$(printf '%s' "$cands" | grep -c . || true)" -gt 1 ]; then
+    list=$(printf '%s\n' "$cands" | sed 's/.*/"&"/' | paste -sd, - | sed 's/,/, /g')
+    sc_emit_additional_context SessionStart "Programmes $list all record branch \"$(sc_current_branch)\". None is assumed. Run /programme:resume <name> to pick one for this session."
+  fi
+  exit 0
+fi
 ledger=$(sc_ledger_path "$slug"); [ -f "$ledger" ] || exit 0
 
 # The arc as well as the position. This channel — not `/programme:resume` — is what puts a ledger

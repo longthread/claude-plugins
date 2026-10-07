@@ -93,4 +93,14 @@ assert_contains "$STATUS" "threshold stated in its own header" "status: defers t
 assert_not_contains "$STATUS" "Correct in place" "status: does NOT restate the correct-in-place rule"
 assert_not_contains "$STATUS" "Absolute dates" "status: does NOT restate the dates rule"
 
+# --- a shared branch is the same case as no match: list and ask, answered by a re-run ---
+assert_contains "$RESUME" "Several open rows on the current branch are the same case as none" \
+  "resume: a shared branch is list-and-ask, never first match"
+assert_contains "$RESUME" "re-running \`/programme:resume <name>\`" \
+  "resume: the answer is a re-run, which is what pins the session"
+for other in "$INIT" "$HANDOFF" "$STATUS"; do
+  assert_not_contains "$other" "Several open rows on the current branch" \
+    "the shared-branch rule lives only in resume.md"
+done
+
 finish

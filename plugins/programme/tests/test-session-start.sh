@@ -97,5 +97,27 @@ run_hook session-start.sh "$(payload SessionStart s9 startup)" "$REPO"
 assert_contains "$OUT" "The position line." "a pre-arc ledger still injects its position"
 assert_not_contains "$OUT" "The goal line." "and injects no arc, because it has none"
 
+# --- A shared branch: name every candidate, inject no ledger ---
+S=$(make_repo)
+for p in alpha beta gamma; do add_programme "$S" "$p" "main"; done
+run_hook session-start.sh "$(PAYLOAD_CWD="$S" payload SessionStart amb1 startup)" "$S"
+assert_contains "$OUT" '\"alpha\", \"beta\", \"gamma\" all record branch \"main\"' \
+  "ambiguity names every candidate and the branch"
+assert_contains "$OUT" "/programme:resume <name>" "ambiguity says how to pick"
+assert_not_contains "$OUT" "The position line." "ambiguity injects no ledger"
+
+# --- A worktree session gets its own branch's programme ---
+R=$(make_repo)
+add_programme "$R" "headless" "main"
+git -C "$R" add -A && git -C "$R" commit -qm "add programme"
+WT=$(mktemp -d); rmdir "$WT"
+git -C "$R" worktree add -q -b feat/wt "$WT"
+add_programme "$WT" "wtprog" "feat/wt"
+run_hook session-start.sh "$(PAYLOAD_CWD="$WT" payload SessionStart wt1 startup)" "$WT" "$R"
+assert_contains "$OUT" 'Active programme: \"wtprog\"' \
+  "a session in a worktree is injected the worktree's programme, not the main checkout's"
+git -C "$R" worktree remove --force "$WT"
+rm -rf "$S" "$R"
+
 rm -rf "$REPO" "$STATE_HOME"
 finish

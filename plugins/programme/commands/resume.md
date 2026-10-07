@@ -16,7 +16,9 @@ Match the current branch against the `branch` column. `$1` wins if given. **Skip
 `status` is `closed`** — it is not a candidate, even if its branch matches. If nothing matches and
 there is exactly one open programme, use it. If several exist and none matches, **list them and
 ask** — do not guess, and do not fall back to "most recently modified", which is how a session ends
-up writing into the wrong programme's ledger.
+up writing into the wrong programme's ledger. **Several open rows on the current branch are the same case as none** —
+list those rows and ask, and take the answer as the user re-running `/programme:resume <name>`:
+the re-run is what pins the programme for the rest of the session, including after a compaction.
 
 ## Read, in this order
 
