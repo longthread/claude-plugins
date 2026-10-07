@@ -1,5 +1,5 @@
 {
-  "description": "programme \u2014 carry a multi-session programme across session boundaries",
+  "description": "programme — carry a multi-session programme across session boundaries",
   "hooks": {
     "SessionStart": [
       {

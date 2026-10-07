@@ -49,5 +49,19 @@ run_hook pre-compact.sh "$(payload PreCompact s4)" "$REPO"
 assert_eq "0" "$RC" "unknown baseline exits 0"
 assert_empty "$OUT" "unknown baseline stays silent, no worktree fallback"
 
+# Two open programmes on one branch: ambiguous, so silent — unless the session is pinned.
+A=$(make_repo)
+add_programme "$A" "one" "main"; add_programme "$A" "two" "main"
+git -C "$A" add -A && git -C "$A" commit -qm "two programmes"
+printf 'baseline=%s\n' "$(git -C "$A" rev-parse HEAD)" >"$STATE_HOME/claude-programme/a1.state"
+printf 'baseline=%s\nprogramme=two\n' "$(git -C "$A" rev-parse HEAD)" >"$STATE_HOME/claude-programme/a2.state"
+echo code >>"$A/src/app.ts"
+git -C "$A" commit -qam "feat: code"
+run_hook pre-compact.sh "$(PAYLOAD_CWD="$A" payload PreCompact a1)" "$A"
+assert_empty "$OUT" "an ambiguous programme keeps PreCompact silent"
+run_hook pre-compact.sh "$(PAYLOAD_CWD="$A" payload PreCompact a2)" "$A"
+assert_contains "$OUT" 'the \"two\" ledger has not moved' "a pinned session fires, naming the pin"
+rm -rf "$A"
+
 rm -rf "$REPO" "$STATE_HOME"
 finish
