@@ -56,7 +56,8 @@ states (a blank cell or no column means `assisted`):
 
 - **assisted, supervised** — ask whether to proceed.
 - **autonomous** — proceed into `Start here` without asking. If drift left the next step ambiguous,
-  stop and notify the user through the herdr skill instead of guessing.
+  stop, state the reason as the report's last line, and notify the user through the herdr skill
+  instead of guessing.
 
 ## Autonomous: when to hand off
 

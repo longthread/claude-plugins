@@ -53,11 +53,11 @@ The questions are not interchangeable with "what did you do?", which produces a 
    to change", name which rows you read to conclude that** — the failure this question exists to
    catch is answering it from memory.
 
-**On question 2, in assisted and supervised mode: if the session changed anything — code, plan, or doc — and the answer is
-"nothing", ask again.** Rephrase toward the concrete — a wrong assumption, a review finding, a
-test that passed while checking nothing, a plan defect. A session with no mistakes worth recording
-is usually a session that did not look; do not settle for an empty answer because it is easier to
-write.
+**On question 2, in assisted and supervised mode: if the session changed anything — code, plan, or
+doc — and the answer is "nothing", ask again.** Rephrase toward the concrete — a wrong
+assumption, a review finding, a test that passed while checking nothing, a plan defect. A session
+with no mistakes worth recording is usually a session that did not look; do not settle for an empty
+answer because it is easier to write.
 
 Worked examples of answers that earned their place, from the programme this convention comes from:
 a fixture corpus covered an operator without covering its semantics, so an inverted comparison
@@ -79,7 +79,8 @@ events rather than a plan.
 Diff what the ledger claims against what you measured in step 1, and update it. Fill the tables —
 Gates, Settled decisions, Open forks — and rewrite the Current position narrative to include
 question 2's answer — a still-empty second ask belongs in the position too, not only in the
-report.
+report. If autonomous mode left question 2 out, write `question 2: left out — no evidence` in its
+place.
 
 Naming question 4's terminal condition surfaces what it leaves out: record that in
 `<docsRoot>/programmes/<SLUG>/deferred.md`, with `current behaviour`, `fix shape`, and
@@ -98,9 +99,15 @@ somewhere it left.
 ## 5. Rewrite `NEXT-SESSION.md` wholesale
 
 Replace the file; do not append a section. Fill the Terminal condition command and expected output
-from interview answer 4, and give every row of the State table a working `verify with` command.
+from interview answer 4, and give every row of the State table a working `verify with` command. If
+autonomous mode left question 4 out, write `none evidenced — the chain stopped here` in both
+Terminal condition fields.
 
 ## 6. If this handoff closes the programme
+
+**In autonomous mode, do not close the programme.** Write everything else this handoff writes,
+leave `INDEX.md`'s status as it is, and stop at step 8, notifying that closure awaits the user. The
+rest of this step is for a handoff with someone present.
 
 **Every arc row must be `done` first.** A row still `current` or `planned` means the programme has
 work left and this closure is premature — either the work is not finished, or the phase was dropped
@@ -132,33 +139,49 @@ In autonomous mode, list the questions left out for want of evidence — numbers
 
 ## 8. Relay to the next session
 
-The ledger and `NEXT-SESSION.md` are already written; the relay carries nothing they do not.
+The ledger and `NEXT-SESSION.md` are already written; the relay carries nothing they do not. The
+mode is the one step 2 read.
 
 **Stop instead of relaying** when any of these holds — leave this pane as it is and, in supervised
 or autonomous mode, notify the user through the herdr skill with the reason:
 
 - a gate failed in step 1;
 - a phase closed in this handoff, and the mode is `assisted` or `supervised`;
-- the arc's programme terminal condition now passes — the programme is done;
-- this session's `PROGRAMME_RELAY` (absent means 0) has reached the cap: `relayCap` in
-  `.claude/session-continuity.json`, default 10;
-- the mode is `autonomous` and this handoff was started because the next step needs a human decision
-  — notify the user, naming the decision needed;
+- the arc's programme terminal condition now passes — the programme is done; in autonomous mode,
+  closure awaits the user (step 6);
+- this session's relay number — the value the command below printed — has reached the cap:
+  `relayCap` in `.claude/session-continuity.json`, default 10;
+- the mode is `autonomous` and this handoff was started because the session could not progress —
+  notify the user, naming what blocked it; for a next step that needs a human decision, name the
+  decision needed;
 - the mode is `autonomous` and question 4 was left out — the next session would have no terminal
   condition to work toward or to stop on.
 
-**assisted** — print, for the user to run: `/clear`, then `/programme:resume <SLUG>`. If
-`HERDR_ENV=1`, also offer to open the next session in a pane as supervised does; do it only on a yes.
+**Every stop states its reason as the report's last line, in every mode** — so a stop in assisted
+mode, or one whose notification failed, still explains itself. **When a stop leaves a pane the relay
+opened** — this one, if this session's relay number is 1 or more, or the successor's in step 4 —
+tell the user that its shell still carries this programme's relay variables, and that before
+starting Claude there by hand they should run `unset PROGRAMME_SLUG PROGRAMME_RELAY`.
+
+**Before any pane is opened, this session must itself be in a herdr pane** — `HERDR_ENV` is `1`
+and `HERDR_PANE_ID` is non-empty in its environment. If not, this session is not in a herdr pane:
+print assisted's commands for this handoff instead and say so.
+
+**assisted** — print, for the user to run: `/clear`, then `/programme:resume <SLUG>`. If this
+session is in a herdr pane, also offer to open the next session — and only on a yes, open it in a
+pane as supervised's steps 1–4 do, after its dependency check; assisted never closes a pane.
 
 **supervised, autonomous** — run the herdr dependency check `/programme:mode` states. If it fails,
 print assisted's commands for this handoff instead, say which check failed, and leave the mode as it
 is. Otherwise, using the herdr skill:
 
-1. open a new pane beside this one, in this tab, at this session's project root, with
-   `PROGRAMME_SLUG=<SLUG>` and `PROGRAMME_RELAY=<this session's value + 1>` in its environment;
+1. open a new pane beside this one, in this tab, at the top of the tree whose ledger you just wrote
+   (`git rev-parse --show-toplevel` from there), with `PROGRAMME_SLUG=<SLUG>` and
+   `PROGRAMME_RELAY=<the value the command below printed, plus 1>` in its environment;
 2. start Claude in it as the agent `prog-<SLUG>-<that number>`, with this session's permission mode —
-   the recorded value, read with the command below. If nothing is recorded, start with Claude Code's
-   default and say so. **Never pass a more permissive mode than the one recorded.**
+   the recorded value the command below printed. If nothing is recorded, pass
+   `--permission-mode default` explicitly, never leaving it to settings' `defaultMode`, and say so.
+   **Never pass a more permissive mode than the one recorded.**
 3. send `/programme:resume <SLUG>`, and wait until its output shows the line
    `Resumed programme "<SLUG>"`, or until it is blocked. Do not wait for it to go idle — an
    autonomous successor keeps working after its report;
@@ -167,14 +190,16 @@ is. Otherwise, using the herdr skill:
    panes, and stop.
    **Never answer the dialog.**
 5. only once the line `Resumed programme "<SLUG>"` has appeared, notify the user that relay
-   `<that number>` resumed. Then, **only if this session's own
-   `PROGRAMME_RELAY` is 1 or more** — the relay opened this pane — close this pane
-   (`$HERDR_PANE_ID`) as your very last action. Relay 0's pane is the one the user started the chain
-   in: never close it, and never close any other pane.
+   `<that number>` resumed. Then, **only if this session's own `PROGRAMME_RELAY`, the value the
+   command below printed, is 1 or more** — the relay opened this pane — and `HERDR_PANE_ID` is
+   non-empty, close this pane (`$HERDR_PANE_ID`) as your very last action; never issue a close
+   without an explicit pane id. Relay 0's pane is the one the user started the chain in: never
+   close it, and never close any other pane.
 
-The permission mode this session recorded:
+What this session recorded, and which relay it is:
 
 ```bash
 f="${XDG_STATE_HOME:-$HOME/.local/state}/claude-programme/$(printf '%s' "$CLAUDE_CODE_SESSION_ID" | tr -c 'A-Za-z0-9._-' '_').state"
-sed -n 's/^permission_mode=//p' "$f" 2>/dev/null
+sed -n '/^permission_mode=/p' "$f" 2>/dev/null
+echo "PROGRAMME_RELAY=${PROGRAMME_RELAY:-0}"
 ```

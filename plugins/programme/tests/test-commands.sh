@@ -142,7 +142,7 @@ assert_contains "$HANDOFF" "relayCap" "handoff: the cap and its key"
 assert_contains "$HANDOFF" "using the herdr skill" "handoff: the relay goes through the herdr skill"
 assert_contains "$HANDOFF" "Never pass a more permissive mode than the one recorded" "handoff: no escalation"
 assert_contains "$HANDOFF" "Resumed programme" "handoff: waits for the successor's fixed line"
-assert_contains "$HANDOFF" "only if this session's own \`PROGRAMME_RELAY\` is 1 or more" "handoff: only relay-opened panes close"
+assert_contains "$HANDOFF" "only if this session's own \`PROGRAMME_RELAY\`, the value the command below printed, is 1 or more" "handoff: only relay-opened panes close"
 assert_contains "$HANDOFF" "Never answer the dialog" "handoff: a blocked successor goes to the user"
 for raw in "herdr pane " "herdr agent " "herdr notification "; do
   assert_not_contains "$HANDOFF" "$raw" "handoff: no raw herdr syntax ($raw) — the skill owns how"
@@ -159,6 +159,30 @@ assert_contains "$HANDOFF" "treat that like blocked" "handoff: any other outcome
 assert_not_contains "$HANDOFF" "a blank cell or no column means" "handoff: defers the mode-cell rule"
 assert_contains "$HANDOFF" "the \`Mode:\` line the session-start context states" "handoff: reads the Mode: line"
 assert_contains "$HANDOFF" "needs a human decision" "handoff: autonomous human-decision stop"
+assert_contains "$HANDOFF" "this handoff was started because the session could not progress — notify the user, naming what blocked it" \
+  "handoff: the autonomous could-not-progress stop is general, not only a human decision"
 assert_not_contains "$RESUME" "naming the decision needed" "the human-decision stop lives only in handoff.md"
+
+# --- handoff: final-review fix wave — the relay as one unattended protocol ---
+assert_contains "$HANDOFF" "\`HERDR_ENV\` is \`1\` and \`HERDR_PANE_ID\` is non-empty" \
+  "handoff: no pane is opened from a session that is not itself in a herdr pane"
+assert_contains "$HANDOFF" "this session is not in a herdr pane" "handoff: says so when it is not"
+assert_contains "$HANDOFF" "never issue a close without an explicit pane id" "handoff: no id-less close"
+assert_contains "$HANDOFF" "echo \"PROGRAMME_RELAY=\${PROGRAMME_RELAY:-0}\"" "handoff: the snippet prints this session's relay number"
+assert_contains "$HANDOFF" "What this session recorded, and which relay it is" "handoff: the snippet's title names both"
+assert_contains "$HANDOFF" "this session's relay number — the value the command below printed — has reached the cap" \
+  "handoff: the cap reads the printed value"
+assert_contains "$HANDOFF" "the value the command below printed, plus 1" "handoff: the successor's number derives from the printed value"
+assert_contains "$HANDOFF" "unset PROGRAMME_SLUG PROGRAMME_RELAY" "handoff: a left pane's shell must be cleared before a hand start"
+assert_contains "$HANDOFF" "at the top of the tree whose ledger you just wrote" "handoff: the successor opens where the ledger was written"
+assert_contains "$HANDOFF" "as supervised's steps 1–4 do, after its dependency check; assisted never closes a pane" \
+  "handoff: assisted's opt-in runs the check and never closes"
+assert_contains "$HANDOFF" "In autonomous mode, do not close the programme" "handoff: autonomous never closes a programme"
+assert_contains "$HANDOFF" "closure awaits the user" "handoff: autonomous notifies that closure awaits the user"
+assert_contains "$HANDOFF" "states its reason as the report's last line, in every mode" "handoff: every stop explains itself"
+assert_contains "$RESUME" "state the reason as the report's last line" "resume: the ambiguous-drift stop explains itself"
+assert_contains "$HANDOFF" "none evidenced — the chain stopped here" "handoff: a left-out question 4 is written, not left blank"
+assert_contains "$HANDOFF" "question 2: left out — no evidence" "handoff: a left-out question 2 is named in the position"
+assert_contains "$HANDOFF" "--permission-mode default" "handoff: no recorded mode passes default explicitly"
 
 finish
