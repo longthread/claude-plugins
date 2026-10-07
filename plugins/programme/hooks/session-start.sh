@@ -101,8 +101,14 @@ else
 fi
 
 rel_ledger=${ledger#"$root"/}
+# The Mode: line orients; the commands read INDEX.md's cell themselves. Autonomous gets a pointer to
+# the rule that governs it, not a restatement of it.
+mode=$(sc_index_mode "$slug")
+if [ "$mode" = autonomous ]; then
+  mode="autonomous — /programme:resume's \"Autonomous: when to hand off\" applies"
+fi
 sc_emit_additional_context SessionStart "Active programme: \"$slug\" — $rel_ledger
-Mode: $(sc_index_mode "$slug")
+Mode: $mode
 
 $body
 

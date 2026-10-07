@@ -12,13 +12,15 @@ git rev-parse --abbrev-ref HEAD
 cat "<docsRoot>/programmes/INDEX.md"
 ```
 
-Match the current branch against the `branch` column. `$1` wins if given; otherwise `PROGRAMME_SLUG`, when it names a programme directory, wins over the branch — it is how a relayed session is told its programme. **Skip any row whose
-`status` is `closed`** — it is not a candidate, even if its branch matches. If nothing matches and
-there is exactly one open programme, use it. If several exist and none matches, **list them and
-ask** — do not guess, and do not fall back to "most recently modified", which is how a session ends
-up writing into the wrong programme's ledger. **Several open rows on the current branch are the same case as none** —
-list those rows and ask, and take the answer as the user re-running `/programme:resume <name>`:
-the re-run is what pins the programme for the rest of the session, including after a compaction.
+Match the current branch against the `branch` column. `$1` wins if given; otherwise
+`PROGRAMME_SLUG`, when it names a programme directory, wins over the branch — it is how a relayed
+session is told its programme. **Skip any row whose `status` is `closed`** — it is not a candidate,
+even if its branch matches. If nothing matches and there is exactly one open programme, use it. If
+several exist and none matches, **list them and ask** — do not guess, and do not fall back to "most
+recently modified", which is how a session ends up writing into the wrong programme's ledger.
+**Several open rows on the current branch are the same case as none** — list those rows and ask,
+and take the answer as the user re-running `/programme:resume <name>`: the re-run is what pins the
+programme for the rest of the session, including after a compaction.
 
 ## Read, in this order
 
@@ -51,8 +53,9 @@ condition, the `current` phase, and every phase still `planned`**; the position 
 records it; what you measured and what drifted; and the phase's terminal condition you are working
 toward, quoting its command and expected output.
 
-Then, by the programme's mode — `INDEX.md`'s `mode` column, which the session-start context also
-states (a blank cell or no column means `assisted`):
+Then, by the programme's mode — `INDEX.md`'s `mode` cell, read as `INDEX.md`'s header comment
+states (the session-start `Mode:` line reports the same as of session start; if they differ, the
+cell wins):
 
 - **assisted, supervised** — ask whether to proceed.
 - **autonomous** — proceed into `Start here` without asking. If drift left the next step ambiguous,

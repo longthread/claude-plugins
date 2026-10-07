@@ -188,6 +188,12 @@ sed -i 's/| programme | status | branch | ledger |/| programme | status | branch
   "$MS/docs/programmes/INDEX.md"
 run_hook session-start.sh "$(PAYLOAD_CWD="$MS" payload SessionStart md2 startup)" "$MS"
 assert_contains "$OUT" "Mode: supervised" "the INDEX mode is injected"
+assert_not_contains "$OUT" "Autonomous: when to hand off" "only autonomous points at the hand-off rule"
+sed -i 's/| programmes\/solo\/ledger.md | supervised |/| programmes\/solo\/ledger.md | autonomous |/' "$MS/docs/programmes/INDEX.md"
+run_hook session-start.sh "$(PAYLOAD_CWD="$MS" payload SessionStart md3 startup)" "$MS"
+# OUT is the hook's JSON, so the quotes around the section name arrive escaped.
+assert_contains "$OUT" "Mode: autonomous — /programme:resume's \\\"Autonomous: when to hand off\\\" applies" \
+  "autonomous points at resume's hand-off rule rather than restating it"
 rm -rf "$MS"
 
 rm -rf "$REPO" "$STATE_HOME"

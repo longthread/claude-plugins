@@ -31,8 +31,8 @@ Run every gate in the ledger's Gates table and record the real output in `last r
 **Draft all five answers before asking anything.** Each cites its evidence — a commit sha, a command
 and its output, a `file:line`, a gate run. Questions 4 and 5 look forward; for them, evidence means
 the arc row, or the spec or plan at `file:line`, that the answer derives from. Then, by the
-programme's mode — the `Mode:` line the session-start context states; if it is absent, read
-`INDEX.md`'s `mode` cell as that file's header comment says:
+programme's mode — `INDEX.md`'s `mode` cell, read as `INDEX.md`'s header comment states (the
+session-start `Mode:` line reports the same as of session start; if they differ, the cell wins):
 
 - **assisted** — show the whole draft; the user edits or approves each answer.
 - **supervised** — ask the user only the questions whose draft has no evidence; keep the rest.

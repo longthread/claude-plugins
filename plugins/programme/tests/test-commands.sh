@@ -117,7 +117,8 @@ for other in "$INIT" "$RESUME" "$HANDOFF" "$STATUS"; do
 done
 assert_contains "$INIT" "Which mode" "init: interviews for the mode"
 assert_contains "$INIT" "| programmes/<SLUG>/ledger.md | assisted |" "init: the row carries a mode cell"
-assert_contains "$STATUS" "the herdr dependency check's three results" "status: reports the check for relaying modes"
+assert_contains "$STATUS" "run the herdr dependency check \`/programme:mode\` states and report each of its three results" \
+  "status: reports the check for relaying modes"
 
 # --- resume: the relay's half ---
 assert_contains "$RESUME" "otherwise \`PROGRAMME_SLUG\`, when it names a programme directory, wins over the branch" \
@@ -156,8 +157,6 @@ done
 # --- handoff: fix round 1 ---
 assert_contains "$HANDOFF" "has appeared, notify the user" "handoff: closing only after the fixed line appeared"
 assert_contains "$HANDOFF" "treat that like blocked" "handoff: any other outcome is treated like blocked"
-assert_not_contains "$HANDOFF" "a blank cell or no column means" "handoff: defers the mode-cell rule"
-assert_contains "$HANDOFF" "the \`Mode:\` line the session-start context states" "handoff: reads the Mode: line"
 assert_contains "$HANDOFF" "needs a human decision" "handoff: autonomous human-decision stop"
 assert_contains "$HANDOFF" "this handoff was started because the session could not progress — notify the user, naming what blocked it" \
   "handoff: the autonomous could-not-progress stop is general, not only a human decision"
@@ -184,5 +183,26 @@ assert_contains "$RESUME" "state the reason as the report's last line" "resume: 
 assert_contains "$HANDOFF" "none evidenced — the chain stopped here" "handoff: a left-out question 4 is written, not left blank"
 assert_contains "$HANDOFF" "question 2: left out — no evidence" "handoff: a left-out question 2 is named in the position"
 assert_contains "$HANDOFF" "--permission-mode default" "handoff: no recorded mode passes default explicitly"
+
+# --- the mode cell is read one way, homed in INDEX.md's header comment; the Mode: line only orients ---
+for pair in "handoff:$HANDOFF" "resume:$RESUME" "status:$STATUS" "mode:$MODE"; do
+  name=${pair%%:*}
+  body=${pair#*:}
+  assert_contains "$body" "read as \`INDEX.md\`'s header comment states" "$name: reads the mode cell as INDEX.md's header states"
+done
+for pair in "handoff:$HANDOFF" "resume:$RESUME"; do
+  name=${pair%%:*}
+  body=${pair#*:}
+  assert_contains "$body" "if they differ, the cell wins" "$name: the cell outranks the session-start Mode: line"
+done
+for pair in "init:$INIT" "handoff:$HANDOFF" "resume:$RESUME" "status:$STATUS" "mode:$MODE"; do
+  name=${pair%%:*}
+  body=${pair#*:}
+  assert_not_contains "$body" "a blank cell or no column means" "$name: does NOT restate the mode-cell rule"
+done
+for other in "$INIT" "$RESUME" "$HANDOFF" "$STATUS"; do
+  assert_not_contains "$other" "command -v herdr" "the binary check lives only in mode.md"
+  assert_not_contains "$other" "herdr status" "the server check lives only in mode.md"
+done
 
 finish

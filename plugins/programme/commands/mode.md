@@ -12,7 +12,8 @@ records the choice, after checking it can be honoured.
 
 ## 1. Check the dependencies — supervised and autonomous only
 
-Supervised and autonomous relay through herdr, using the herdr skill. **The herdr dependency check passes only if all three hold:**
+Supervised and autonomous relay through herdr, using the herdr skill. **The herdr dependency check
+passes only if all three hold:**
 
 1. `command -v herdr` succeeds;
 2. `herdr status` reaches a running server — a client/server version difference that herdr itself
@@ -33,6 +34,7 @@ commit, like any `INDEX.md` change.
 
 ## 3. Report
 
-Old mode → new mode; each check's result when one ran; and the branch whose `INDEX.md` you edited.
-`INDEX.md` is per branch, so a session in another branch's worktree keeps that branch's mode until
-this change is merged there.
+Old mode — the cell read as `INDEX.md`'s header comment states, quoting the raw cell when it was
+blank or not one of the three — → new mode; each check's result when one ran; and the branch whose
+`INDEX.md` you edited. `INDEX.md` is per branch, so a session in another branch's worktree keeps
+that branch's mode until this change is merged there.

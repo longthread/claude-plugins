@@ -26,9 +26,10 @@ From `<docsRoot>/programmes/<SLUG>/ledger.md` and its `NEXT-SESSION.md`:
   and every row still `planned`. Do not invent a progress metric, and **never read what has closed by
   counting Archive index rows** — that table's own note says why.
 - the phase's terminal condition, quoting its `Command:` and `Expected output:` verbatim
-- the mode, from `INDEX.md`'s `mode` column (a blank cell or no column means `assisted`); for
-  supervised or autonomous, the herdr dependency check's three results — `/programme:mode` states the
-  check. Run it; it writes nothing.
+- the mode — `INDEX.md`'s `mode` cell, read as `INDEX.md`'s header comment states; if the raw cell
+  is not exactly one of the three, quote it and say how it reads. For supervised or autonomous, run
+  the herdr dependency check `/programme:mode` states and report each of its three results — a
+  failure here is reported, not refused.
 
 If the arc, the Current position and the Archive index disagree about what has closed, say so — that
 is a real finding, not a formatting problem. **An arc whose `current` row is not the phase
