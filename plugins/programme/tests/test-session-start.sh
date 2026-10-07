@@ -119,5 +119,25 @@ assert_contains "$OUT" 'Active programme: \"wtprog\"' \
 git -C "$R" worktree remove --force "$WT"
 rm -rf "$S" "$R"
 
+# --- Stamp root + dirt fingerprint for a fresh session, on any source; never overwrite ---
+C=$(make_repo)
+add_programme "$C" "headless" "main"
+git -C "$C" add -A && git -C "$C" commit -qm "add programme"
+mkdir -p "$C/tool-cache" && echo x >"$C/tool-cache/a.ts"
+git -C "$C" mv src/app.ts src/main.ts          # a staged rename: two NUL tokens in -z output
+run_hook session-start.sh "$(PAYLOAD_CWD="$C" payload SessionStart c1 clear)" "$C"
+assert_eq "$C" "$(SC_SESSION_ID=c1 sc_state_get root)" "a fresh session arriving with source=clear is stamped"
+assert_eq "$(git -C "$C" rev-parse HEAD)" "$(SC_SESSION_ID=c1 sc_state_get baseline)" \
+  "the clear-source stamp includes the baseline"
+D=$(SC_SESSION_ID=c1 sc_dirt_file)
+assert_contains "$(cat "$D")" $'??\ttool-cache/a.ts\t' "the fingerprint lists a file inside an untracked dir (-uall)"
+assert_contains "$(cat "$D")" $'R \tsrc/main.ts\t' "a rename is one entry under its new path"
+assert_not_contains "$(cat "$D")" $'\tsrc/app.ts\t' "a rename's old-path token is consumed, not misread as an entry"
+BEFORE=$(cat "$D")
+echo y >"$C/tool-cache/b.ts"
+run_hook session-start.sh "$(PAYLOAD_CWD="$C" payload SessionStart c1 compact)" "$C"
+assert_eq "$BEFORE" "$(cat "$D")" "compact on a stamped session does not rewrite the fingerprint"
+rm -rf "$C"
+
 rm -rf "$REPO" "$STATE_HOME"
 finish

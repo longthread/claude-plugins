@@ -193,6 +193,62 @@ sc_ledger_path() {
   printf '%s/%s/ledger.md' "$dir" "$1"
 }
 
+# What the Stop guard counts as "code": codePathspec from config, else everything except markdown,
+# docsRoot and .claude/. One element per line; callers read it with mapfile.
+sc_code_pathspec() {
+  local p any=""
+  while IFS= read -r p; do
+    [ -n "$p" ] && { printf '%s\n' "$p"; any=1; }
+  done < <(sc_config_arr codePathspec)
+  [ -n "$any" ] || printf '%s\n' '.' ':(exclude)*.md' ":(exclude)$(sc_docs_root)/" ':(exclude).claude/'
+}
+
+sc_dirt_file() { local f; f=$(_sc_state_file); printf '%s' "${f%.state}.dirt"; }
+
+# sc_dirt_snapshot <root> [pathspec...] — the working tree's dirt as "XY<TAB>path<TAB>blob" lines.
+# -uall so a new file inside an already-untracked directory is its own entry rather than invisible
+# behind the directory's single line. -z so spaces and quotes in paths survive; a rename or copy
+# carries its old path as a second NUL-terminated token, consumed here so it is not read as an entry.
+# Past SC_DIRT_CAP (default 2000) entries it prints `overflow` and stops: a tree that dirty was
+# never going to give the guard a clean signal.
+sc_dirt_snapshot() {
+  local root=$1; shift
+  local cap=${SC_DIRT_CAP:-2000} entry xy path blob n=0 i j=0
+  local -a xys=() paths=() files=() blobs=()
+  [ $# -gt 0 ] || set -- .
+  while IFS= read -r -d '' entry; do
+    xy=${entry:0:2}; path=${entry:3}
+    case $xy in R*|C*) IFS= read -r -d '' _ || true ;; esac
+    n=$((n + 1))
+    if [ "$n" -gt "$cap" ]; then printf 'overflow\n'; return 0; fi
+    xys+=("$xy"); paths+=("$path")
+  done < <(git -C "$root" status --porcelain=v1 -z --untracked-files=all -- "$@" 2>/dev/null)
+
+  # One git process for every hash: a process per dirty file would put the stamp's cost on the
+  # number of dirty files, inside SessionStart's 15 s timeout.
+  for path in "${paths[@]}"; do
+    [ -f "$root/$path" ] && [ ! -L "$root/$path" ] && files+=("$path")
+  done
+  if [ ${#files[@]} -gt 0 ]; then
+    mapfile -t blobs < <(printf '%s\n' "${files[@]}" | git -C "$root" hash-object --stdin-paths 2>/dev/null)
+  fi
+  for i in "${!paths[@]}"; do
+    path=${paths[$i]}
+    if [ -f "$root/$path" ] && [ ! -L "$root/$path" ]; then
+      blob=${blobs[$j]:--}; j=$((j + 1))
+    else
+      blob=-
+    fi
+    printf '%s\t%s\t%s\n' "${xys[$i]}" "$path" "$blob"
+  done
+}
+
+# sc_dirt_new <start-file> <current-lines> — current entries not present, verbatim, at session start.
+# Same status, path and content as at start means the session did not touch it.
+sc_dirt_new() {
+  printf '%s\n' "$2" | grep -vxF -f "$1" | grep . || true
+}
+
 _sc_state_file() {
   local base key
   base="${XDG_STATE_HOME:-$HOME/.local/state}/claude-programme"

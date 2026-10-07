@@ -30,6 +30,19 @@ if [ -z "$(sc_state_get baseline)" ]; then
   fi
 fi
 
+# The root and the dirt fingerprint, stamped with the baseline's rule: once per session_id, on ANY
+# source, never overwritten. Not startup-only — the session after /clear arrives with a NEW
+# session_id and source=clear, and it is the most common session there is.
+if [ -z "$(sc_state_get root)" ]; then
+  dirt=$(sc_dirt_file)
+  sc_dirt_snapshot "$root" >"$dirt" 2>/dev/null || true
+  sc_state_set root "$root"
+  if grep -qx overflow "$dirt" 2>/dev/null; then
+    printf 'programme: more than %s dirty paths at session start — the Stop guard compares the whole working tree this session.\n' \
+      "${SC_DIRT_CAP:-2000}" >&2
+  fi
+fi
+
 slug=$(sc_resolve_programme)
 if [ -z "$slug" ]; then
   # Ambiguity is a result, not a fallthrough: name every candidate and inject no ledger. Guessing
