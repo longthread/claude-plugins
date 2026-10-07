@@ -193,6 +193,25 @@ _sc_index_status() {
     }' "$dir/INDEX.md"
 }
 
+# sc_index_mode <slug> — the programme's mode from INDEX.md's `mode` column, found by header name so
+# a column added after it never shifts it. No file, no column, no row, a blank cell, or anything that
+# is not exactly one of the three modes is `assisted`: an unreadable mode must never read as a
+# relaying one.
+sc_index_mode() {
+  local dir m
+  dir=$(sc_programmes_dir)
+  [ -n "$dir" ] && [ -f "$dir/INDEX.md" ] || { printf 'assisted'; return 0; }
+  m=$(awk -F'|' -v s="$1" '
+    function t(x) { gsub(/^[ \t]+|[ \t]+$/, "", x); return x }
+    /^\|/ && !hdr { hdr = 1; for (i = 2; i < NF; i++) if (t($i) == "mode") col = i; next }
+    /^\|/ && col && t($2) == s { print t($col); exit }
+  ' "$dir/INDEX.md")
+  case "$m" in
+    assisted|supervised|autonomous) printf '%s' "$m" ;;
+    *) printf 'assisted' ;;
+  esac
+}
+
 sc_ledger_path() {
   local dir
   dir=$(sc_programmes_dir)

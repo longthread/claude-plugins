@@ -143,5 +143,29 @@ assert_eq "alpha" "$(CLAUDE_PROJECT_DIR="$G" sc_branch_candidates)" \
   "candidates are existing dirs, de-duplicated"
 rm -rf "$R" "$S" "$G"
 
+# --- mode: read by header name; anything unusable is assisted ---
+M=$(make_repo)
+add_programme "$M" "alpha" "main"                       # harness INDEX has no mode column
+assert_eq "assisted" "$(CLAUDE_PROJECT_DIR="$M" sc_index_mode alpha)" "no mode column → assisted"
+cat >"$M/docs/programmes/INDEX.md" <<'EOF'
+# Programmes
+
+| programme | status | branch | ledger | mode |
+| --------- | ------ | ------ | ------ | ---- |
+| alpha | active | main | programmes/alpha/ledger.md | autonomous |
+| beta | active | main | programmes/beta/ledger.md |  |
+| gamma | active | main | programmes/gamma/ledger.md | turbo |
+| delta | active | main | programmes/delta/ledger.md | Supervised |
+EOF
+assert_eq "autonomous" "$(CLAUDE_PROJECT_DIR="$M" sc_index_mode alpha)" "mode read by header name"
+assert_eq "assisted" "$(CLAUDE_PROJECT_DIR="$M" sc_index_mode beta)" "blank cell → assisted"
+assert_eq "assisted" "$(CLAUDE_PROJECT_DIR="$M" sc_index_mode gamma)" "unknown value → assisted"
+assert_eq "assisted" "$(CLAUDE_PROJECT_DIR="$M" sc_index_mode delta)" "wrong case is not a mode → assisted"
+assert_eq "assisted" "$(CLAUDE_PROJECT_DIR="$M" sc_index_mode nope)" "no row → assisted"
+sed -i 's/| mode |$/| mode | owner |/; s/| ---- |$/| ---- | ----- |/; s/| autonomous |$/| autonomous | me |/' \
+  "$M/docs/programmes/INDEX.md"
+assert_eq "autonomous" "$(CLAUDE_PROJECT_DIR="$M" sc_index_mode alpha)" "a column after mode does not shift it"
+rm -rf "$M"
+
 rm -rf "$REPO" "$STATE_HOME"
 finish
