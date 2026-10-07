@@ -4,6 +4,36 @@
 > reader here already has the plugin installed and wants to know what will be different afterwards.
 > The writing rules are in `templates/CHANGELOG.md` at the repo root.
 
+## 0.4.0 — 2026-10-07
+
+**Nothing to do to upgrade.** A programme with no `mode` in `INDEX.md` is `assisted`, which behaves
+as 0.3.0 did apart from the drafted interview below. An unknown or blank mode reads as `assisted`.
+
+### Added
+
+- **Three modes per programme — `assisted`, `supervised`, `autonomous` — chosen at `/programme:init`
+  and switched with the new `/programme:mode`.** The mode is a column in `INDEX.md`, and every
+  session is told it at start.
+- **Handoff relays to the next session.** In supervised and autonomous mode it opens the next session
+  in a herdr pane, primed with `/programme:resume`, and closes its own pane once the successor has
+  resumed — only ever a pane the relay opened. Autonomous sessions start their own handoff when the
+  phase's terminal condition passes or they cannot progress, and the chain stops at a failing gate,
+  a blocked dialog, the programme's terminal condition, a missing next target, a next step that needs
+  a human decision, or the relay cap (`relayCap`, default 10). A successor that is blocked, exits,
+  errors or times out leaves both panes open and stops the chain.
+- **Relayed sessions inherit the permission mode of the session that handed off** — never a more
+  permissive one.
+
+### Changed
+
+- **The handoff interview is drafted, with evidence, before anything is asked.** Assisted shows the
+  whole draft for you to edit; supervised asks only what it could not back with evidence; autonomous
+  keeps only evidenced answers and lists the rest by number.
+- **`/programme:resume` honours `PROGRAMME_SLUG`** and opens its report with a fixed line, which a
+  relaying session waits for.
+- **The relaying modes need herdr and its skill**; `/programme:mode` checks both and refuses without
+  them. Assisted needs neither.
+
 ## 0.3.0 — 2026-10-06
 
 **Nothing to do to upgrade.** No ledger, template or config changes. Sessions already running keep

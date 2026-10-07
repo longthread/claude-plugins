@@ -195,7 +195,7 @@ want while developing — give <code>marketplace add</code> the path to the <str
 <p><strong>A local marketplace is read in place, never copied.</strong> The recorded <code>installLocation</code> is the path
 you gave. Point it at a clone that stays put — never at a directory inside a repo whose branch you
 switch, or the plugin vanishes globally on the first checkout that predates it.</p>
-<h2>The four commands</h2>
+<h2>The five commands</h2>
 <ul>
 <li><strong><code>/programme:init &lt;name&gt;</code></strong> — bootstraps a programme: copies the templates into
 <code>docs/programmes/&lt;slug&gt;/</code>, adds a row to <code>docs/programmes/INDEX.md</code>, installs the <code>CLAUDE.md</code>
@@ -216,6 +216,8 @@ still true: runs every <code>verify with</code> command in the State table and r
 what is owed, and stops. <strong>It writes nothing, deliberately</strong> — a status that quietly corrects the
 record cannot tell you whether the record is honest, because running it makes the answer yes. Slow
 gates are printed as recorded, with their <code>trust</code> and <code>last run</code>, and only run with <code>--gates</code>.</li>
+<li><strong><code>/programme:mode &lt;name&gt; &lt;mode&gt;</code></strong> — records the mode in <code>INDEX.md</code> after checking that
+supervised or autonomous can be honoured.</li>
 </ul>
 <h2>The arc, and why it is a table</h2>
 <p>Every other section of the ledger is phase-scoped. <code>Current position</code> is rewritten wholesale at each
@@ -244,6 +246,8 @@ writing, and a <code>planned</code> phase&#39;s work is sometimes cheaper taken 
 counts as &quot;code changed&quot;; its default (everything except markdown, <code>docsRoot</code>, and <code>.claude/</code>) is
 derived from <code>docsRoot</code>, not hardcoded, so a repo whose <code>docsRoot</code> isn&#39;t <code>docs</code> still gets it
 right without this key.</li>
+<li><code>relayCap</code> — optional. How many sessions an autonomous or supervised chain may relay through
+before it stops; default 10.</li>
 </ul>
 <p>A dedicated file rather than <code>settings.json</code>: the gate list is structured, which rules out <code>env</code>, and
 unknown keys in <code>settings.json</code> are not a contract worth relying on.</p>
@@ -262,6 +266,51 @@ that moves to another worktree is judged on its commits only. It warns once per 
 model as well as to you — one extra turn — and the model may answer that the work is not programme
 work. A user-only warning was tried first; measured in an adopting repo, it never once led to a
 ledger write.</p>
+<h2>Modes, and the relay</h2>
+<p>Each programme has a mode in <code>INDEX.md</code> — <code>assisted</code> (the default), <code>supervised</code> or <code>autonomous</code> —
+set at <code>/programme:init</code> or with <code>/programme:mode</code>. It decides two things: how much of the handoff
+interview is put to you, and whether a handoff starts the next session itself.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>relay point</th>
+<th>assisted</th>
+<th>supervised</th>
+<th>autonomous</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>handoff interview</td>
+<td>drafted with evidence; you edit it</td>
+<td>you&#39;re asked only the unevidenced</td>
+<td>evidenced answers only; the rest left out</td>
+</tr>
+<tr>
+<td>the next session</td>
+<td>printed for you to start</td>
+<td>opened in a herdr pane</td>
+<td>opened in a herdr pane</td>
+</tr>
+<tr>
+<td>after it resumes</td>
+<td>asks to proceed</td>
+<td>asks to proceed</td>
+<td>proceeds; hands off by itself</td>
+</tr>
+<tr>
+<td>a phase closes</td>
+<td>stop</td>
+<td>stop</td>
+<td>continue</td>
+</tr>
+</tbody></table>
+</div><p>Supervised and autonomous need <a href="https://herdr.dev">herdr</a> and its skill; they do every herdr step
+through that skill, so this plugin carries no herdr code of its own. A relayed session gets the same
+permission mode as the one that handed off, and only a pane the relay opened is ever closed, and
+only once the successor&#39;s <code>Resumed programme</code> line has appeared. The chain stops at a failing gate,
+a blocked dialog, the programme&#39;s terminal condition, a missing next target, a next step that needs a
+human decision, or <code>relayCap</code> relays (default 10); a successor that is blocked, exits, errors or
+times out leaves both panes open. An unknown or blank mode reads as <code>assisted</code>.</p>
 <h2>When NOT to use it</h2>
 <p>This fits multi-session programme work with a running thread — the kind where a session would ever
 have to ask &quot;where were we?&quot; It does not fit a repo that is a series of unrelated tickets. Point it
@@ -296,7 +345,7 @@ post-compaction recovery.</p>
 <h2>Where each rule lives — exactly one home</h2>
 <p>Every rule below has exactly one home, in prose where the rule is about <em>when</em> or <em>why</em>, and as a
 table schema where the rule can be a column instead. <code>tests/test-templates.sh</code> reads the six
-markdown templates and <code>tests/test-commands.sh</code> reads the four commands; both assert that a rule
+markdown templates and <code>tests/test-commands.sh</code> reads the five commands; both assert that a rule
 appears in its home <strong>and</strong> that it does not appear anywhere else. Neither reaches the hooks.</p>
 <p>Both readers fold newlines to spaces before matching. Without that, a rule restated across a
 formatter&#39;s line wrap satisfies the negative assertion while the duplication is right there —
@@ -407,6 +456,41 @@ across a compaction boundary is open (the live-run checklist&#39;s Question 2, i
 <td>the five interview questions</td>
 <td><code>commands/handoff.md</code></td>
 <td>procedure</td>
+</tr>
+<tr>
+<td>the herdr dependency check</td>
+<td><code>commands/mode.md</code></td>
+<td>procedure</td>
+</tr>
+<tr>
+<td>what a mode does at each relay point</td>
+<td><code>commands/handoff.md</code> · <code>commands/resume.md</code></td>
+<td>procedure, where each point happens</td>
+</tr>
+<tr>
+<td><code>PROGRAMME_SLUG</code> precedence</td>
+<td><code>commands/resume.md</code></td>
+<td>procedure</td>
+</tr>
+<tr>
+<td>when an autonomous session hands off</td>
+<td><code>commands/resume.md</code></td>
+<td>procedure</td>
+</tr>
+<tr>
+<td>relay stop conditions, the cap</td>
+<td><code>commands/handoff.md</code></td>
+<td>procedure</td>
+</tr>
+<tr>
+<td>which pane a relay may close</td>
+<td><code>commands/handoff.md</code></td>
+<td>procedure</td>
+</tr>
+<tr>
+<td>what the <code>mode</code> column means, and how to read it</td>
+<td><code>templates/INDEX.md</code></td>
+<td>prose — its header comment</td>
 </tr>
 </tbody></table>
 </div><p><code>fix shape</code> appears in two tables — <code>deferred.md</code> and <code>deferred-work.md</code> — because deferred work has

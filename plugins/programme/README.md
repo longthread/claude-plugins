@@ -64,7 +64,7 @@ want while developing — give `marketplace add` the path to the **marketplace**
 you gave. Point it at a clone that stays put — never at a directory inside a repo whose branch you
 switch, or the plugin vanishes globally on the first checkout that predates it.
 
-## The four commands
+## The five commands
 
 - **`/programme:init <name>`** — bootstraps a programme: copies the templates into
   `docs/programmes/<slug>/`, adds a row to `docs/programmes/INDEX.md`, installs the `CLAUDE.md`
@@ -85,6 +85,8 @@ forward or a doomed piece of work refused — corrects the ledger in place, reco
   what is owed, and stops. **It writes nothing, deliberately** — a status that quietly corrects the
   record cannot tell you whether the record is honest, because running it makes the answer yes. Slow
   gates are printed as recorded, with their `trust` and `last run`, and only run with `--gates`.
+- **`/programme:mode <name> <mode>`** — records the mode in `INDEX.md` after checking that
+  supervised or autonomous can be honoured.
 
 ## The arc, and why it is a table
 
@@ -119,6 +121,8 @@ writing, and a `planned` phase's work is sometimes cheaper taken now — which i
   counts as "code changed"; its default (everything except markdown, `docsRoot`, and `.claude/`) is
   derived from `docsRoot`, not hardcoded, so a repo whose `docsRoot` isn't `docs` still gets it
   right without this key.
+- `relayCap` — optional. How many sessions an autonomous or supervised chain may relay through
+  before it stops; default 10.
 
 A dedicated file rather than `settings.json`: the gate list is structured, which rules out `env`, and
 unknown keys in `settings.json` are not a contract worth relying on.
@@ -141,6 +145,27 @@ that moves to another worktree is judged on its commits only. It warns once per 
 model as well as to you — one extra turn — and the model may answer that the work is not programme
 work. A user-only warning was tried first; measured in an adopting repo, it never once led to a
 ledger write.
+
+## Modes, and the relay
+
+Each programme has a mode in `INDEX.md` — `assisted` (the default), `supervised` or `autonomous` —
+set at `/programme:init` or with `/programme:mode`. It decides two things: how much of the handoff
+interview is put to you, and whether a handoff starts the next session itself.
+
+| relay point       | assisted                           | supervised                        | autonomous                                |
+| ----------------- | ---------------------------------- | --------------------------------- | ----------------------------------------- |
+| handoff interview | drafted with evidence; you edit it | you're asked only the unevidenced | evidenced answers only; the rest left out |
+| the next session  | printed for you to start           | opened in a herdr pane            | opened in a herdr pane                    |
+| after it resumes  | asks to proceed                    | asks to proceed                   | proceeds; hands off by itself             |
+| a phase closes    | stop                               | stop                              | continue                                  |
+
+Supervised and autonomous need [herdr](https://herdr.dev) and its skill; they do every herdr step
+through that skill, so this plugin carries no herdr code of its own. A relayed session gets the same
+permission mode as the one that handed off, and only a pane the relay opened is ever closed, and
+only once the successor's `Resumed programme` line has appeared. The chain stops at a failing gate,
+a blocked dialog, the programme's terminal condition, a missing next target, a next step that needs a
+human decision, or `relayCap` relays (default 10); a successor that is blocked, exits, errors or
+times out leaves both panes open. An unknown or blank mode reads as `assisted`.
 
 ## When NOT to use it
 
@@ -182,7 +207,7 @@ post-compaction recovery.
 
 Every rule below has exactly one home, in prose where the rule is about _when_ or _why_, and as a
 table schema where the rule can be a column instead. `tests/test-templates.sh` reads the six
-markdown templates and `tests/test-commands.sh` reads the four commands; both assert that a rule
+markdown templates and `tests/test-commands.sh` reads the five commands; both assert that a rule
 appears in its home **and** that it does not appear anywhere else. Neither reaches the hooks.
 
 Both readers fold newlines to spaces before matching. Without that, a rule restated across a
@@ -215,6 +240,13 @@ across a compaction boundary is open (the live-run checklist's Question 2, in th
 | resolve a shared branch by asking    | `commands/resume.md`      | procedure — the hooks stay silent instead   |
 | report without repairing             | `commands/status.md`      | procedure                                   |
 | the five interview questions         | `commands/handoff.md`     | procedure                                   |
+| the herdr dependency check           | `commands/mode.md`        | procedure                                   |
+| what a mode does at each relay point | `commands/handoff.md` · `commands/resume.md` | procedure, where each point happens |
+| `PROGRAMME_SLUG` precedence          | `commands/resume.md`      | procedure                                   |
+| when an autonomous session hands off | `commands/resume.md`      | procedure                                   |
+| relay stop conditions, the cap       | `commands/handoff.md`     | procedure                                   |
+| which pane a relay may close         | `commands/handoff.md`     | procedure                                   |
+| what the `mode` column means, and how to read it | `templates/INDEX.md` | prose — its header comment            |
 
 `fix shape` appears in two tables — `deferred.md` and `deferred-work.md` — because deferred work has
 two lifetimes: some items die with the programme, some outlive it. That is one schema definition
