@@ -157,6 +157,8 @@ done
 # --- handoff: fix round 1 ---
 assert_contains "$HANDOFF" "has appeared, notify the user" "handoff: closing only after the fixed line appeared"
 assert_contains "$HANDOFF" "treat that like blocked" "handoff: any other outcome is treated like blocked"
+assert_not_contains "$HANDOFF" "the \`Mode:\` line the session-start context states" \
+  "handoff: the Mode: line is no longer the mode source (re-ruled: the INDEX.md cell is)"
 assert_contains "$HANDOFF" "needs a human decision" "handoff: autonomous human-decision stop"
 assert_contains "$HANDOFF" "this handoff was started because the session could not progress — notify the user, naming what blocked it" \
   "handoff: the autonomous could-not-progress stop is general, not only a human decision"
@@ -168,6 +170,10 @@ assert_contains "$HANDOFF" "\`HERDR_ENV\` is \`1\` and \`HERDR_PANE_ID\` is non-
 assert_contains "$HANDOFF" "this session is not in a herdr pane" "handoff: says so when it is not"
 assert_contains "$HANDOFF" "never issue a close without an explicit pane id" "handoff: no id-less close"
 assert_contains "$HANDOFF" "echo \"PROGRAMME_RELAY=\${PROGRAMME_RELAY:-0}\"" "handoff: the snippet prints this session's relay number"
+assert_contains "$HANDOFF" "echo \"HERDR_ENV=\${HERDR_ENV:-}\"" "handoff: the snippet prints HERDR_ENV"
+assert_contains "$HANDOFF" "echo \"HERDR_PANE_ID=\${HERDR_PANE_ID:-}\"" "handoff: the snippet prints HERDR_PANE_ID"
+assert_contains "$HANDOFF" "as the command below printed them" "handoff: the in-pane check reads the printed values"
+assert_contains "$HANDOFF" "the printed \`HERDR_PANE_ID\` is non-empty" "handoff: the close guard reads the printed id"
 assert_contains "$HANDOFF" "What this session recorded, and which relay it is" "handoff: the snippet's title names both"
 assert_contains "$HANDOFF" "this session's relay number — the value the command below printed — has reached the cap" \
   "handoff: the cap reads the printed value"

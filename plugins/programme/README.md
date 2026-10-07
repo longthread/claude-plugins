@@ -164,9 +164,9 @@ through that skill, so this plugin carries no herdr code of its own. A relayed s
 permission mode as the one that handed off, and only a pane the relay opened is ever closed, and
 only once the successor's `Resumed programme` line has appeared — the pane you started the chain in,
 relay 0's, never is. The chain stops at a failing gate, a blocked dialog, the programme's terminal
-condition, a missing next target, a next step that needs a human decision, or `relayCap` relays
-(default 10); a successor that is blocked, exits, errors or times out leaves both panes open. An
-unknown or blank mode reads as `assisted`.
+condition, a missing next target, a session that could not progress (a next step that needs a human
+decision among them), or `relayCap` relays (default 10); a successor that is blocked, exits, errors
+or times out leaves both panes open. An unknown or blank mode reads as `assisted`.
 
 ## When NOT to use it
 

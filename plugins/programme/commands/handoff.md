@@ -164,7 +164,7 @@ tell the user that its shell still carries this programme's relay variables, and
 starting Claude there by hand they should run `unset PROGRAMME_SLUG PROGRAMME_RELAY`.
 
 **Before any pane is opened, this session must itself be in a herdr pane** — `HERDR_ENV` is `1`
-and `HERDR_PANE_ID` is non-empty in its environment. If not, this session is not in a herdr pane:
+and `HERDR_PANE_ID` is non-empty, as the command below printed them. If not, this session is not in a herdr pane:
 print assisted's commands for this handoff instead and say so.
 
 **assisted** — print, for the user to run: `/clear`, then `/programme:resume <SLUG>`. If this
@@ -191,8 +191,8 @@ is. Otherwise, using the herdr skill:
    **Never answer the dialog.**
 5. only once the line `Resumed programme "<SLUG>"` has appeared, notify the user that relay
    `<that number>` resumed. Then, **only if this session's own `PROGRAMME_RELAY`, the value the
-   command below printed, is 1 or more** — the relay opened this pane — and `HERDR_PANE_ID` is
-   non-empty, close this pane (`$HERDR_PANE_ID`) as your very last action; never issue a close
+   command below printed, is 1 or more** — the relay opened this pane — and the printed
+   `HERDR_PANE_ID` is non-empty, close this pane (`$HERDR_PANE_ID`) as your very last action; never issue a close
    without an explicit pane id. Relay 0's pane is the one the user started the chain in: never
    close it, and never close any other pane.
 
@@ -202,4 +202,6 @@ What this session recorded, and which relay it is:
 f="${XDG_STATE_HOME:-$HOME/.local/state}/claude-programme/$(printf '%s' "$CLAUDE_CODE_SESSION_ID" | tr -c 'A-Za-z0-9._-' '_').state"
 sed -n '/^permission_mode=/p' "$f" 2>/dev/null
 echo "PROGRAMME_RELAY=${PROGRAMME_RELAY:-0}"
+echo "HERDR_ENV=${HERDR_ENV:-}"
+echo "HERDR_PANE_ID=${HERDR_PANE_ID:-}"
 ```

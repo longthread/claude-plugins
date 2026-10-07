@@ -309,9 +309,9 @@ through that skill, so this plugin carries no herdr code of its own. A relayed s
 permission mode as the one that handed off, and only a pane the relay opened is ever closed, and
 only once the successor&#39;s <code>Resumed programme</code> line has appeared — the pane you started the chain in,
 relay 0&#39;s, never is. The chain stops at a failing gate, a blocked dialog, the programme&#39;s terminal
-condition, a missing next target, a next step that needs a human decision, or <code>relayCap</code> relays
-(default 10); a successor that is blocked, exits, errors or times out leaves both panes open. An
-unknown or blank mode reads as <code>assisted</code>.</p>
+condition, a missing next target, a session that could not progress (a next step that needs a human
+decision among them), or <code>relayCap</code> relays (default 10); a successor that is blocked, exits, errors
+or times out leaves both panes open. An unknown or blank mode reads as <code>assisted</code>.</p>
 <h2>When NOT to use it</h2>
 <p>This fits multi-session programme work with a running thread — the kind where a session would ever
 have to ask &quot;where were we?&quot; It does not fit a repo that is a series of unrelated tickets. Point it
