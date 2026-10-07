@@ -7,7 +7,8 @@
 ## 0.3.0 — 2026-10-06
 
 **Nothing to do to upgrade.** No ledger, template or config changes. Sessions already running keep
-the old `Stop` behaviour until they restart.
+the old `Stop` behaviour until they restart. The hooks' per-session state, under
+`~/.local/state/claude-programme/`, is now pruned of other sessions' files older than 30 days.
 
 ### Fixed
 
@@ -20,7 +21,11 @@ the old `Stop` behaviour until they restart.
   on that branch was handed the first one listed.
 - **The `Stop` guard no longer fires on files that were already dirty when the session began.**
   An untracked directory, or another session's uncommitted work, used to trigger it minutes into a
-  read-only resume — and since it warns once per session, that spent its only warning.
+  read-only resume — and since it warns once per session, that spent its only warning. A file
+  renamed into the code paths before the session began (`notes.md` to `src/notes.ts`) no longer
+  counts either.
+- **A stale or duplicated `INDEX.md` row no longer makes a programme ambiguous.** Only rows naming
+  a programme directory that exists count, once each.
 
 ### Changed
 
@@ -31,9 +36,10 @@ the old `Stop` behaviour until they restart.
 ### Added
 
 - **`/programme:resume <name>` pins that programme for the rest of the session**, including after a
-  compaction, and every hook follows the pin. `/programme:handoff <name>` pins the same way;
-  a new programme is pinned by the first such command after `/programme:init` creates it. A `PROGRAMME_SLUG` environment variable does the same for a session
-  launched by a script or another agent.
+  compaction, and every hook follows the pin. `/programme:handoff <name>` pins the same way; a new
+  programme is pinned by the first such command after `/programme:init` creates it. A
+  `PROGRAMME_SLUG` environment variable does the same for a session launched by a script or another
+  agent.
 
 ## 0.2.0 — 2026-08-20
 

@@ -41,7 +41,8 @@ The writing rules are in <code>templates/CHANGELOG.md</code> at the repo root.</
 </blockquote>
 <h2>0.3.0 — 2026-10-06</h2>
 <p><strong>Nothing to do to upgrade.</strong> No ledger, template or config changes. Sessions already running keep
-the old <code>Stop</code> behaviour until they restart.</p>
+the old <code>Stop</code> behaviour until they restart. The hooks&#39; per-session state, under
+<code>~/.local/state/claude-programme/</code>, is now pruned of other sessions&#39; files older than 30 days.</p>
 <h3>Fixed</h3>
 <ul>
 <li><strong>A session in a worktree is told its own programme, not the main checkout&#39;s.</strong> The hooks now
@@ -53,7 +54,11 @@ and no ledger is injected; the <code>Stop</code> and <code>PreCompact</code> hoo
 on that branch was handed the first one listed.</li>
 <li><strong>The <code>Stop</code> guard no longer fires on files that were already dirty when the session began.</strong>
 An untracked directory, or another session&#39;s uncommitted work, used to trigger it minutes into a
-read-only resume — and since it warns once per session, that spent its only warning.</li>
+read-only resume — and since it warns once per session, that spent its only warning. A file
+renamed into the code paths before the session began (<code>notes.md</code> to <code>src/notes.ts</code>) no longer
+counts either.</li>
+<li><strong>A stale or duplicated <code>INDEX.md</code> row no longer makes a programme ambiguous.</strong> Only rows naming
+a programme directory that exists count, once each.</li>
 </ul>
 <h3>Changed</h3>
 <ul>
@@ -64,9 +69,10 @@ an adopting repo, the user-only warning never once led to a ledger write.</li>
 <h3>Added</h3>
 <ul>
 <li><strong><code>/programme:resume &lt;name&gt;</code> pins that programme for the rest of the session</strong>, including after a
-compaction, and every hook follows the pin. <code>/programme:handoff &lt;name&gt;</code> pins the same way;
-a new programme is pinned by the first such command after <code>/programme:init</code> creates it. A <code>PROGRAMME_SLUG</code> environment variable does the same for a session
-launched by a script or another agent.</li>
+compaction, and every hook follows the pin. <code>/programme:handoff &lt;name&gt;</code> pins the same way; a new
+programme is pinned by the first such command after <code>/programme:init</code> creates it. A
+<code>PROGRAMME_SLUG</code> environment variable does the same for a session launched by a script or another
+agent.</li>
 </ul>
 <h2>0.2.0 — 2026-08-20</h2>
 <p><strong>Nothing to do to upgrade.</strong> A ledger written before this release keeps working unchanged, and
