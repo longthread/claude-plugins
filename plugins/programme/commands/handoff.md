@@ -28,8 +28,17 @@ Run every gate in the ledger's Gates table and record the real output in `last r
 
 ## 2. Interview — do not fill blanks
 
-Ask these one at a time. They are not interchangeable with "what did you do?", which produces a
-changelog.
+**Draft all five answers before asking anything.** Each cites its evidence — a commit sha, a command
+and its output, a `file:line`, a gate run. Questions 4 and 5 look forward; for them, evidence means
+the arc row, or the spec or plan at `file:line`, that the answer derives from. Then, by the
+programme's mode (`INDEX.md`'s `mode` column; a blank cell or no column means `assisted`):
+
+- **assisted** — show the whole draft; the user edits or approves each answer.
+- **supervised** — ask the user only the questions whose draft has no evidence; keep the rest.
+- **autonomous** — keep only the answers with evidence and leave the others out of the ledger
+  entirely — no `UNVERIFIED` placeholder. The second ask on question 2, below, does not apply.
+
+The questions are not interchangeable with "what did you do?", which produces a changelog.
 
 1. **What did you measure?** Not what you did — what number, output, or observation do you now have
    that you did not have before?
@@ -43,7 +52,7 @@ changelog.
    to change", name which rows you read to conclude that** — the failure this question exists to
    catch is answering it from memory.
 
-**On question 2: if the session changed anything — code, plan, or doc — and the answer is
+**On question 2, in assisted and supervised mode: if the session changed anything — code, plan, or doc — and the answer is
 "nothing", ask again.** Rephrase toward the concrete — a wrong assumption, a review finding, a
 test that passed while checking nothing, a plan defect. A session with no mistakes worth recording
 is usually a session that did not look; do not settle for an empty answer because it is easier to
@@ -117,3 +126,49 @@ Show: what you measured versus what the ledger claimed, with each gate's result 
 every claim you corrected; the interview answers as recorded — if question 2's second ask
 still yielded nothing, record `asked twice, none recorded`; what was archived; and anything you
 could not verify, named as unverified.
+
+In autonomous mode, list the questions left out for want of evidence — numbers only.
+
+## 8. Relay to the next session
+
+The ledger and `NEXT-SESSION.md` are already written; the relay carries nothing they do not.
+
+**Stop instead of relaying** when any of these holds — leave this pane as it is and, in supervised
+or autonomous mode, notify the user through the herdr skill with the reason:
+
+- a gate failed in step 1;
+- a phase closed in this handoff, and the mode is `assisted` or `supervised`;
+- the arc's programme terminal condition now passes — the programme is done;
+- this session's `PROGRAMME_RELAY` (absent means 0) has reached the cap: `relayCap` in
+  `.claude/session-continuity.json`, default 10;
+- the mode is `autonomous` and question 4 was left out — the next session would have no terminal
+  condition to work toward or to stop on.
+
+**assisted** — print, for the user to run: `/clear`, then `/programme:resume <SLUG>`. If
+`HERDR_ENV=1`, also offer to open the next session in a pane as supervised does; do it only on a yes.
+
+**supervised, autonomous** — run the herdr dependency check `/programme:mode` states. If it fails,
+print assisted's commands for this handoff instead, say which check failed, and leave the mode as it
+is. Otherwise, using the herdr skill:
+
+1. open a new pane beside this one, in this tab, at this session's project root, with
+   `PROGRAMME_SLUG=<SLUG>` and `PROGRAMME_RELAY=<this session's value + 1>` in its environment;
+2. start Claude in it as the agent `prog-<SLUG>-<that number>`, with this session's permission mode —
+   the recorded value, read with the command below. If nothing is recorded, start with Claude Code's
+   default and say so. **Never pass a more permissive mode than the one recorded.**
+3. send `/programme:resume <SLUG>`, and wait until its output shows the line
+   `Resumed programme "<SLUG>"`, or until it is blocked. Do not wait for it to go idle — an
+   autonomous successor keeps working after its report;
+4. if it is blocked — a trust or permission dialog — notify the user, leave both panes, and stop.
+   **Never answer the dialog.**
+5. otherwise notify the user that relay `<that number>` resumed. Then, **only if this session's own
+   `PROGRAMME_RELAY` is 1 or more** — the relay opened this pane — close this pane
+   (`$HERDR_PANE_ID`) as your very last action. Relay 0's pane is the one the user started the chain
+   in: never close it, and never close any other pane.
+
+The permission mode this session recorded:
+
+```bash
+f="${XDG_STATE_HOME:-$HOME/.local/state}/claude-programme/$(printf '%s' "$CLAUDE_CODE_SESSION_ID" | tr -c 'A-Za-z0-9._-' '_').state"
+sed -n 's/^permission_mode=//p' "$f" 2>/dev/null
+```

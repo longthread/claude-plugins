@@ -130,4 +130,27 @@ for other in "$INIT" "$HANDOFF" "$STATUS" "$MODE"; do
   assert_not_contains "$other" "run \`/programme:handoff\` yourself" "the autonomous trigger lives only in resume.md"
 done
 
+# --- handoff: the drafted interview ---
+assert_contains "$HANDOFF" "Draft all five answers before asking anything" "handoff: drafts first"
+assert_contains "$HANDOFF" "the arc row, or the spec or plan at \`file:line\`" "handoff: evidence for questions 4-5"
+assert_contains "$HANDOFF" "leave the others out of the ledger entirely" "handoff: autonomous leaves unevidenced answers out"
+assert_contains "$HANDOFF" "numbers only" "handoff: the report lists left-out questions by number"
+# --- handoff: the relay ---
+assert_contains "$HANDOFF" "Stop instead of relaying" "handoff: stop conditions come first"
+assert_contains "$HANDOFF" "question 4 was left out" "handoff: no evidenced next target, no relay"
+assert_contains "$HANDOFF" "relayCap" "handoff: the cap and its key"
+assert_contains "$HANDOFF" "using the herdr skill" "handoff: the relay goes through the herdr skill"
+assert_contains "$HANDOFF" "Never pass a more permissive mode than the one recorded" "handoff: no escalation"
+assert_contains "$HANDOFF" "Resumed programme" "handoff: waits for the successor's fixed line"
+assert_contains "$HANDOFF" "only if this session's own \`PROGRAMME_RELAY\` is 1 or more" "handoff: only relay-opened panes close"
+assert_contains "$HANDOFF" "Never answer the dialog" "handoff: a blocked successor goes to the user"
+for raw in "herdr pane " "herdr agent " "herdr notification "; do
+  assert_not_contains "$HANDOFF" "$raw" "handoff: no raw herdr syntax ($raw) — the skill owns how"
+done
+for other in "$INIT" "$RESUME" "$STATUS" "$MODE"; do
+  assert_not_contains "$other" "Stop instead of relaying" "relay stop conditions live only in handoff.md"
+  assert_not_contains "$other" "is 1 or more" "the pane-close rule lives only in handoff.md"
+  assert_not_contains "$other" "leave the others out of the ledger" "the leave-out rule lives only in handoff.md"
+done
+
 finish
