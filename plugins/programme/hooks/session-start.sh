@@ -102,6 +102,7 @@ fi
 
 rel_ledger=${ledger#"$root"/}
 sc_emit_additional_context SessionStart "Active programme: \"$slug\" — $rel_ledger
+Mode: $(sc_index_mode "$slug")
 
 $body
 

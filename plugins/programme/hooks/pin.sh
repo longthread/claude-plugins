@@ -18,6 +18,15 @@ SC_PROMPT=$(_sc_str "$raw" prompt)
 sc_is_inert && exit 0
 [ -n "$SC_JSON" ] && [ -n "$SC_SESSION_ID" ] || exit 0
 
+# The permission mode this session runs in, so a relay can start its successor with the same one
+# and never a more permissive one. Recorded on any /programme: prompt — the relay's handoff may name
+# no slug. Only a plain word is kept: the relay passes it on a command line.
+pm=$(_sc_str "$raw" permission_mode)
+case "$pm" in
+  ''|*[!A-Za-z]*) ;;
+  *) sc_state_set permission_mode "$pm" ;;
+esac
+
 first=$(printf '%s\n' "$SC_PROMPT" | head -n1)
 slug=$(printf '%s' "$first" \
   | sed -nE 's#^[[:space:]]*/programme:(resume|init|handoff)[[:space:]]+([^[:space:]]+).*$#\2#p')

@@ -179,5 +179,16 @@ run_hook session-start.sh "$(PAYLOAD_CWD="$P" payload SessionStart pr2 resume)" 
 assert_eq "keepme" "$(SC_SESSION_ID=pr2 sc_state_get baseline)" "the current session's own old state is never pruned"
 rm -rf "$P" "$OUTSIDE"
 
+# --- the mode reaches every session, a relayed successor included ---
+MS=$(make_repo)
+add_programme "$MS" "solo" "main"
+run_hook session-start.sh "$(PAYLOAD_CWD="$MS" payload SessionStart md1 startup)" "$MS"
+assert_contains "$OUT" "Mode: assisted" "no mode column injects Mode: assisted"
+sed -i 's/| programme | status | branch | ledger |/| programme | status | branch | ledger | mode |/; s/| --------- | ------ | ------ | ------ |/| --------- | ------ | ------ | ------ | ---- |/; s/| solo | active | main | programmes\/solo\/ledger.md |/| solo | active | main | programmes\/solo\/ledger.md | supervised |/' \
+  "$MS/docs/programmes/INDEX.md"
+run_hook session-start.sh "$(PAYLOAD_CWD="$MS" payload SessionStart md2 startup)" "$MS"
+assert_contains "$OUT" "Mode: supervised" "the INDEX mode is injected"
+rm -rf "$MS"
+
 rm -rf "$REPO" "$STATE_HOME"
 finish

@@ -55,5 +55,17 @@ rm -rf "$SHIM"
 run_hook session-start.sh "$(payload SessionStart p1 compact)" "$REPO"
 assert_contains "$OUT" 'Active programme: \"beta\"' "a pinned session is injected its pin, not the ambiguity"
 
+# --- the permission mode is recorded, so a relay can hand the same one on ---
+pm() { payload UserPromptSubmit "$1" startup "\"prompt\":\"$2\",\"permission_mode\":\"$3\""; }
+run_hook pin.sh "$(pm q1 '/programme:resume beta' acceptEdits)" "$REPO"
+assert_eq "acceptEdits" "$(SC_SESSION_ID=q1 sc_state_get permission_mode)" "a /programme: prompt records permission_mode"
+run_hook pin.sh "$(pm q2 '/programme:handoff' auto)" "$REPO"
+assert_eq "auto" "$(SC_SESSION_ID=q2 sc_state_get permission_mode)" "recorded even when no slug is named"
+run_hook pin.sh "$(pm q3 '/programme:resume beta' 'acceptEdits; rm -rf ~')" "$REPO"
+assert_empty "$(SC_SESSION_ID=q3 sc_state_get permission_mode)" "a value that is not a plain word is not recorded"
+run_hook pin.sh "$(pm q4 'just chatting' auto)" "$REPO"
+assert_empty "$(SC_SESSION_ID=q4 sc_state_get permission_mode)" "an ordinary prompt records nothing"
+assert_empty "$OUT" "still silent"
+
 rm -rf "$REPO" "$STATE_HOME"
 finish
