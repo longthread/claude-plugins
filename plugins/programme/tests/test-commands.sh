@@ -153,4 +153,12 @@ for other in "$INIT" "$RESUME" "$STATUS" "$MODE"; do
   assert_not_contains "$other" "leave the others out of the ledger" "the leave-out rule lives only in handoff.md"
 done
 
+# --- handoff: fix round 1 ---
+assert_contains "$HANDOFF" "has appeared, notify the user" "handoff: closing only after the fixed line appeared"
+assert_contains "$HANDOFF" "treat that like blocked" "handoff: any other outcome is treated like blocked"
+assert_not_contains "$HANDOFF" "a blank cell or no column means" "handoff: defers the mode-cell rule"
+assert_contains "$HANDOFF" "the \`Mode:\` line the session-start context states" "handoff: reads the Mode: line"
+assert_contains "$HANDOFF" "needs a human decision" "handoff: autonomous human-decision stop"
+assert_not_contains "$RESUME" "naming the decision needed" "the human-decision stop lives only in handoff.md"
+
 finish

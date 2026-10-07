@@ -87,6 +87,7 @@ assert_contains "$W" "promoted from" "deferred-work: promotion provenance"
 
 assert_contains "$I" "| programme | status | branch | ledger | mode |" "INDEX: parsed header row, mode last"
 assert_contains "$I" "a blank cell, or no column at all, means assisted" "INDEX: the mode default is stated"
+assert_contains "$I" "any value other than exactly" "INDEX: an unknown mode value means assisted"
 
 # --- session-continuity.json: exact key set, so a duplicated or orphaned key doesn't hide in a
 # format the string-based checks above never read. This is how "gates": [] survived — it duplicated
