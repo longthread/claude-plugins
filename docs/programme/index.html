@@ -247,6 +247,17 @@ right without this key.</li>
 </ul>
 <p>A dedicated file rather than <code>settings.json</code>: the gate list is structured, which rules out <code>env</code>, and
 unknown keys in <code>settings.json</code> are not a contract worth relying on.</p>
+<h2>Which programme a session is in, and what the <code>Stop</code> guard counts</h2>
+<p>The hooks resolve the programme from the directory the session is <strong>working in</strong> — a worktree
+resolves its own branch&#39;s programme — in this order: a programme pinned by <code>/programme:resume &lt;name&gt;</code> (or <code>init</code>/<code>handoff</code>) earlier in the session; a <code>PROGRAMME_SLUG</code> environment variable; the
+<strong>one</strong> open <code>INDEX.md</code> row whose branch is the current branch; the only open programme. When
+several open programmes share the branch, nothing is assumed: <code>SessionStart</code> names them and says how
+to pick, and the <code>Stop</code> and <code>PreCompact</code> hooks stay silent.</p>
+<p>The <code>Stop</code> guard counts what <strong>this session</strong> changed: commits since it started, and working-tree
+changes measured against a fingerprint of the dirt that was already there when it began. It warns
+once per session, to the model as well as to you — one extra turn — and the model may answer that
+the work is not programme work. A user-only warning was tried first; measured in an adopting repo,
+it never once led to a ledger write.</p>
 <h2>When NOT to use it</h2>
 <p>This fits multi-session programme work with a running thread — the kind where a session would ever
 have to ask &quot;where were we?&quot; It does not fit a repo that is a series of unrelated tickets. Point it
@@ -263,7 +274,7 @@ that fires on every qualifying tool call risks nagging on ordinary work.</li>
 <li><strong>A session journal.</strong> The ledger already serves that role — it&#39;s written at each checkpoint, not
 only at session end.</li>
 <li><strong>A <code>SessionEnd</code> warning.</strong> By session end the model can no longer act and the record most in need
-of saving is already lost — a scolding, not a save. The <code>Stop</code> guard, latched to fire once, catches
+of saving is already lost — a scolding, not a save. The <code>Stop</code> guard, latched to fire once and addressed to the model, catches
 the same lapse while the work is still fresh enough to act on.</li>
 <li><strong>A <code>ledger-discipline</code> skill.</strong> It had no moment where it was the only thing loaded: editing the
 ledger requires reading it, and the header is right there. It was also the largest source of
@@ -377,6 +388,11 @@ across a compaction boundary is open (the live-run checklist&#39;s Question 2, i
 <td>resolve which programme is active</td>
 <td><code>commands/resume.md</code></td>
 <td>procedure — the others defer to it</td>
+</tr>
+<tr>
+<td>resolve a shared branch by asking</td>
+<td><code>commands/resume.md</code></td>
+<td>procedure — the hooks stay silent instead</td>
 </tr>
 <tr>
 <td>report without repairing</td>

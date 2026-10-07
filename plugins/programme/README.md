@@ -123,6 +123,21 @@ writing, and a `planned` phase's work is sometimes cheaper taken now — which i
 A dedicated file rather than `settings.json`: the gate list is structured, which rules out `env`, and
 unknown keys in `settings.json` are not a contract worth relying on.
 
+## Which programme a session is in, and what the `Stop` guard counts
+
+The hooks resolve the programme from the directory the session is **working in** — a worktree
+resolves its own branch's programme — in this order: a programme pinned by `/programme:resume
+<name>` (or `init`/`handoff`) earlier in the session; a `PROGRAMME_SLUG` environment variable; the
+**one** open `INDEX.md` row whose branch is the current branch; the only open programme. When
+several open programmes share the branch, nothing is assumed: `SessionStart` names them and says how
+to pick, and the `Stop` and `PreCompact` hooks stay silent.
+
+The `Stop` guard counts what **this session** changed: commits since it started, and working-tree
+changes measured against a fingerprint of the dirt that was already there when it began. It warns
+once per session, to the model as well as to you — one extra turn — and the model may answer that
+the work is not programme work. A user-only warning was tried first; measured in an adopting repo,
+it never once led to a ledger write.
+
 ## When NOT to use it
 
 This fits multi-session programme work with a running thread — the kind where a session would ever
@@ -142,7 +157,7 @@ silently — a repo that hasn't opted in feels nothing.
 - **A session journal.** The ledger already serves that role — it's written at each checkpoint, not
   only at session end.
 - **A `SessionEnd` warning.** By session end the model can no longer act and the record most in need
-  of saving is already lost — a scolding, not a save. The `Stop` guard, latched to fire once, catches
+  of saving is already lost — a scolding, not a save. The `Stop` guard, latched to fire once and addressed to the model, catches
   the same lapse while the work is still fresh enough to act on.
 - **A `ledger-discipline` skill.** It had no moment where it was the only thing loaded: editing the
   ledger requires reading it, and the header is right there. It was also the largest source of
@@ -193,6 +208,7 @@ across a compaction boundary is open (the live-run checklist's Question 2, in th
 | promotion before close               | `deferred.md` header      | prose — that file's lifecycle               |
 | verify against the tree              | `commands/resume.md`      | procedure                                   |
 | resolve which programme is active    | `commands/resume.md`      | procedure — the others defer to it          |
+| resolve a shared branch by asking    | `commands/resume.md`      | procedure — the hooks stay silent instead   |
 | report without repairing             | `commands/status.md`      | procedure                                   |
 | the five interview questions         | `commands/handoff.md`     | procedure                                   |
 
