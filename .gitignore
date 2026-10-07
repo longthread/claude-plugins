@@ -1,1 +1,9 @@
 node_modules/
+
+# Local-only working docs: plans, specs and Claude/agent state live on the author's machine, not in
+# the public marketplace.
+plans/
+.claude/
+.superpowers/
+CLAUDE.md
+CLAUDE.local.md
