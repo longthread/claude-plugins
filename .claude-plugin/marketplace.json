@@ -11,6 +11,12 @@
       "description": "Durable ledger, interviewed handoff, and a stale-ledger guard for multi-session programme work.",
       "category": "productivity",
       "source": "./plugins/programme"
+    },
+    {
+      "name": "herdr-sessions",
+      "description": "pane:, tab: and sessions: triggers for Claude Code inside Herdr (app or TUI), driven by Herdr's own manuals.",
+      "category": "productivity",
+      "source": "./plugins/herdr-sessions"
     }
   ]
 }

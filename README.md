@@ -13,6 +13,7 @@ context window.
 | plugin                            | what it does                                                                                                                                                                         |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [`programme`](plugins/programme/) | Carries a multi-session programme across session boundaries: a durable ledger, an interviewed handoff, and a guard that fires when a session changes code without moving the record. |
+| [`herdr-sessions`](plugins/herdr-sessions/) | Inside Herdr (app or TUI): `pane:`, `tab:` and `sessions:` open Claude Code sessions beside this one or talk to the ones already running. |
 
 ## Layout
 

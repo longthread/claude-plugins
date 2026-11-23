@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" class="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>herdr-sessions changelog — longthread</title>
+<meta name="description" content="What changed in each release of herdr-sessions.">
+<meta property="og:title" content="herdr-sessions changelog — longthread">
+<meta property="og:description" content="What changed in each release of herdr-sessions.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0e1426">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230e1426'/><path d='M5 16h8M19 16h8' stroke='%23c8964a' stroke-width='2.5' stroke-linecap='round'/><circle cx='16' cy='16' r='1.6' fill='%23c8964a'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.23f21504.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <a class="wordmark" href="/"><b>long</b><span>—</span>thread</a>
+    <nav>
+      <a href="/#plugins">Plugins</a>
+      <a href="https://github.com/longthread/claude-plugins">GitHub</a>
+    </nav>
+  </header>
+
+  <header class="detail-head">
+    <a class="back" href="/herdr-sessions">← herdr-sessions</a>
+    <h1>Changelog</h1>
+    <p class="tagline">Every release of herdr-sessions, newest first. Currently 0.1.0.</p>
+  </header>
+  <div class="brk" aria-hidden="true"></div>
+
+  <section class="band">
+    <article class="prose">
+<blockquote>
+<p><strong>What changed in each release, for someone deciding whether to upgrade.</strong> Not a commit log — a
+reader here already has the plugin installed and wants to know what will be different afterwards.
+The writing rules are in <code>templates/CHANGELOG.md</code> at the repo root.</p>
+</blockquote>
+<h2>0.1.0 — 2026-11-22</h2>
+<h3>Added</h3>
+<ul>
+<li><strong><code>pane:</code>, <code>tab:</code> and <code>sessions:</code> triggers inside Herdr</strong> — start a message with one to open a new
+Claude Code session in a split or a background tab beside this one, or to find and message the
+sessions already running. Nothing opens or is messaged without one of these triggers.</li>
+<li><strong>Works in the Herdr app and the Herdr TUI</strong> — a SessionStart hook works out which one the session
+is in and points Claude at that Herdr&#39;s own manuals, so the plugin carries no Herdr command syntax.</li>
+<li><strong>Commands that drive Herdr themselves still work</strong> — a slash command or skill you invoke that
+itself says to open, close or message Herdr panes counts as the trigger for exactly those steps.</li>
+</ul>
+
+    </article>
+  </section>
+
+  <footer class="foot">
+    <span>plugins.longthread.dev</span>
+    <span>MIT · <a href="https://github.com/longthread/claude-plugins">longthread/claude-plugins</a></span>
+  </footer>
+</div>
+</body>
+</html>
