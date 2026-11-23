@@ -143,7 +143,8 @@ The ledger and `NEXT-SESSION.md` are already written; the relay carries nothing 
 mode is the one step 2 read.
 
 **Stop instead of relaying** when any of these holds — leave this pane as it is and, in supervised
-or autonomous mode, notify the user through the herdr skill with the reason:
+or autonomous mode, notify the user through the herdr skill with the reason (in the Herdr app, see
+its notification rule below):
 
 - a gate failed in step 1;
 - a phase closed in this handoff, and the mode is `assisted` or `supervised`;
@@ -164,11 +165,12 @@ tell the user that its shell still carries this programme's relay variables, and
 starting Claude there by hand they should run `unset PROGRAMME_SLUG PROGRAMME_RELAY`.
 
 **Before any pane is opened, this session must itself be in a herdr pane** — `HERDR_ENV` is `1`
-and `HERDR_PANE_ID` is non-empty, as the command below printed them. If not, this session is not in a herdr pane:
+and `HERDR_PANE_ID` is non-empty, as the command below printed them — **or in a Herdr app terminal**:
+`HC_TERMINAL_ID` is non-empty, as printed. If neither, this session is not in a herdr pane:
 print assisted's commands for this handoff instead and say so.
 
 **assisted** — print, for the user to run: `/clear`, then `/programme:resume <SLUG>`. If this
-session is in a herdr pane, also offer to open the next session — and only on a yes, open it in a
+session is in a herdr pane, or in a Herdr app terminal, also offer to open the next session — and only on a yes, open it in a
 pane as supervised's steps 1–4 do, after its dependency check; assisted never closes a pane.
 
 **supervised, autonomous** — run the herdr dependency check `/programme:mode` states. If it fails,
@@ -197,6 +199,34 @@ is. Otherwise, using the herdr skill:
    without an explicit pane id. Relay 0's pane is the one the user started the chain in: never
    close it, and never close any other pane.
 
+**In the Herdr app** — `HC_TERMINAL_ID` printed and the TUI's pair not — the same steps 1–5 hold,
+done with `herdr-app` (what the user sees) and `hc` (the terminals) in place of the herdr skill. Read
+`herdr-app --skill` and `hc --skill` first and work out every command from them. The skill handled
+these for the TUI; in the app they are yours:
+
+- **Find this session's own pane first**: the pane holding `$HC_TERMINAL_ID` in `herdr-app`'s
+  listing. Split that pane by its id. Never act on the focused pane — the user may be looking at
+  another tab.
+- **The new pane has no folder or environment of its own to set**: start it with a command that
+  changes to the tree's top, sets `PROGRAMME_SLUG` and `PROGRAMME_RELAY`, then starts Claude with
+  the permission mode step 2 states. Name its terminal `prog-<SLUG>-<that number>` where the manuals
+  allow it.
+- **The successor must outlive this session**: never start it as a child that ends when this
+  session's pane closes — an `hc` child does, unless it is started to outlive its parent.
+- **Watch for the line before you send**: a wait for output sees only what is printed after the wait
+  starts, so start it before sending `/programme:resume <SLUG>`, or pass that as Claude's first
+  message. If the wait ends without the line, read the successor's screen before deciding; a
+  `blocked` state is step 4's blocked.
+- **Step 4's "Never answer the dialog" outranks the manuals**: `hc`'s manual explains how to key
+  through a trust dialog; send no keys to the successor, ever.
+- **Notifying the user**: use whatever the manuals offer for it. If they offer nothing, the report's
+  last line is the notification, here and wherever `/programme:resume` says to notify.
+- **Step 5's close guard reads the printed `HC_TERMINAL_ID`** in place of `HERDR_PANE_ID`, and adds
+  one check: before closing, read the successor's state and confirm it will not end with this
+  terminal — it has no parent here, or it is set to outlive it. If you cannot confirm that, leave
+  both panes open and say why. Otherwise, with `PROGRAMME_RELAY` 1 or more, close the pane found
+  first, by its id, as your very last action.
+
 What this session recorded, and which relay it is:
 
 ```bash
@@ -205,4 +235,5 @@ sed -n '/^permission_mode=/p' "$f" 2>/dev/null
 echo "PROGRAMME_RELAY=${PROGRAMME_RELAY:-0}"
 echo "HERDR_ENV=${HERDR_ENV:-}"
 echo "HERDR_PANE_ID=${HERDR_PANE_ID:-}"
+echo "HC_TERMINAL_ID=${HC_TERMINAL_ID:-}"
 ```

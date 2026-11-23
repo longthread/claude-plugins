@@ -4,6 +4,26 @@
 > reader here already has the plugin installed and wants to know what will be different afterwards.
 > The writing rules are in `templates/CHANGELOG.md` at the repo root.
 
+## 0.5.0 — 2026-11-22
+
+**Nothing to do to upgrade.** Programmes relaying in the Herdr TUI behave exactly as in 0.4.0.
+
+### Added
+
+- **Supervised and autonomous now relay in the Herdr app too, not only the Herdr TUI** — a session in
+  a Herdr app terminal opens the next one in a split beside its own pane, using `herdr-app` and `hc`
+  and their manuals. The TUI is still checked first, so a TUI running inside the app uses the TUI
+  path. Before closing its own pane, an app relay confirms the new session won't end with it, and
+  leaves both panes open if it can't.
+- **`/programme:mode` checks the app's own dependencies** — `herdr-app` and `hc` installed, their
+  manuals readable, and the window listing this session's terminal.
+
+### Changed
+
+- **In the Herdr app a relay may not be able to notify you** — today's app manuals offer no
+  notification command, so a stop's reason may be only the report's last line. Check the pane if an
+  autonomous chain goes quiet.
+
 ## 0.4.0 — 2026-10-07
 
 **Nothing to do to upgrade.** A programme with no `mode` in `INDEX.md` is `assisted`, which behaves

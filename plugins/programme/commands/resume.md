@@ -70,7 +70,7 @@ cell wins):
 - **assisted, supervised** — ask whether to proceed.
 - **autonomous** — proceed into `Start here` without asking. If drift left the next step ambiguous,
   stop, state the reason as the report's last line, and notify the user through the herdr skill
-  instead of guessing.
+  (in the Herdr app, as `/programme:handoff`'s app section says) instead of guessing.
 
 ## Autonomous: when to hand off
 

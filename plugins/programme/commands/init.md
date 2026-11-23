@@ -101,7 +101,7 @@ Do not write a placeholder position. Ask, and write the answers in:
    Gates table, filling the `trust` column. Ask for the flake rate where there is one.
 8. **Which mode — `assisted`, `supervised` or `autonomous`?** Default `assisted`. In one line each:
    assisted — the user approves each handoff and starts each session; supervised — each handoff
-   opens the next session in a herdr pane, and every session still asks before working; autonomous
+   opens the next session in a herdr pane (the Herdr TUI or app), and every session still asks before working; autonomous
    — the chain runs itself until something stops it. For supervised or autonomous, run the herdr
    dependency check `/programme:mode` states; if it fails, keep `assisted` and say which check
    failed. Write the answer into the programme's `mode` cell in `INDEX.md`.

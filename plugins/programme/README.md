@@ -1,8 +1,68 @@
 # programme
 
-A Claude Code plugin that carries multi-session work across session boundaries: a durable ledger, a
-pointer that teaches a session when to write to it, an interviewed handoff, and a guard that fires
-when a session changes code without moving the record.
+Lets a long project pick up where the last Claude Code session left off, instead of starting from
+scratch each time.
+
+## The problem it solves
+
+Claude Code forgets everything when a session ends. On a project that takes many sessions, the next
+one re-reads the code to work out where you were, argues again about decisions you already made, and
+loses lessons learned the hard way.
+
+**programme** keeps a short notes file in your repo, the _ledger_. Every session reads it first and
+updates it before it ends, so the next session starts where the last one stopped.
+
+## How you use it
+
+1. `/programme:init my-feature` — once, at the start. Creates the notes files under
+   `docs/programmes/my-feature/` and asks a few questions: what's the goal, how will you know it's
+   done, and what are the phases.
+2. Work as usual. If a session changes code but never updates the notes, Claude gets one
+   reminder before it stops.
+3. `/programme:handoff` — at the end of a session. Claude checks git and your tests itself, then asks
+   what you measured, what went wrong, and what in the notes is no longer true. It fixes the notes
+   and writes the next session's to-do.
+4. `/programme:resume` — at the start of the next session. Claude reads the notes and re-runs the
+   checks to confirm the numbers still hold, before it changes anything.
+5. `/programme:status` — any time. Shows where things stand and what has drifted. It changes nothing.
+6. `/programme:mode my-feature supervised` — optional. In _supervised_ or _autonomous_ mode, handoff
+   opens the next session for you in a [Herdr](https://herdr.dev) pane (the Herdr app or the
+   Herdr TUI). Supervised asks before it works;
+   autonomous keeps going until something needs you.
+
+<!-- site:figures -->
+
+## Words you'll see
+
+| word               | meaning                                                                                                                        |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| programme          | One long-running piece of work, such as a migration or a feature built over many sessions. A repo can have several.            |
+| ledger             | `ledger.md`, the notes file: where you are, what was decided and why, and what's left. Kept under about 250 lines.             |
+| arc                | The top of the ledger: the goal, plus a list of phases marked done, current or planned.                                        |
+| terminal condition | How you'll know a phase is done, written as a command and the output you expect, for example `npm test` → `0 failing`.         |
+| gate               | A check the project must pass, such as tests or lint, with a note on how far it can be trusted.                                |
+| deferred           | Work you chose to put off. A programme can't be closed while any is still open.                                                |
+| mode               | _assisted_ (the default: you start each session), _supervised_ or _autonomous_ (handoff starts the next session in Herdr).     |
+
+## Is it for you?
+
+- **A good fit:** work with one running thread that spans many sessions, where you'd otherwise ask
+  "where were we?"
+- **Not a fit:** a stream of unrelated tickets. The notes would go stale, and stale notes mislead more
+  than no notes. `/programme:init` asks before setting up for this reason.
+
+## Install
+
+```
+/plugin marketplace add longthread/claude-plugins
+/plugin install programme@longthread
+```
+
+---
+
+## Reference
+
+The design notes, configuration and edge cases, for when you need the detail.
 
 ## What it is
 
@@ -41,7 +101,7 @@ own upkeep, and the pointer that carries the cadence — giving a new repo in mi
 source repo several sessions to grow on its own. The commands are conveniences layered on top of
 that artifact, not the mechanism itself.
 
-## Install
+## Install details
 
 ```
 /plugin marketplace add longthread/claude-plugins
@@ -64,7 +124,7 @@ want while developing — give `marketplace add` the path to the **marketplace**
 you gave. Point it at a clone that stays put — never at a directory inside a repo whose branch you
 switch, or the plugin vanishes globally on the first checkout that predates it.
 
-## The five commands
+## The commands in detail
 
 - **`/programme:init <name>`** — bootstraps a programme: copies the templates into
   `docs/programmes/<slug>/`, adds a row to `docs/programmes/INDEX.md`, installs the `CLAUDE.md`
@@ -155,12 +215,14 @@ interview is put to you, and whether a handoff starts the next session itself.
 | relay point       | assisted                                               | supervised                        | autonomous                                |
 | ----------------- | ------------------------------------------------------ | --------------------------------- | ----------------------------------------- |
 | handoff interview | drafted with evidence; you edit it                     | you're asked only the unevidenced | evidenced answers only; the rest left out |
-| the next session  | printed for you to start (a pane offered inside herdr) | opened in a herdr pane            | opened in a herdr pane                    |
+| the next session  | printed for you to start (a pane offered inside Herdr) | opened in a Herdr pane            | opened in a Herdr pane                    |
 | after it resumes  | asks to proceed                                        | asks to proceed                   | proceeds; hands off by itself             |
 | a phase closes    | stop                                                   | stop                              | continue                                  |
 
-Supervised and autonomous need [herdr](https://herdr.dev) and its skill; they do every herdr step
-through that skill, so this plugin carries no herdr code of its own. A relayed session gets the
+Supervised and autonomous need [Herdr](https://herdr.dev): the TUI (`herdr`) and its skill, or the
+app (`herdr-app` + `hc`) and their manuals. They do every Herdr step through those, so this plugin
+carries no Herdr code of its own. If the app's manuals offer no way to notify, a stop's reason is the
+report's last line and nothing else. A relayed session gets the
 same permission mode as the one that handed off, and only a pane the relay opened is ever closed,
 and only once the successor's `Resumed programme` line has appeared (it prints that as soon as it
 has resolved the programme and started) — the pane you started the chain in, relay 0's, never is.
@@ -249,6 +311,7 @@ across a compaction boundary is open (the live-run checklist's Question 2, in th
 | when an autonomous session hands off             | `commands/resume.md`                         | procedure                                   |
 | relay stop conditions, the cap                   | `commands/handoff.md`                        | procedure                                   |
 | which pane a relay may close                     | `commands/handoff.md`                        | procedure                                   |
+| the Herdr app relay rules, and its notification  | `commands/handoff.md`                        | procedure — `resume.md` defers to it        |
 | what the `mode` column means, and how to read it | `templates/INDEX.md`                         | prose — its header comment                  |
 
 `fix shape` appears in two tables — `deferred.md` and `deferred-work.md` — because deferred work has

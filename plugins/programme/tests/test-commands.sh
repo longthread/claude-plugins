@@ -223,4 +223,28 @@ for other in "$INIT" "$RESUME" "$HANDOFF" "$STATUS"; do
   assert_not_contains "$other" "herdr status" "the server check lives only in mode.md"
 done
 
+# --- the Herdr app path (0.5.0), beside the untouched TUI path ---
+assert_contains "$MODE" "checked first, because a TUI started inside an app terminal inherits" "mode: the TUI is detected before the app"
+assert_contains "$MODE" "command -v herdr-app" "mode: app check 1, the binaries"
+assert_contains "$MODE" "herdr-app --skill\` and \`hc --skill\` both print their manuals" "mode: app check 2, the manuals"
+assert_contains "$MODE" "lists this session's terminal, \`\$HC_TERMINAL_ID\`" "mode: app check 3, the window knows this terminal"
+assert_contains "$HANDOFF" "**or in a Herdr app terminal**" "handoff: an app terminal may relay"
+assert_contains "$HANDOFF" "echo \"HC_TERMINAL_ID=\${HC_TERMINAL_ID:-}\"" "handoff: the snippet prints HC_TERMINAL_ID"
+assert_contains "$HANDOFF" "Never act on the focused pane" "handoff: app splits this session's own pane by id"
+assert_contains "$HANDOFF" "The successor must outlive this session" "handoff: app successor is not a child that dies with this pane"
+assert_contains "$HANDOFF" "start it before sending" "handoff: app waits before it sends"
+assert_contains "$HANDOFF" "If they offer nothing, the report's last line is the notification" "handoff: app notifications fall back to the last line"
+assert_contains "$HANDOFF" "confirm it will not end with this terminal" "handoff: app close waits on proof the successor survives"
+assert_contains "$HANDOFF" "If you cannot confirm that, leave both panes open" "handoff: app close is refused when survival is unproven"
+assert_contains "$HANDOFF" "send no keys to the successor, ever" "handoff: app never keys through a dialog"
+assert_contains "$RESUME" "as \`/programme:handoff\`'s app section says" "resume: defers the app notification rule to handoff"
+assert_not_contains "$RESUME" "last line is the notification" "the app notification rule lives only in handoff.md"
+assert_contains "$HANDOFF" "Step 5's close guard reads the printed \`HC_TERMINAL_ID\`" "handoff: app close guard reads the printed id"
+for other in "$INIT" "$RESUME" "$STATUS" "$MODE"; do
+  assert_not_contains "$other" "The successor must outlive this session" "the app relay rules live only in handoff.md"
+done
+for other in "$INIT" "$RESUME" "$HANDOFF" "$STATUS"; do
+  assert_not_contains "$other" "command -v herdr-app" "the app binary check lives only in mode.md"
+done
+
 finish
