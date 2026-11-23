@@ -8,7 +8,8 @@
   --ink-sink: #0a0f1d;
   --rule: #26304c;
   --paper: #e9e6de;
-  --muted: #8e99b8;
+  --muted: #a3adc8;
+  --body: #d3d6df;
   --thread: #c8964a;
   --thread-lit: #e8b96a;
 
@@ -16,7 +17,7 @@
   --sans: "IBM Plex Sans", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
 
-  --measure: 34rem;
+  --measure: 38rem;
   --gutter: clamp(1.25rem, 5vw, 4rem);
   --rail-w: clamp(1.5rem, 4vw, 3.25rem);
 }
@@ -370,7 +371,7 @@ button:focus-visible {
 
 .band > p {
   max-width: var(--measure);
-  color: var(--muted);
+  color: var(--body);
   text-wrap: pretty;
 }
 .band > p strong {
@@ -431,8 +432,8 @@ button:focus-visible {
 }
 .plugins .blurb {
   grid-column: 1 / -1;
-  color: var(--muted);
-  font-size: 0.9375rem;
+  color: var(--body);
+  font-size: 1rem;
   max-width: 54ch;
   text-wrap: pretty;
 }
@@ -867,3 +868,146 @@ button:focus-visible {
     display: none;
   }
 }
+
+/* ── plain-language explainer ─────────────────────────────────────────── */
+
+.band > p code,
+.steps p code,
+.plugins code {
+  font-family: var(--mono);
+  font-size: 0.875em;
+  color: var(--thread-lit);
+}
+
+.plugins .when,
+.plugins .eg {
+  grid-column: 1 / -1;
+  font-size: 0.9375rem;
+  color: var(--body);
+}
+.plugins .when b,
+.plugins .eg b {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 0.5rem;
+}
+.plugins .eg {
+  margin-top: 0.25rem;
+}
+
+/* Each step: the exact thing you type, then one short paragraph of what happens. */
+.steps,
+.guide ol {
+  list-style: none;
+  counter-reset: step;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  max-width: 46rem;
+}
+.steps li,
+.guide ol > li {
+  counter-increment: step;
+  position: relative;
+  padding: 1.1rem 1.25rem 1.1rem 3.25rem;
+  background: var(--ink-rise);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+.steps li::before,
+.guide ol > li::before {
+  content: counter(step);
+  position: absolute;
+  left: 1.1rem;
+  top: 1.05rem;
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  color: var(--thread);
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 1px solid var(--thread);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.steps .type,
+.guide ol > li > code:first-child {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.9375rem;
+  color: var(--paper);
+  background: var(--ink-sink);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  overflow-wrap: anywhere;
+}
+.steps .type.aside {
+  color: var(--muted);
+  font-style: italic;
+  background: none;
+  border-style: dashed;
+}
+.steps p {
+  margin: 0.6rem 0 0;
+  color: var(--body);
+  text-wrap: pretty;
+}
+
+/* The README stays on the page for anyone who needs the detail, but folded away. */
+.ref {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  max-width: 48rem;
+}
+.ref summary {
+  cursor: pointer;
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+  list-style-position: inside;
+}
+.ref summary span {
+  display: block;
+  font-weight: 400;
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin: 0.2rem 0 0 1.1rem;
+}
+.ref[open] summary {
+  border-bottom: 1px solid var(--rule);
+}
+.ref .prose {
+  padding: 0 1.25rem 2rem;
+}
+
+/* the herdr window figure */
+.fig .win { fill: var(--ink-sink); stroke: var(--rule); stroke-width: 1.5; }
+.fig .div { stroke: var(--rule); stroke-width: 1.5; }
+.fig .tabon { fill: var(--ink-rise); stroke: var(--thread); stroke-width: 1; }
+.fig .taboff { fill: none; stroke: var(--rule); stroke-width: 1; stroke-dasharray: 3 3; }
+.fig .tabt { font-family: var(--mono); font-size: 12px; fill: var(--muted); }
+.fig .tabt.on { fill: var(--paper); }
+.fig .note { font-family: var(--mono); font-size: 11px; fill: var(--thread); }
+.fig .ph { font-family: var(--mono); font-size: 11px; fill: var(--muted); letter-spacing: 0.04em; }
+.fig .ph.lit { fill: var(--thread-lit); }
+.fig .you { font-family: var(--mono); font-size: 13px; fill: var(--paper); }
+.fig .dim { font-family: var(--mono); font-size: 12px; fill: var(--muted); }
+
+@media (max-width: 40rem) {
+  .steps li,
+  .guide ol > li { padding-left: 2.9rem; }
+}
+
+/* README guides: the first heading of a band needs no rule above it, and a guide's numbered list
+   reads as steps, its leading code span as the thing you type. */
+.guide { padding-bottom: 0; }
+.guide > h2:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+.guide ol > li { margin: 0; color: var(--body); }
+.guide ol > li > code:first-child { margin-right: 0.35rem; }
+
+.detail-head .tagline code { font-family: var(--mono); font-size: 0.8em; color: var(--thread-lit); }

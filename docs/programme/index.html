@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.23f21504.css">
+<link rel="stylesheet" href="/style.fdc95f62.css">
 </head>
 <body>
 <div class="wrap">
@@ -28,21 +28,48 @@
   <header class="detail-head">
     <a class="back" href="/">← all plugins</a>
     <h1>programme</h1>
-    <p class="tagline">A Claude Code plugin that carries multi-session work across session boundaries: a durable ledger, a pointer that teaches a session when to write to it, an interviewed handoff, and a guard that fires when a session changes code without moving the record.</p>
+    <p class="tagline">Lets a long project pick up where the last Claude Code session left off, instead of starting from scratch each time.</p>
     <div class="install">
       <code class="cmd">plugin install programme@longthread</code>
       <a class="changelog-link" href="/programme/changelog">Changelog →</a>
     </div>
   </header>
 
-  <div class="brk" aria-hidden="true"></div>
+  <section class="band">
+    <article class="prose guide">
+<h2>The problem it solves</h2>
+<p>Claude Code forgets everything when a session ends. On a project that takes many sessions, the next
+one re-reads the code to work out where you were, argues again about decisions you already made, and
+loses lessons learned the hard way.</p>
+<p><strong>programme</strong> keeps a short notes file in your repo, the <em>ledger</em>. Every session reads it first and
+updates it before it ends, so the next session starts where the last one stopped.</p>
+<h2>How you use it</h2>
+<ol>
+<li><code>/programme:init my-feature</code> — once, at the start. Creates the notes files under
+<code>docs/programmes/my-feature/</code> and asks a few questions: what&#39;s the goal, how will you know it&#39;s
+done, and what are the phases.</li>
+<li>Work as usual. If a session changes code but never updates the notes, Claude gets one
+reminder before it stops.</li>
+<li><code>/programme:handoff</code> — at the end of a session. Claude checks git and your tests itself, then asks
+what you measured, what went wrong, and what in the notes is no longer true. It fixes the notes
+and writes the next session&#39;s to-do.</li>
+<li><code>/programme:resume</code> — at the start of the next session. Claude reads the notes and re-runs the
+checks to confirm the numbers still hold, before it changes anything.</li>
+<li><code>/programme:status</code> — any time. Shows where things stand and what has drifted. It changes nothing.</li>
+<li><code>/programme:mode my-feature supervised</code> — optional. In <em>supervised</em> or <em>autonomous</em> mode, handoff
+opens the next session for you in a <a href="https://herdr.dev">Herdr</a> pane (the Herdr app or the
+Herdr TUI). Supervised asks before it works;
+autonomous keeps going until something needs you.</li>
+</ol>
+
+    </article>
+  </section>
 
   <section class="band">
-    <p class="eyebrow">How it works</p>
-    <h2>One file crosses the boundary the context can't</h2>
-    <p><code>/programme:handoff</code> interviews you and writes the ledger at the end of a thread.
-      <code>/programme:resume</code> reads it at the start of the next one. Neither depends on
-      anything surviving in the window.</p>
+    <p class="eyebrow">The idea in one picture</p>
+    <h2>The notes outlive every session</h2>
+    <p>Each session's memory (top line) ends when the session ends. The notes file (bottom line)
+      doesn't. The commands only ever write it or read it.</p>
     <div class="fig" role="img" aria-label="Across three sessions: /programme:init runs once at the start, /programme:handoff at the end of each session, /programme:resume at the start of the next. The upper context line breaks between sessions; the ledger.md line beneath it runs unbroken, and every command attaches to it.">
 <svg viewBox="0 0 900 186" preserveAspectRatio="xMidYMid meet">
   <text class="tick" x="235" y="32" text-anchor="middle">session 1</text><text class="tick" x="501" y="32" text-anchor="middle">session 2</text><text class="tick" x="767" y="32" text-anchor="middle">session 3</text>
@@ -71,17 +98,13 @@
   <line class="ledger" x1="130" y1="152" x2="872" y2="152"/>
 </svg>
 </div>
-    <p class="cap"><code>/programme:status</code> reads the same files any time and writes nothing —
-      a status that quietly repairs the record can't tell you whether the record is honest.</p>
   </section>
 
-  <div class="brk" aria-hidden="true"></div>
-
   <section class="band">
-    <p class="eyebrow">What it creates</p>
-    <h2>Six markdown files and one pointer</h2>
-    <p>No database, no service, nothing to run. Plain files in your repo, reviewed in pull requests
-      and read by anyone — the model included.</p>
+    <p class="eyebrow">What it adds to your repo</p>
+    <h2>A few plain markdown files</h2>
+    <p>No database or service, and nothing to run. They're ordinary files you can read, edit and
+      review in pull requests.</p>
     <div class="fig tree">
     <span class="p"><i></i>your-repo/</span><span class="n"></span>
     <span class="p"><i>├── </i>CLAUDE.md</span><span class="n">the pointer — when to write, and what outranks what</span>
@@ -98,13 +121,12 @@
 </div>
   </section>
 
-  <div class="brk" aria-hidden="true"></div>
-
   <section class="band">
-    <p class="eyebrow">Why it doesn't just go stale</p>
-    <h2>Every figure carries the command that re-derives it</h2>
-    <p>A number that was true when it was written is not evidence. So the record stores the check
-      beside the claim, and resuming <strong>runs</strong> it rather than believing it.</p>
+    <p class="eyebrow">Why the notes stay true</p>
+    <h2>Every number comes with the command that checks it</h2>
+    <p>A number written last week may be wrong today. So next to each number the notes keep the
+      command that produces it, and <code>/programme:resume</code> <strong>runs</strong> that command
+      instead of trusting the number.</p>
     <div class="fig verify">
   <p class="file">NEXT-SESSION.md</p>
   <div class="vtable">
@@ -116,16 +138,67 @@
   <p class="vflow"><span class="arm"></span>resume runs the third column, then compares<span class="arm"></span></p>
   <p class="pills"><span class="ok">ok</span><span class="drift">DRIFTED</span></p>
 </div>
-    <p class="cap">In the repo this was extracted from, one commit is titled
-      <em>“correct the ahead-of-origin claim, which went stale as it was written.”</em> That figure
-      is now recorded as a range, because no document can state its own push state truthfully.</p>
   </section>
 
-  <div class="brk" aria-hidden="true"></div>
+  <section class="band">
+    <article class="prose guide">
+<h2>Words you&#39;ll see</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>word</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>programme</td>
+<td>One long-running piece of work, such as a migration or a feature built over many sessions. A repo can have several.</td>
+</tr>
+<tr>
+<td>ledger</td>
+<td><code>ledger.md</code>, the notes file: where you are, what was decided and why, and what&#39;s left. Kept under about 250 lines.</td>
+</tr>
+<tr>
+<td>arc</td>
+<td>The top of the ledger: the goal, plus a list of phases marked done, current or planned.</td>
+</tr>
+<tr>
+<td>terminal condition</td>
+<td>How you&#39;ll know a phase is done, written as a command and the output you expect, for example <code>npm test</code> → <code>0 failing</code>.</td>
+</tr>
+<tr>
+<td>gate</td>
+<td>A check the project must pass, such as tests or lint, with a note on how far it can be trusted.</td>
+</tr>
+<tr>
+<td>deferred</td>
+<td>Work you chose to put off. A programme can&#39;t be closed while any is still open.</td>
+</tr>
+<tr>
+<td>mode</td>
+<td><em>assisted</em> (the default: you start each session), <em>supervised</em> or <em>autonomous</em> (handoff starts the next session in Herdr).</td>
+</tr>
+</tbody></table>
+</div><h2>Is it for you?</h2>
+<ul>
+<li><strong>A good fit:</strong> work with one running thread that spans many sessions, where you&#39;d otherwise ask
+&quot;where were we?&quot;</li>
+<li><strong>Not a fit:</strong> a stream of unrelated tickets. The notes would go stale, and stale notes mislead more
+than no notes. <code>/programme:init</code> asks before setting up for this reason.</li>
+</ul>
+<h2>Install</h2>
+<pre><code>/plugin marketplace add longthread/claude-plugins
+/plugin install programme@longthread
+</code></pre>
+
+    </article>
+  </section>
 
   <section class="band">
-    <p class="eyebrow">Reference</p>
-    <article class="prose">
+    <details class="ref">
+      <summary>Full reference <span>design notes, configuration and edge cases</span></summary>
+      <article class="prose">
+<p>The design notes, configuration and edge cases, for when you need the detail.</p>
 <h2>What it is</h2>
 <p>Long-running work spans many sessions. Each one ends with context exhausted and its findings in
 scrollback; the next re-derives position from the code, repeats settled decisions, and loses the
@@ -180,7 +253,7 @@ precedence rule. This plugin&#39;s first job is to install those two things — 
 own upkeep, and the pointer that carries the cadence — giving a new repo in minutes what took the
 source repo several sessions to grow on its own. The commands are conveniences layered on top of
 that artifact, not the mechanism itself.</p>
-<h2>Install</h2>
+<h2>Install details</h2>
 <pre><code>/plugin marketplace add longthread/claude-plugins
 /plugin install programme@longthread
 </code></pre>
@@ -195,7 +268,7 @@ want while developing — give <code>marketplace add</code> the path to the <str
 <p><strong>A local marketplace is read in place, never copied.</strong> The recorded <code>installLocation</code> is the path
 you gave. Point it at a clone that stays put — never at a directory inside a repo whose branch you
 switch, or the plugin vanishes globally on the first checkout that predates it.</p>
-<h2>The five commands</h2>
+<h2>The commands in detail</h2>
 <ul>
 <li><strong><code>/programme:init &lt;name&gt;</code></strong> — bootstraps a programme: copies the templates into
 <code>docs/programmes/&lt;slug&gt;/</code>, adds a row to <code>docs/programmes/INDEX.md</code>, installs the <code>CLAUDE.md</code>
@@ -287,9 +360,9 @@ interview is put to you, and whether a handoff starts the next session itself.</
 </tr>
 <tr>
 <td>the next session</td>
-<td>printed for you to start (a pane offered inside herdr)</td>
-<td>opened in a herdr pane</td>
-<td>opened in a herdr pane</td>
+<td>printed for you to start (a pane offered inside Herdr)</td>
+<td>opened in a Herdr pane</td>
+<td>opened in a Herdr pane</td>
 </tr>
 <tr>
 <td>after it resumes</td>
@@ -304,8 +377,10 @@ interview is put to you, and whether a handoff starts the next session itself.</
 <td>continue</td>
 </tr>
 </tbody></table>
-</div><p>Supervised and autonomous need <a href="https://herdr.dev">herdr</a> and its skill; they do every herdr step
-through that skill, so this plugin carries no herdr code of its own. A relayed session gets the
+</div><p>Supervised and autonomous need <a href="https://herdr.dev">Herdr</a>: the TUI (<code>herdr</code>) and its skill, or the
+app (<code>herdr-app</code> + <code>hc</code>) and their manuals. They do every Herdr step through those, so this plugin
+carries no Herdr code of its own. If the app&#39;s manuals offer no way to notify, a stop&#39;s reason is the
+report&#39;s last line and nothing else. A relayed session gets the
 same permission mode as the one that handed off, and only a pane the relay opened is ever closed,
 and only once the successor&#39;s <code>Resumed programme</code> line has appeared (it prints that as soon as it
 has resolved the programme and started) — the pane you started the chain in, relay 0&#39;s, never is.
@@ -495,6 +570,11 @@ across a compaction boundary is open (the live-run checklist&#39;s Question 2, i
 <td>procedure</td>
 </tr>
 <tr>
+<td>the Herdr app relay rules, and its notification</td>
+<td><code>commands/handoff.md</code></td>
+<td>procedure — <code>resume.md</code> defers to it</td>
+</tr>
+<tr>
 <td>what the <code>mode</code> column means, and how to read it</td>
 <td><code>templates/INDEX.md</code></td>
 <td>prose — its header comment</td>
@@ -512,7 +592,8 @@ maintainer who opens only one of the two files can still find the door.</p>
 evidence: <code>docs/tooling/2026-08-12-session-continuity-plugin-design.md</code> in the repo this plugin was
 extracted from.</p>
 
-    </article>
+      </article>
+    </details>
   </section>
 
   <footer class="foot">

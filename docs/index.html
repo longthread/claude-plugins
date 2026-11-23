@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.23f21504.css">
+<link rel="stylesheet" href="/style.fdc95f62.css">
 </head>
 <body>
 <div class="wrap">
@@ -27,8 +27,8 @@
 
   <section class="hero">
     <h1>Sessions end.<br>The work <em>doesn't.</em></h1>
-    <p class="lede">Claude Code plugins for projects that outlast a single context window — so the
-      next session reads where you were instead of working it out again from the code.</p>
+    <p class="lede">Free plugins for Claude Code that help with work too big for one session: keeping
+      notes the next session can trust, and running several sessions side by side.</p>
     <div class="thread" role="img" aria-label="A thread across three sessions. Each session is a solid run; between them the line goes dashed where the context ends, but never breaks.">
 <svg viewBox="0 0 720 92" preserveAspectRatio="xMidYMid meet">
   <line class="run draw" x1="10" y1="46" x2="190" y2="46" style="--len:180px;animation-delay:0s"/><line class="gap draw" x1="190" y1="46" x2="250" y2="46" style="animation-delay:0.45s"/><line class="run draw" x1="250" y1="46" x2="430" y2="46" style="--len:180px;animation-delay:0.6s"/><line class="gap draw" x1="430" y1="46" x2="490" y2="46" style="animation-delay:1.05s"/><line class="run draw" x1="490" y1="46" x2="706" y2="46" style="--len:216px;animation-delay:1.2s"/>
@@ -37,29 +37,40 @@
   <text class="tick" x="100" y="72" text-anchor="middle" style="animation-delay:0.3s">session 1</text><text class="tick" x="340" y="72" text-anchor="middle" style="animation-delay:0.9s">session 2</text><text class="tick" x="598" y="72" text-anchor="middle" style="animation-delay:1.5s">session 3</text>
 </svg>
 </div>
-    <div class="install">
-      <code class="cmd">plugin marketplace add longthread/claude-plugins</code>
-    </div>
   </section>
 
   <section class="band" id="plugins">
     <p class="eyebrow">Plugins</p>
+    <h2>Pick the one you need</h2>
     <ul class="plugins">
       <li><a href="/programme/">
         <span class="name">programme</span>
-        <span class="ver">v0.4.0</span>
-        <span class="go" aria-hidden="true">→</span>
-        <span class="blurb">Durable ledger, interviewed handoff, and a stale-ledger guard for multi-session programme work.</span>
-        <span class="cmds"><em>/programme:init</em><em>/programme:resume</em><em>/programme:handoff</em><em>/programme:status</em><em>/programme:mode</em></span>
+        <span class="ver">v0.5.0</span>
+        <span class="go" aria-hidden="true">Read more →</span>
+        <span class="blurb">Lets a long project pick up where the last Claude Code session left off, instead of starting from scratch each time.</span>
+        <span class="when"><b>Good fit</b> work with one running thread that spans many sessions, where you&#39;d otherwise ask &quot;where were we?&quot;</span>
+        <span class="eg"><b>You type</b> <code>/programme:init my-feature</code></span>
       </a></li>
       <li><a href="/herdr-sessions/">
         <span class="name">herdr-sessions</span>
         <span class="ver">v0.1.0</span>
-        <span class="go" aria-hidden="true">→</span>
-        <span class="blurb">pane:, tab: and sessions: triggers for Claude Code inside Herdr (app or TUI), driven by Herdr's own manuals.</span>
-        <span class="cmds"></span>
+        <span class="go" aria-hidden="true">Read more →</span>
+        <span class="blurb">Inside Herdr, open another Claude Code session beside this one, or message sessions that are already running, by starting your message with <code>pane:</code>, <code>tab:</code> or <code>sessions:</code>.</span>
+        <span class="when"><b>Good fit</b> you run Claude Code inside the Herdr app or the Herdr TUI.</span>
+        <span class="eg"><b>You type</b> <code>pane: run the tests and fix failures</code></span>
       </a></li>
     </ul>
+  </section>
+
+  <section class="band">
+    <p class="eyebrow">Install</p>
+    <h2>Two commands in Claude Code</h2>
+    <ol class="steps">
+      <li><code class="type">/plugin marketplace add longthread/claude-plugins</code>
+        <p>Once. Adds this collection to Claude Code.</p></li>
+      <li><code class="type">/plugin install &lt;name&gt;@longthread</code>
+        <p>For each plugin you want, for example <code>/plugin install programme@longthread</code>. It takes effect in your next session.</p></li>
+    </ol>
   </section>
 
   <footer class="foot">

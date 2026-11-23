@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.23f21504.css">
+<link rel="stylesheet" href="/style.fdc95f62.css">
 </head>
 <body>
 <div class="wrap">
@@ -47,8 +47,10 @@ Claude Code session in a split or a background tab beside this one, or to find a
 sessions already running. Nothing opens or is messaged without one of these triggers.</li>
 <li><strong>Works in the Herdr app and the Herdr TUI</strong> — a SessionStart hook works out which one the session
 is in and points Claude at that Herdr&#39;s own manuals, so the plugin carries no Herdr command syntax.</li>
-<li><strong>Commands that drive Herdr themselves still work</strong> — a slash command or skill you invoke that
-itself says to open, close or message Herdr panes counts as the trigger for exactly those steps.</li>
+<li><strong>Commands that drive Herdr themselves still work</strong> — a slash command or skill you invoke, or one
+running in a chain you started with one, that itself says to open, read, message or close Herdr
+panes counts as the trigger for exactly those steps, and only on its own pane and the panes that
+chain opened.</li>
 </ul>
 
     </article>

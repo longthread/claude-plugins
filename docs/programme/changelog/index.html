@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.23f21504.css">
+<link rel="stylesheet" href="/style.fdc95f62.css">
 </head>
 <body>
 <div class="wrap">
@@ -28,7 +28,7 @@
   <header class="detail-head">
     <a class="back" href="/programme">← programme</a>
     <h1>Changelog</h1>
-    <p class="tagline">Every release of programme, newest first. Currently 0.4.0.</p>
+    <p class="tagline">Every release of programme, newest first. Currently 0.5.0.</p>
   </header>
   <div class="brk" aria-hidden="true"></div>
 
@@ -39,6 +39,24 @@
 reader here already has the plugin installed and wants to know what will be different afterwards.
 The writing rules are in <code>templates/CHANGELOG.md</code> at the repo root.</p>
 </blockquote>
+<h2>0.5.0 — 2026-11-22</h2>
+<p><strong>Nothing to do to upgrade.</strong> Programmes relaying in the Herdr TUI behave exactly as in 0.4.0.</p>
+<h3>Added</h3>
+<ul>
+<li><strong>Supervised and autonomous now relay in the Herdr app too, not only the Herdr TUI</strong> — a session in
+a Herdr app terminal opens the next one in a split beside its own pane, using <code>herdr-app</code> and <code>hc</code>
+and their manuals. The TUI is still checked first, so a TUI running inside the app uses the TUI
+path. Before closing its own pane, an app relay confirms the new session won&#39;t end with it, and
+leaves both panes open if it can&#39;t.</li>
+<li><strong><code>/programme:mode</code> checks the app&#39;s own dependencies</strong> — <code>herdr-app</code> and <code>hc</code> installed, their
+manuals readable, and the window listing this session&#39;s terminal.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>In the Herdr app a relay may not be able to notify you</strong> — today&#39;s app manuals offer no
+notification command, so a stop&#39;s reason may be only the report&#39;s last line. Check the pane if an
+autonomous chain goes quiet.</li>
+</ul>
 <h2>0.4.0 — 2026-10-07</h2>
 <p><strong>Nothing to do to upgrade.</strong> A programme with no <code>mode</code> in <code>INDEX.md</code> is <code>assisted</code>, which behaves
 as 0.3.0 did apart from the drafted interview and the printed next-session commands. An unknown or

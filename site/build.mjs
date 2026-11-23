@@ -80,6 +80,7 @@ const plugins = market.plugins.map((p) => {
     blurb: p.description,
     tagline,
     commands,
+    readme,
     md: body.replace(/^[\s\S]*?\n\n/, ""),
   };
 });
@@ -271,44 +272,99 @@ ${VERIFY.map(
   <p class="pills"><span class="ok">ok</span><span class="drift">DRIFTED</span></p>
 </div>`;
 
+/* A Herdr window: this session on the left, the split `pane:` opens on the right, and the
+   background tab `tab:` opens in the strip above. Shows where each trigger puts the new session. */
+const herdrWindow = () => `<div class="fig" role="img" aria-label="A Herdr window. The left pane is your session, where you typed 'pane: run the tests and fix failures'. A new Claude Code session has opened in a split on the right. In the tab strip above, a second tab named 'docs' was opened in the background by a 'tab:' message. Your cursor stays in the left pane.">
+<svg viewBox="0 0 900 300" preserveAspectRatio="xMidYMid meet">
+  <rect class="win" x="40" y="20" width="820" height="260" rx="8"/>
+  <rect class="tabon" x="56" y="32" width="120" height="26" rx="4"/>
+  <text class="tabt on" x="116" y="49" text-anchor="middle">work</text>
+  <rect class="taboff" x="184" y="32" width="120" height="26" rx="4"/>
+  <text class="tabt" x="244" y="49" text-anchor="middle">docs</text>
+  <text class="note" x="316" y="49">← opened by tab: (in the background)</text>
+  <line class="div" x1="40" y1="70" x2="860" y2="70"/>
+  <line class="div" x1="450" y1="70" x2="450" y2="280"/>
+  <text class="ph" x="62" y="100">this session · your cursor stays here</text>
+  <text class="you" x="62" y="140">› pane: run the tests and fix failures</text>
+  <text class="dim" x="62" y="170">Opened "tests" beside this one.</text>
+  <text class="dim" x="62" y="192">Back to what we were doing…</text>
+  <text class="ph lit" x="472" y="100">new session · opened by pane:</text>
+  <text class="dim" x="472" y="140">› You are in ~/project. Run the test</text>
+  <text class="dim" x="472" y="162">  suite, fix what fails, and report</text>
+  <text class="dim" x="472" y="184">  what you changed.</text>
+</svg>
+</div>`;
+
 const FIGURES = {
   programme: () => `
-  <div class="brk" aria-hidden="true"></div>
-
   <section class="band">
-    <p class="eyebrow">How it works</p>
-    <h2>One file crosses the boundary the context can't</h2>
-    <p><code>/programme:handoff</code> interviews you and writes the ledger at the end of a thread.
-      <code>/programme:resume</code> reads it at the start of the next one. Neither depends on
-      anything surviving in the window.</p>
+    <p class="eyebrow">The idea in one picture</p>
+    <h2>The notes outlive every session</h2>
+    <p>Each session's memory (top line) ends when the session ends. The notes file (bottom line)
+      doesn't. The commands only ever write it or read it.</p>
     ${lifecycle()}
-    <p class="cap"><code>/programme:status</code> reads the same files any time and writes nothing —
-      a status that quietly repairs the record can't tell you whether the record is honest.</p>
   </section>
 
-  <div class="brk" aria-hidden="true"></div>
-
   <section class="band">
-    <p class="eyebrow">What it creates</p>
-    <h2>Six markdown files and one pointer</h2>
-    <p>No database, no service, nothing to run. Plain files in your repo, reviewed in pull requests
-      and read by anyone — the model included.</p>
+    <p class="eyebrow">What it adds to your repo</p>
+    <h2>A few plain markdown files</h2>
+    <p>No database or service, and nothing to run. They're ordinary files you can read, edit and
+      review in pull requests.</p>
     ${tree()}
   </section>
 
-  <div class="brk" aria-hidden="true"></div>
-
   <section class="band">
-    <p class="eyebrow">Why it doesn't just go stale</p>
-    <h2>Every figure carries the command that re-derives it</h2>
-    <p>A number that was true when it was written is not evidence. So the record stores the check
-      beside the claim, and resuming <strong>runs</strong> it rather than believing it.</p>
+    <p class="eyebrow">Why the notes stay true</p>
+    <h2>Every number comes with the command that checks it</h2>
+    <p>A number written last week may be wrong today. So next to each number the notes keep the
+      command that produces it, and <code>/programme:resume</code> <strong>runs</strong> that command
+      instead of trusting the number.</p>
     ${verify()}
-    <p class="cap">In the repo this was extracted from, one commit is titled
-      <em>“correct the ahead-of-origin claim, which went stale as it was written.”</em> That figure
-      is now recorded as a range, because no document can state its own push state truthfully.</p>
   </section>
 `,
+  "herdr-sessions": () => `
+  <section class="band">
+    <p class="eyebrow">The idea in one picture</p>
+    <h2>Where each trigger puts the new session</h2>
+    <p><code>pane:</code> opens a split beside you. <code>tab:</code> opens a tab you don't switch
+      to. Either way your cursor stays where it was.</p>
+    ${herdrWindow()}
+  </section>
+`,
+};
+
+/* A README's top half is the plain-language guide and renders as the page; everything from
+   `## Reference` down is the detail and folds away. `<!-- site:figures -->` marks where a plugin's
+   diagrams go. The README is the only source, so the page and GitHub can't disagree. */
+for (const p of plugins) {
+  const i = p.md.search(/^## Reference\s*$/m);
+  p.guide = (i < 0 ? p.md : p.md.slice(0, i)).replace(/\n---\s*$/, "");
+  p.ref = i < 0 ? "" : p.md.slice(i).replace(/^## Reference\s*\n/, "");
+  // A command with no mention in the guide is one a newcomer would never learn about.
+  for (const c of p.commands)
+    if (!p.guide.includes(`/${p.name}:${c}`))
+      throw new Error(`${p.slug}/README.md's guide (above ## Reference) never mentions /${p.name}:${c}`);
+  // The home page card: the first thing you'd type, and who it's for, both read from the guide.
+  p.example = (p.guide.match(/^1\. `([^`]+)`/m) || [])[1];
+  p.when = (p.guide.match(/\*\*A good fit:\*\*\s*([\s\S]*?)(?:\n- |\n\n|$)/) || [])[1]?.replace(/\s+/g, " ");
+}
+
+const inline = (md) => marked.parseInline(md);
+const noLinks = (html) => html.replace(/<\/?a\b[^>]*>/g, "");
+
+const guideBands = (p) => {
+  const [before, after = ""] = p.guide.split("<!-- site:figures -->");
+  const band = (md) =>
+    md.trim()
+      ? `
+  <section class="band">
+    <article class="prose guide">
+${marked.parse(md, { renderer })}
+    </article>
+  </section>
+`
+      : "";
+  return band(before) + (FIGURES[p.slug] ? FIGURES[p.slug]() : "") + band(after);
 };
 
 /* ── pages ───────────────────────────────────────────────────────────────────────────────────── */
@@ -319,31 +375,43 @@ const index = shell({
   main: `
   <section class="hero">
     <h1>Sessions end.<br>The work <em>doesn't.</em></h1>
-    <p class="lede">Claude Code plugins for projects that outlast a single context window — so the
-      next session reads where you were instead of working it out again from the code.</p>
+    <p class="lede">Free plugins for Claude Code that help with work too big for one session: keeping
+      notes the next session can trust, and running several sessions side by side.</p>
     ${thread()}
-    <div class="install">
-      <code class="cmd">plugin marketplace add longthread/claude-plugins</code>
-    </div>
   </section>
 
   <section class="band" id="plugins">
     <p class="eyebrow">Plugins</p>
+    <h2>Pick the one you need</h2>
     <ul class="plugins">
       ${plugins
         .map(
           (p) => `<li><a href="/${p.slug}/">
         <span class="name">${esc(p.name)}</span>
         <span class="ver">v${esc(p.version)}</span>
-        <span class="go" aria-hidden="true">→</span>
-        <span class="blurb">${esc(p.blurb)}</span>
-        <span class="cmds">${p.commands
-          .map((c) => `<em>/${esc(p.name)}:${esc(c)}</em>`)
-          .join("")}</span>
+        <span class="go" aria-hidden="true">Read more →</span>
+        <span class="blurb">${noLinks(inline(p.tagline))}</span>${
+          p.when ? `
+        <span class="when"><b>Good fit</b> ${noLinks(inline(p.when))}</span>` : ""
+        }${
+          p.example ? `
+        <span class="eg"><b>You type</b> <code>${esc(p.example)}</code></span>` : ""
+        }
       </a></li>`,
         )
         .join("\n      ")}
     </ul>
+  </section>
+
+  <section class="band">
+    <p class="eyebrow">Install</p>
+    <h2>Two commands in Claude Code</h2>
+    <ol class="steps">
+      <li><code class="type">/plugin marketplace add longthread/claude-plugins</code>
+        <p>Once. Adds this collection to Claude Code.</p></li>
+      <li><code class="type">/plugin install &lt;name&gt;@${esc(market.name)}</code>
+        <p>For each plugin you want, for example <code>/plugin install ${esc(plugins[0].name)}@${esc(market.name)}</code>. It takes effect in your next session.</p></li>
+    </ol>
   </section>
 `,
 });
@@ -382,21 +450,21 @@ for (const p of plugins) {
   <header class="detail-head">
     <a class="back" href="/">← all plugins</a>
     <h1>${esc(p.name)}</h1>
-    <p class="tagline">${esc(p.tagline)}</p>
+    <p class="tagline">${inline(p.tagline)}</p>
     <div class="install">
       <code class="cmd">plugin install ${esc(p.name)}@${esc(market.name)}</code>
 ${p.changelog ? `      <a class="changelog-link" href="/${p.slug}/changelog">Changelog \u2192</a>` : ""}
     </div>
   </header>
-${FIGURES[p.slug] ? FIGURES[p.slug]() : ""}
-  <div class="brk" aria-hidden="true"></div>
-
+${guideBands(p)}
   <section class="band">
-    <p class="eyebrow">Reference</p>
-    <article class="prose">
-${marked.parse(p.md, { renderer })}
-    </article>
-  </section>
+${p.ref ? `    <details class="ref">
+      <summary>Full reference <span>design notes, configuration and edge cases</span></summary>
+      <article class="prose">
+${marked.parse(p.ref, { renderer })}
+      </article>
+    </details>
+  </section>` : "  </section>"}
 `,
     }),
   );
