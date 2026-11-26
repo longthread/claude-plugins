@@ -175,7 +175,9 @@ pane as supervised's steps 1–4 do, after its dependency check; assisted never 
 
 **supervised, autonomous** — run the herdr dependency check `/programme:mode` states. If it fails,
 print assisted's commands for this handoff instead, say which check failed, and leave the mode as it
-is. Otherwise, using the herdr skill:
+is. **A failed check ends the relay: never open the successor some other way** — not with another
+Herdr command, and not by working a route out of a manual the check did not pass. Otherwise, using
+the herdr skill:
 
 1. open a new pane beside this one, in this tab, at the top of the tree whose ledger you just wrote
    (`git rev-parse --show-toplevel` from there), with `PROGRAMME_SLUG=<SLUG>` and
@@ -199,7 +201,7 @@ is. Otherwise, using the herdr skill:
    without an explicit pane id. Relay 0's pane is the one the user started the chain in: never
    close it, and never close any other pane.
 
-**In the Herdr app** — `HC_TERMINAL_ID` printed and the TUI's pair not — the same steps 1–5 hold,
+**In the Herdr app** — as `/programme:mode` decides which Herdr this is — the same steps 1–5 hold,
 done with `herdr-app` (what the user sees) and `hc` (the terminals) in place of the herdr skill. Read
 `herdr-app --skill` and `hc --skill` first and work out every command from them. The skill handled
 these for the TUI; in the app they are yours:
@@ -226,6 +228,23 @@ these for the TUI; in the app they are yours:
   terminal — it has no parent here, or it is set to outlive it. If you cannot confirm that, leave
   both panes open and say why. Otherwise, with `PROGRAMME_RELAY` 1 or more, close the pane found
   first, by its id, as your very last action.
+
+**On a Herdr core without the app** — as `/programme:mode` decides it: a devcontainer or other
+machine the Herdr window shows, with `hc` but no `herdr-app` — steps 1–4 hold, done with `hc` alone.
+Read `hc --skill` first and work out every command from it. The app section's rules on the
+successor outliving this session, watching for the line before you send, never sending keys, and
+notifying the user all apply here too. In addition:
+
+- **The window shows the successor only through labels**: start its terminal carrying this
+  session's own `herdr.space` and `herdr.tab` labels — read them from
+  `hc get "$HC_TERMINAL_ID" --json` — so it opens as a split in this session's tab. Never start it
+  without both: an unlabelled terminal runs where nobody can see it.
+- **Start it in the tree's top and with the relay variables**: `hc` sets the working folder; the
+  command it runs sets `PROGRAMME_SLUG` and `PROGRAMME_RELAY` and starts Claude with the permission
+  mode step 2 states. Name the terminal `prog-<SLUG>-<that number>`.
+- **Step 5 here closes nothing**: without `herdr-app` there is no way to close a pane by its id.
+  Once the line has appeared, notify the user that relay `<that number>` resumed and that this pane
+  stays open for them to close; never end this session's own terminal to make it go away.
 
 What this session recorded, and which relay it is:
 

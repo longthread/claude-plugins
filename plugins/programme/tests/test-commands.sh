@@ -247,4 +247,18 @@ for other in "$INIT" "$RESUME" "$HANDOFF" "$STATUS"; do
   assert_not_contains "$other" "command -v herdr-app" "the app binary check lives only in mode.md"
 done
 
+# --- a Herdr core without the app (0.5.1): a devcontainer the window shows, hc only ---
+assert_contains "$MODE" "on a core without the app if it" "mode: no herdr-app with HC_TERMINAL_ID is the core path"
+assert_contains "$MODE" "carrying both a \`herdr.space\` and a" "mode: core check 3, the window labels"
+assert_contains "$MODE" "decides which Herdr this session is in by this paragraph" "mode: homes the detection"
+assert_contains "$HANDOFF" "**A failed check ends the relay: never open the successor some other way**" \
+  "handoff: a failed check is never worked around"
+assert_contains "$HANDOFF" "**On a Herdr core without the app**" "handoff: has a core section"
+assert_contains "$HANDOFF" "an unlabelled terminal runs where nobody can see it" "handoff: core successor always carries the window labels"
+assert_contains "$HANDOFF" "**Step 5 here closes nothing**" "handoff: core never closes a pane"
+assert_contains "$HANDOFF" "never end this session's own terminal" "handoff: core never kills itself to close"
+for other in "$INIT" "$RESUME" "$STATUS" "$MODE"; do
+  assert_not_contains "$other" "Step 5 here closes nothing" "the core relay rules live only in handoff.md"
+done
+
 finish

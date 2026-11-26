@@ -28,7 +28,7 @@
   <header class="detail-head">
     <a class="back" href="/programme">← programme</a>
     <h1>Changelog</h1>
-    <p class="tagline">Every release of programme, newest first. Currently 0.5.0.</p>
+    <p class="tagline">Every release of programme, newest first. Currently 0.5.1.</p>
   </header>
   <div class="brk" aria-hidden="true"></div>
 
@@ -39,6 +39,22 @@
 reader here already has the plugin installed and wants to know what will be different afterwards.
 The writing rules are in <code>templates/CHANGELOG.md</code> at the repo root.</p>
 </blockquote>
+<h2>0.5.1 — 2026-11-26</h2>
+<p><strong>Nothing to do to upgrade.</strong> Relays in the Herdr TUI and the Herdr app behave as in 0.5.0.</p>
+<h3>Added</h3>
+<ul>
+<li><strong>Supervised and autonomous relay inside a devcontainer</strong> — a container added to the Herdr app as
+a machine has <code>hc</code> but no <code>herdr-app</code>. A relay there now opens the next session as a split in its
+own tab through <code>hc</code>, so it shows in the window. <code>/programme:mode</code> checks that this session
+carries the labels the window needs. A container relay closes no panes; each one it leaves stays
+open for you to close.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li><strong>A relay whose Herdr check fails now stops</strong> — before, a session in a container could find
+<code>herdr-app</code> missing and still open the next session another way, in whatever permission mode it
+had. Now a failed check ends the relay and prints the commands for you to run.</li>
+</ul>
 <h2>0.5.0 — 2026-11-22</h2>
 <p><strong>Nothing to do to upgrade.</strong> Programmes relaying in the Herdr TUI behave exactly as in 0.4.0.</p>
 <h3>Added</h3>

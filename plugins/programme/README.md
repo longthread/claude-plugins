@@ -26,8 +26,8 @@ updates it before it ends, so the next session starts where the last one stopped
    checks to confirm the numbers still hold, before it changes anything.
 5. `/programme:status` — any time. Shows where things stand and what has drifted. It changes nothing.
 6. `/programme:mode my-feature supervised` — optional. In _supervised_ or _autonomous_ mode, handoff
-   opens the next session for you in a [Herdr](https://herdr.dev) pane (the Herdr app or the
-   Herdr TUI). Supervised asks before it works;
+   opens the next session for you in a [Herdr](https://herdr.dev) pane (the Herdr app, the
+   Herdr TUI, or a devcontainer the app shows). Supervised asks before it works;
    autonomous keeps going until something needs you.
 
 <!-- site:figures -->
@@ -220,8 +220,11 @@ interview is put to you, and whether a handoff starts the next session itself.
 | a phase closes    | stop                                                   | stop                              | continue                                  |
 
 Supervised and autonomous need [Herdr](https://herdr.dev): the TUI (`herdr`) and its skill, or the
-app (`herdr-app` + `hc`) and their manuals. They do every Herdr step through those, so this plugin
-carries no Herdr code of its own. If the app's manuals offer no way to notify, a stop's reason is the
+app (`herdr-app` + `hc`) and their manuals, or — in a devcontainer or other machine the app shows,
+where only `hc` is installed — `hc` and its manual. They do every Herdr step through those, so this
+plugin carries no Herdr code of its own. If the check fails, the relay stops and prints the commands
+for you; it never finds another way to open the next session. In a container a relay can't close
+panes, so each one it leaves stays open for you to close. If the app's manuals offer no way to notify, a stop's reason is the
 report's last line and nothing else. A relayed session gets the
 same permission mode as the one that handed off, and only a pane the relay opened is ever closed,
 and only once the successor's `Resumed programme` line has appeared (it prints that as soon as it

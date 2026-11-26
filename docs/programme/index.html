@@ -57,8 +57,8 @@ and writes the next session&#39;s to-do.</li>
 checks to confirm the numbers still hold, before it changes anything.</li>
 <li><code>/programme:status</code> — any time. Shows where things stand and what has drifted. It changes nothing.</li>
 <li><code>/programme:mode my-feature supervised</code> — optional. In <em>supervised</em> or <em>autonomous</em> mode, handoff
-opens the next session for you in a <a href="https://herdr.dev">Herdr</a> pane (the Herdr app or the
-Herdr TUI). Supervised asks before it works;
+opens the next session for you in a <a href="https://herdr.dev">Herdr</a> pane (the Herdr app, the
+Herdr TUI, or a devcontainer the app shows). Supervised asks before it works;
 autonomous keeps going until something needs you.</li>
 </ol>
 
@@ -378,8 +378,11 @@ interview is put to you, and whether a handoff starts the next session itself.</
 </tr>
 </tbody></table>
 </div><p>Supervised and autonomous need <a href="https://herdr.dev">Herdr</a>: the TUI (<code>herdr</code>) and its skill, or the
-app (<code>herdr-app</code> + <code>hc</code>) and their manuals. They do every Herdr step through those, so this plugin
-carries no Herdr code of its own. If the app&#39;s manuals offer no way to notify, a stop&#39;s reason is the
+app (<code>herdr-app</code> + <code>hc</code>) and their manuals, or — in a devcontainer or other machine the app shows,
+where only <code>hc</code> is installed — <code>hc</code> and its manual. They do every Herdr step through those, so this
+plugin carries no Herdr code of its own. If the check fails, the relay stops and prints the commands
+for you; it never finds another way to open the next session. In a container a relay can&#39;t close
+panes, so each one it leaves stays open for you to close. If the app&#39;s manuals offer no way to notify, a stop&#39;s reason is the
 report&#39;s last line and nothing else. A relayed session gets the
 same permission mode as the one that handed off, and only a pane the relay opened is ever closed,
 and only once the successor&#39;s <code>Resumed programme</code> line has appeared (it prints that as soon as it

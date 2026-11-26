@@ -4,6 +4,24 @@
 > reader here already has the plugin installed and wants to know what will be different afterwards.
 > The writing rules are in `templates/CHANGELOG.md` at the repo root.
 
+## 0.5.1 — 2026-11-26
+
+**Nothing to do to upgrade.** Relays in the Herdr TUI and the Herdr app behave as in 0.5.0.
+
+### Added
+
+- **Supervised and autonomous relay inside a devcontainer** — a container added to the Herdr app as
+  a machine has `hc` but no `herdr-app`. A relay there now opens the next session as a split in its
+  own tab through `hc`, so it shows in the window. `/programme:mode` checks that this session
+  carries the labels the window needs. A container relay closes no panes; each one it leaves stays
+  open for you to close.
+
+### Fixed
+
+- **A relay whose Herdr check fails now stops** — before, a session in a container could find
+  `herdr-app` missing and still open the next session another way, in whatever permission mode it
+  had. Now a failed check ends the relay and prints the commands for you to run.
+
 ## 0.5.0 — 2026-11-22
 
 **Nothing to do to upgrade.** Programmes relaying in the Herdr TUI behave exactly as in 0.4.0.
