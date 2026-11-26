@@ -28,7 +28,7 @@
   <header class="detail-head">
     <a class="back" href="/herdr-sessions">← herdr-sessions</a>
     <h1>Changelog</h1>
-    <p class="tagline">Every release of herdr-sessions, newest first. Currently 0.1.0.</p>
+    <p class="tagline">Every release of herdr-sessions, newest first. Currently 0.1.1.</p>
   </header>
   <div class="brk" aria-hidden="true"></div>
 
@@ -39,6 +39,19 @@
 reader here already has the plugin installed and wants to know what will be different afterwards.
 The writing rules are in <code>templates/CHANGELOG.md</code> at the repo root.</p>
 </blockquote>
+<h2>0.1.1 — 2026-11-26</h2>
+<h3>Fixed</h3>
+<ul>
+<li><strong><code>pane:</code>, <code>tab:</code> and <code>sessions:</code> work inside a devcontainer</strong> — a container added to Herdr as a
+machine has only <code>hc</code>, not <code>herdr-app</code>, and Claude used to be pointed at a manual that wasn&#39;t
+there. Now it opens the new session through <code>hc</code>, so it appears as a tab or a split in that
+machine&#39;s space. If no Herdr command is on the path at all, Claude tells you the triggers are
+unavailable instead of trying.</li>
+<li><strong>A container session no longer says a host session doesn&#39;t exist</strong> — from inside a container,
+<code>hc</code> sees only the machines added there, which usually leaves out the host. When a <code>sessions:</code>
+request names something it can&#39;t see, Claude now says it may be out of reach and lists the
+machines it can reach.</li>
+</ul>
 <h2>0.1.0 — 2026-11-22</h2>
 <h3>Added</h3>
 <ul>

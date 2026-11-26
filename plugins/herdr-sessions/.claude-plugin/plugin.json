@@ -1,6 +1,6 @@
 {
   "name": "herdr-sessions",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Open Claude Code sessions in Herdr panes/tabs and talk to other sessions, only on explicit pane:/tab:/sessions: triggers. Detects herdr-app vs herdr TUI and reads Herdr's own manuals for the commands.",
   "author": {
     "name": "Srinath Janakiraman"

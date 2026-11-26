@@ -4,6 +4,20 @@
 > reader here already has the plugin installed and wants to know what will be different afterwards.
 > The writing rules are in `templates/CHANGELOG.md` at the repo root.
 
+## 0.1.1 — 2026-11-26
+
+### Fixed
+
+- **`pane:`, `tab:` and `sessions:` work inside a devcontainer** — a container added to Herdr as a
+  machine has only `hc`, not `herdr-app`, and Claude used to be pointed at a manual that wasn't
+  there. Now it opens the new session through `hc`, so it appears as a tab or a split in that
+  machine's space. If no Herdr command is on the path at all, Claude tells you the triggers are
+  unavailable instead of trying.
+- **A container session no longer says a host session doesn't exist** — from inside a container,
+  `hc` sees only the machines added there, which usually leaves out the host. When a `sessions:`
+  request names something it can't see, Claude now says it may be out of reach and lists the
+  machines it can reach.
+
 ## 0.1.0 — 2026-11-22
 
 ### Added

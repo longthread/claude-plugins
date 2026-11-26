@@ -126,6 +126,10 @@ instead of answering for it.</li>
 </div><h2>Is it for you?</h2>
 <ul>
 <li><strong>A good fit:</strong> you run Claude Code inside the Herdr app or the Herdr TUI.</li>
+<li><strong>Also a fit:</strong> a devcontainer added to Herdr as a machine. Only <code>hc</code> is inside it, but all three
+triggers still work: new sessions show up as tabs or splits in that machine&#39;s space. <code>sessions:</code>
+there reaches only the machines added inside the container; to reach the host&#39;s sessions too,
+add the host as a machine there (<code>hc machine add</code>).</li>
 <li><strong>Not a fit:</strong> anywhere else. Outside Herdr the plugin does nothing at all.</li>
 </ul>
 <h2>Install</h2>
@@ -162,8 +166,15 @@ instead of answering for it.</li>
 <td>app</td>
 <td><code>herdr-app --skill</code> for panes and tabs, <code>hc --skill</code> for sessions</td>
 </tr>
+<tr>
+<td><code>HC_TERMINAL_ID</code>, <code>hc</code> but no <code>herdr-app</code></td>
+<td>core only (e.g. a devcontainer)</td>
+<td><code>hc --skill</code>; panes and tabs via the <code>herdr.space</code> / <code>herdr.tab</code> labels</td>
+</tr>
 </tbody></table>
-</div><p>The TUI is checked first: a TUI started inside an app terminal inherits <code>HC_TERMINAL_ID</code> too.</p>
+</div><p>The TUI is checked first: a TUI started inside an app terminal inherits <code>HC_TERMINAL_ID</code> too. Each
+row also needs its commands on <code>PATH</code>; when they&#39;re missing the hook says the triggers are
+unavailable here, rather than pointing at a manual that isn&#39;t installed.</p>
 <p>The plugin carries <strong>no Herdr command syntax</strong>. Herdr changes often and ships version-matched
 manuals, so the plugin holds only what the manuals can&#39;t know: when to act, what each trigger must
 produce (e.g. <code>pane:</code> is a visible split, not a background child), and guardrails — target this

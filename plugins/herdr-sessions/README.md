@@ -48,6 +48,10 @@ opens or messages another session.
 ## Is it for you?
 
 - **A good fit:** you run Claude Code inside the Herdr app or the Herdr TUI.
+- **Also a fit:** a devcontainer added to Herdr as a machine. Only `hc` is inside it, but all three
+  triggers still work: new sessions show up as tabs or splits in that machine's space. `sessions:`
+  there reaches only the machines added inside the container; to reach the host's sessions too,
+  add the host as a machine there (`hc machine add`).
 - **Not a fit:** anywhere else. Outside Herdr the plugin does nothing at all.
 
 ## Install
@@ -72,8 +76,11 @@ One `SessionStart` hook. Outside Herdr it prints nothing. Inside, it adds a shor
 | --- | --- | --- |
 | `HERDR_ENV=1` and `HERDR_PANE_ID` | TUI | the `herdr` skill (installed by `herdr integration install claude`), then `herdr <group>` help |
 | `HC_TERMINAL_ID` | app | `herdr-app --skill` for panes and tabs, `hc --skill` for sessions |
+| `HC_TERMINAL_ID`, `hc` but no `herdr-app` | core only (e.g. a devcontainer) | `hc --skill`; panes and tabs via the `herdr.space` / `herdr.tab` labels |
 
-The TUI is checked first: a TUI started inside an app terminal inherits `HC_TERMINAL_ID` too.
+The TUI is checked first: a TUI started inside an app terminal inherits `HC_TERMINAL_ID` too. Each
+row also needs its commands on `PATH`; when they're missing the hook says the triggers are
+unavailable here, rather than pointing at a manual that isn't installed.
 
 The plugin carries **no Herdr command syntax**. Herdr changes often and ships version-matched
 manuals, so the plugin holds only what the manuals can't know: when to act, what each trigger must
